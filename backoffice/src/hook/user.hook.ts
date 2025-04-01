@@ -1,40 +1,48 @@
 import { useEffect, useState } from "react";
-import { User } from "../interface/IUser";
-import userService from "../service/UserService";
+import userService from "../service/userService";
 
-interface userFormData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  level: string;
-}
+import type { User } from "../interface/IUser";
+import type { UserFormData } from "../interface/IUser";
 
 const useUser = () => {
   const [users, setUsers] = useState<User[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
 
   useEffect(() => {
-    fetchUser();
-  }, []);
+    fetchUser(currentPage, totalPage);
+  }, [currentPage]);
 
-  const fetchUser = async () => {
-    const data = await userService.getAllUsers();
+  const fetchUser = async (page: number, totalPage: number) => {
+    const data = await userService.getAllUsers(page, totalPage);
     if (data.users) {
+      console.log(data);
+
       setUsers(data.users);
     }
   };
 
-  const createUser = async (payload: userFormData) => {
+  const createUser = async (payload: UserFormData) => {
     const data = await userService.createUser(payload);
     return data;
   };
 
   const removeUser = async (id: string) => {
     const data = await userService.removeUser(id);
+    fetchUser(currentPage, totalPage);
     return data;
   };
 
-  return { users, createUser, removeUser };
+  return {
+    users,
+    currentPage,
+    totalPage,
+    setCurrentPage,
+    setTotalPage,
+    createUser,
+    fetchUser,
+    removeUser,
+  };
 };
 
 export default useUser;

@@ -1,10 +1,26 @@
-const { Products } = require("../models/productModel");
+const { Products, Categories } = require("../models/productModel");
 const errorHandler = require("../utils/error");
 
 exports.getAllProduct = async (req, res, next) => {
   try {
-    const products = await Products.find();
-    res.status(200).json({ message: "success", products: products });
+    let { page, limit } = req.body;
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const products = await Products.find().skip(skip).limit(limit);
+    const totalProducts = await Products.countDocuments();
+
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    res.status(200).json({
+      message: "success",
+      page: {
+        totalPage: totalPages,
+        currentPage: page,
+      },
+      products: products,
+    });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
   }
@@ -12,22 +28,25 @@ exports.getAllProduct = async (req, res, next) => {
 
 exports.createProduct = async (req, res, next) => {
   try {
-    const { name, cost, price } = req.body;
+    const { name, cost, categoryName, price } = req.body;
 
     const existingProduct = await Products.findOne({ name });
     if (existingProduct) {
       return res.status(409).json({ message: "Product already exits" });
     }
 
+    const category = await Categories.findOne({ name: categoryName });
+
     const newProduct = new Products({
       name,
       cost,
       price,
+      categoryId: category.id,
     });
 
     await newProduct.save();
 
-    res.status(200).json({ message: "success", products: newProduct });
+    res.status(200).json({ message: "success" });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
   }
@@ -73,5 +92,3 @@ exports.removeProduct = async (req, res, next) => {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
   }
 };
-
-

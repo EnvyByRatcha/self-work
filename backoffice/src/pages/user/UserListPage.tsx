@@ -2,10 +2,12 @@ import TitleBox from "../../components/common/TitleBox";
 import ContentBox from "../../components/common/ContentBox";
 import LinkButton from "../../components/common/LinkButton";
 import useUser from "../../hook/user.hook";
-import UserTable from "../../components/table/UserTable";
+import { Pagination } from "@mui/material";
+import GenericTable from "../../components/table/GenericTable";
+import { userColumns } from "../../constants/userColumns";
 
 const UserListPage = () => {
-  const { users, removeUser } = useUser();
+  const { users, totalPage, setCurrentPage, removeUser } = useUser();
 
   const handleRemoveUser = (id: string) => {
     removeUser(id).then((data) => {
@@ -20,7 +22,22 @@ const UserListPage = () => {
       <TitleBox title={"User list"} />
       <ContentBox>
         <LinkButton title="Add user" to="/user/create" />
-        <UserTable users={users} onRemove={handleRemoveUser} />
+        <GenericTable
+          data={users}
+          columns={userColumns}
+          onRemove={handleRemoveUser}
+        />
+        <Pagination
+          count={totalPage}
+          color="primary"
+          sx={{
+            marginTop: "12px",
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+          }}
+          onChange={(_, page) => setCurrentPage(page)}
+        />
       </ContentBox>
     </>
   );

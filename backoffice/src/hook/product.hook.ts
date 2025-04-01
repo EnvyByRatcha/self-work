@@ -1,14 +1,12 @@
 import { useEffect, useState } from "react";
-import { User } from "../interface/IUser";
-import productService from "../service/ProductService";
+import productService from "../service/productService";
 import { Product } from "../interface/IProduct";
 
-interface userFormData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  level: string;
+interface productFormData {
+  name: string;
+  cost: number;
+  price: number;
+  categoryName: string;
 }
 
 const useProduct = () => {
@@ -24,6 +22,8 @@ const useProduct = () => {
       setProducts(data.products);
     }
   };
+
+  const createProduct = async (payload: productFormData) => {};
 
   return { products };
 };

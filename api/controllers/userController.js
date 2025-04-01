@@ -41,8 +41,26 @@ exports.signIn = async (req, res, next) => {
 
 exports.getAllUsers = async (req, res, next) => {
   try {
-    const users = await Users.find().select("-password");
-    res.status(200).json({ message: "success", users: users });
+    let { page, limit } = req.body;
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const users = await Users.find({ status: "used" })
+      .select("-password")
+      .skip(skip)
+      .limit(limit);
+    const totalUser = await Users.countDocuments();
+    const totalPages = Math.ceil(totalUser / limit);
+
+    res.status(200).json({
+      message: "success",
+      page: {
+        totalPage: totalPages,
+        currentPage: page,
+      },
+      users: users,
+    });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
   }
