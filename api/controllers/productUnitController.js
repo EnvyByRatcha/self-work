@@ -1,44 +1,58 @@
-const { ProductDetails } = require("../models/productModel");
+const { ProductUnits } = require("../models/productModel");
 const errorHandler = require("../utils/error");
 
-exports.getAllProductDetail = async (req, res, next) => {
+exports.getAllProductUnit = async (req, res, next) => {
   try {
-    const productsDetails = await ProductDetails.find();
-    res
-      .status(200)
-      .json({ message: "success", productsDetails: productsDetails });
+    let { page, limit } = req.body;
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const productUnits = await ProductUnits.find().skip(skip).limit(limit);
+    const totalProductUnits = await ProductUnits.countDocuments();
+
+    const totalPages = Math.ceil(totalProductUnits / limit);
+
+    res.status(200).json({
+      message: "success",
+      page: {
+        totalPage: totalPages,
+        currentPage: page,
+      },
+      productUnits: productUnits,
+    });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
   }
 };
 
-exports.createProductDetail = async (req, res, next) => {
+exports.createProductUnit = async (req, res, next) => {
   try {
     const { serialNumber, customerId } = req.body;
 
-    const existingProductDetail = await Products.findOne({ serialNumber });
-    if (existingProductDetail) {
+    const existingProductUnit = await Products.findOne({ serialNumber });
+    if (existingProductUnit) {
       return res.status(409).json({ message: "Product already exits" });
     }
 
-    const newProductDetail = new Products({
+    const newProductUnit = new Products({
       serialNumber,
       customerId,
     });
 
-    await newProductDetail.save();
+    await newProductUnit.save();
 
-    res.status(200).json({ message: "success", productDetail: newProduct });
+    res.status(200).json({ message: "success", productUnit: productUnit });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
   }
 };
 
-exports.updateProductDetail = async (req, res, next) => {
+exports.updateProductUnit = async (req, res, next) => {
   try {
     const productDetailId = req.params.id;
 
-    const updateProductDetail = await ProductDetails.findByIdAndUpdate(
+    const updateProductDetail = await ProductUnits.findByIdAndUpdate(
       productDetailId,
       req.body,
       {
@@ -59,7 +73,7 @@ exports.updateProductDetail = async (req, res, next) => {
   }
 };
 
-exports.removeProductDetail = async (req, res, next) => {
+exports.removePProductUnit = async (req, res, next) => {
   try {
     const productDetailId = req.params.id;
     const productDetail = await Products.findById(productDetailId);

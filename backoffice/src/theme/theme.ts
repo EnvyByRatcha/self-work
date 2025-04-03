@@ -1,9 +1,19 @@
 import { createTheme } from "@mui/material";
 
-const theme = createTheme({
+export const lightTheme = createTheme({
   typography: {
     fontFamily: "Plus Jakarta Sans, sans-serif",
   },
 });
 
-export default theme;
+export const darktheme = createTheme({
+  typography: {
+    fontFamily: "Plus Jakarta Sans, sans-serif",
+  },
+  palette: {
+    mode: "dark",
+    primary: {
+      main: "#111417",
+    },
+  },
+});

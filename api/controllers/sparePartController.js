@@ -3,8 +3,26 @@ const errorHandler = require("../utils/error");
 
 exports.getAllSpareParts = async (req, res, next) => {
   try {
-    const spareParts = await SpareParts.find();
-    res.status(200).json({ message: "success", spareParts: spareParts });
+    let { page, limit } = req.body;
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const spareParts = await SpareParts.find()
+      .populate("productId","name")
+      .skip(skip)
+      .limit(limit);
+    const totalProducts = await SpareParts.countDocuments();
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    res.status(200).json({
+      message: "success",
+      page: {
+        totalPage: totalPages,
+        currentPage: page,
+      },
+      spareParts: spareParts,
+    });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
   }
@@ -12,7 +30,7 @@ exports.getAllSpareParts = async (req, res, next) => {
 
 exports.createSparePart = async (req, res, next) => {
   try {
-    const { name, cost, price } = req.body;
+    const { name, cost, price, productId } = req.body;
 
     const existingSparePart = await SpareParts.findOne({ name });
     if (existingSparePart) {
@@ -23,6 +41,7 @@ exports.createSparePart = async (req, res, next) => {
       name,
       cost,
       price,
+      productId,
     });
 
     await newSparePart.save();

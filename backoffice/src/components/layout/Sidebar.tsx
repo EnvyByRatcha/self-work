@@ -25,7 +25,7 @@ const menuService: MenuItem[] = [
   },
   {
     title: "Customer",
-    to: "/dashboard",
+    to: "/customer",
     icon: SupportAgentOutlinedIcon,
   },
   {
@@ -35,7 +35,7 @@ const menuService: MenuItem[] = [
   },
   {
     title: "SparePart",
-    to: "/users",
+    to: "/sparePart",
     icon: PrecisionManufacturingOutlinedIcon,
   },
 ];
@@ -43,7 +43,9 @@ const menuService: MenuItem[] = [
 function Sidebar() {
   return (
     <Box
+      bgcolor={"primary.main"}
       sx={{
+        position: "sticky",
         width: "300px",
         height: "100vh",
         borderRight: "1px solid rgb(195, 211, 219)",
@@ -59,7 +61,9 @@ function Sidebar() {
           paddingRight: "32px",
         }}
       >
-        <Typography>SELF@WORK</Typography>
+        <Typography fontSize={"1.25rem"} fontWeight={600}>
+          {`< SELF WORK />`}
+        </Typography>
       </Box>
 
       <Stack px={"32px"} py={"16px"} gap={"2px"}>

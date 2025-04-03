@@ -4,7 +4,7 @@ import LinkButton from "../../components/common/LinkButton";
 import useUser from "../../hook/user.hook";
 import { Pagination } from "@mui/material";
 import GenericTable from "../../components/table/GenericTable";
-import { userColumns } from "../../constants/userColumns";
+import { userColumn } from "../../constants/userColumn";
 
 const UserListPage = () => {
   const { users, totalPage, setCurrentPage, removeUser } = useUser();
@@ -24,7 +24,7 @@ const UserListPage = () => {
         <LinkButton title="Add user" to="/user/create" />
         <GenericTable
           data={users}
-          columns={userColumns}
+          columns={userColumn}
           onRemove={handleRemoveUser}
         />
         <Pagination

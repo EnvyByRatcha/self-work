@@ -12,8 +12,9 @@ function Navbar() {
       }}
     >
       <Stack direction={"row"} height={"100%"} alignItems={"center"}>
-        <Typography>Navbar</Typography>
-        <Typography>Navbar</Typography>
+        <Typography fontSize={"1.5rem"} fontWeight={600}>
+          Navbar
+        </Typography>
       </Stack>
     </Box>
   );

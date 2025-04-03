@@ -2,14 +2,14 @@ const mongoose = require("mongoose");
 
 const sparePartSchema = new mongoose.Schema(
   {
-    name: { type: String, require: true },
-    cost: { type: mongoose.Types.Decimal128, require: true },
-    price: { type: mongoose.Types.Decimal128, require: true },
+    name: { type: String, required: true },
+    cost: { type: Number, required: true },
+    price: { type: Number, required: true },
     qty: { type: Number, default: 0 },
     productId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Products",
-      require: true,
+      required: true,
     },
     status: { type: String, default: "used" },
   },
@@ -18,5 +18,4 @@ const sparePartSchema = new mongoose.Schema(
 
 const SpareParts = mongoose.model("SpareParts", sparePartSchema);
 
-
-module.exports = { SpareParts };
+module.exports = SpareParts;

@@ -41,16 +41,16 @@ exports.signIn = async (req, res, next) => {
 
 exports.getAllUsers = async (req, res, next) => {
   try {
-    let { page, limit } = req.body;
+    let { page, limit } = req.query;
     page = parseInt(page) || 1;
     limit = parseInt(limit) || 10;
     const skip = (page - 1) * limit;
 
     const users = await Users.find({ status: "used" })
-      .select("-password")
+      .select("-password -__v")
       .skip(skip)
       .limit(limit);
-    const totalUser = await Users.countDocuments();
+    const totalUser = await Users.countDocuments({ status: "used" });
     const totalPages = Math.ceil(totalUser / limit);
 
     res.status(200).json({
@@ -69,7 +69,7 @@ exports.getAllUsers = async (req, res, next) => {
 exports.getUserById = async (req, res, next) => {
   try {
     const userId = req.params.id;
-    const user = await Users.findById(userId).select("-password");
+    const user = await Users.findById({ _id: userId }).select("-password -__v");
     res.status(200).json({ message: "success", user: user });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);

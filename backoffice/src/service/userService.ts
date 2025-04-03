@@ -19,14 +19,13 @@ const userService = {
   //     navigate("/dashboard");
   //   }
   // },
-  getAllUsers: async (page: number, limit: number): Promise<UserResponse> => {
+  getAllUsers: async (page: number, limit: number): Promise<UsersResponse> => {
     const response = await axios.get(`${baseUrl}?page=${page}&limit=${limit}`);
     return response.data;
   },
-  getUserById: async (id: string): Promise<User> => {
+  getUserById: async (id: string): Promise<UserResponse> => {
     const response = await axios.get(`${baseUrl}/${id}`);
-    const data: User = response.data;
-    return data;
+    return response.data;
   },
   createUser: async (payload: UserFormData): Promise<UserResponse> => {
     const response = await axios.post(`${baseUrl}`, payload);
@@ -49,10 +48,10 @@ export default userService;
 
 interface UserResponse {
   message: string;
-  user?: User[];
+  user?: User;
 }
 
-interface UserResponse {
+interface UsersResponse {
   message: string;
   page: {
     totalPage: number;

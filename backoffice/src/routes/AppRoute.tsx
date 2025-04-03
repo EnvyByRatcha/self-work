@@ -5,6 +5,10 @@ import DashboardPage from "../pages/dashboard/DashboardPage";
 import UserListPage from "../pages/user/UserListPage";
 import UserCreatePage from "../pages/user/UserCreatePage";
 import ProductListPage from "../pages/product/ProductListPage";
+import ProductCreatePage from "../pages/product/ProductCreatePage";
+import SparePartListPage from "../pages/sparePart/SparePartListPage";
+import CustomerListPage from "../pages/customer/CustomerListPage";
+import CustomerCreatePage from "../pages/customer/CustomerCreatePage";
 
 const router = createBrowserRouter([
   {
@@ -33,7 +37,23 @@ const router = createBrowserRouter([
       },
       {
         path: "product/create",
-        element: <ProductListPage />,
+        element: <ProductCreatePage />,
+      },
+      {
+        path: "sparePart",
+        element: <SparePartListPage />,
+      },
+      {
+        path: "sparePart/create",
+        element: <SparePartListPage />,
+      },
+      {
+        path: "customer",
+        element: <CustomerListPage />,
+      },
+      {
+        path: "customer/create",
+        element: <CustomerCreatePage />,
       },
     ],
   },

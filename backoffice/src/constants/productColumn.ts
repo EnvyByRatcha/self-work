@@ -6,7 +6,7 @@ type ProductColumn = {
   align?: "left" | "center" | "right";
 };
 
-export const productColumns: ProductColumn[] = [
+export const productColumn: ProductColumn[] = [
   { key: "name", label: "Product Name" },
   { key: "cost", label: "Cost" },
   { key: "price", label: "Price" },

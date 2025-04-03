@@ -7,18 +7,23 @@ import type { UserFormData } from "../interface/IUser";
 const useUser = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPage, setTotalPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(5);
+  const [limit, setLimit] = useState(5);
 
   useEffect(() => {
-    fetchUser(currentPage, totalPage);
+    fetchUser(currentPage, limit);
   }, [currentPage]);
 
-  const fetchUser = async (page: number, totalPage: number) => {
-    const data = await userService.getAllUsers(page, totalPage);
-    if (data.users) {
-      console.log(data);
+  const fetchUser = async (page: number, limit: number) => {
+    try {
+      const data = await userService.getAllUsers(page, limit);
 
-      setUsers(data.users);
+      if (data.users) {
+        setTotalPage(data.page.totalPage);
+        setUsers(data.users);
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -39,6 +44,7 @@ const useUser = () => {
     totalPage,
     setCurrentPage,
     setTotalPage,
+    setLimit,
     createUser,
     fetchUser,
     removeUser,

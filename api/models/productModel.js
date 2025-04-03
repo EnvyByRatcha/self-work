@@ -16,7 +16,7 @@ const productSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const productDetailSchema = new mongoose.Schema(
+const productUnitSchema = new mongoose.Schema(
   {
     serialNumber: { type: String, required: true, unique: true },
     productId: {
@@ -43,7 +43,7 @@ const categorySchema = new mongoose.Schema(
 );
 
 const Products = mongoose.model("Products", productSchema);
-const ProductDetails = mongoose.model("ProductDetails", productDetailSchema);
+const ProductUnits = mongoose.model("ProductUnits", productUnitSchema);
 const Categories = mongoose.model("Categories", categorySchema);
 
-module.exports = { Products, ProductDetails, Categories };
+module.exports = { Products, ProductUnits, Categories };

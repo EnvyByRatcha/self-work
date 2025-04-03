@@ -6,7 +6,7 @@ type UserColumn = {
   align?: "left" | "center" | "right";
 };
 
-export const userColumns: UserColumn[] = [
+export const userColumn: UserColumn[] = [
   { key: "email", label: "Email" },
   { key: "firstName", label: "First name" },
   { key: "lastName", label: "Last name	" },

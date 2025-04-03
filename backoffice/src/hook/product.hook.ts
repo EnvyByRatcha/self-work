@@ -1,13 +1,6 @@
 import { useEffect, useState } from "react";
 import productService from "../service/productService";
-import { Product } from "../interface/IProduct";
-
-interface productFormData {
-  name: string;
-  cost: number;
-  price: number;
-  categoryName: string;
-}
+import type { Product, ProductFormData } from "../interface/IProduct";
 
 const useProduct = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -23,9 +16,14 @@ const useProduct = () => {
     }
   };
 
-  const createProduct = async (payload: productFormData) => {};
+  const createProduct = async (payload: ProductFormData) => {
+    const data = await productService.createProduct(payload);
+    if (data.product) {
+      return data;
+    }
+  };
 
-  return { products };
+  return { products,createProduct };
 };
 
 export default useProduct;
