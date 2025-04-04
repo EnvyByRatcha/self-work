@@ -3,7 +3,7 @@ import ContentBox from "../../components/common/ContentBox";
 import LinkButton from "../../components/common/LinkButton";
 import useUser from "../../hook/user.hook";
 import { Pagination } from "@mui/material";
-import GenericTable from "../../components/table/GenericTable";
+import CustomTable from "../../components/table/CustomTable";
 import { userColumn } from "../../constants/userColumn";
 
 const UserListPage = () => {
@@ -22,7 +22,7 @@ const UserListPage = () => {
       <TitleBox title={"User list"} />
       <ContentBox>
         <LinkButton title="Add user" to="/user/create" />
-        <GenericTable
+        <CustomTable
           data={users}
           columns={userColumn}
           onRemove={handleRemoveUser}

@@ -20,7 +20,7 @@ const UserCreatePage = () => {
 
   return (
     <>
-      <TitleBox title="Create user" />
+      <TitleBox title="Add user" />
       <ContentBox>
         <UserForm onSubmit={handleUserFormSubmit} />
       </ContentBox>

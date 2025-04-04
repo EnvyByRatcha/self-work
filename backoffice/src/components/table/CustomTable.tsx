@@ -22,7 +22,7 @@ interface TableProps<T> {
   onRemove?: (id: string) => void;
 }
 
-function GenericTable<T extends { _id: string }>({
+function CustomTable<T extends { _id: string }>({
   data,
   columns,
   onRemove,
@@ -81,4 +81,4 @@ function GenericTable<T extends { _id: string }>({
   );
 }
 
-export default GenericTable;
+export default CustomTable;

@@ -1,14 +1,15 @@
 import {
+  Box,
   Button,
   FormControl,
-  FormHelperText,
   Grid,
   MenuItem,
   Select,
-  Stack,
-  TextField,
+  SelectChangeEvent,
 } from "@mui/material";
 import { useState } from "react";
+import CustomTextField from "../input/CustomTextField";
+import CustomSelect from "../input/CustomSelect";
 
 interface userFormData {
   firstName: string;
@@ -17,6 +18,11 @@ interface userFormData {
   password: string;
   level: string;
 }
+
+const optionLevel = [
+  { label: "employee", value: "employee" },
+  { label: "admin", value: "admin" },
+];
 
 const UserForm = ({ onSubmit }: any) => {
   const [formData, setFormData] = useState<userFormData>({
@@ -27,8 +33,22 @@ const UserForm = ({ onSubmit }: any) => {
     level: "employee",
   });
 
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target as HTMLInputElement;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  const handleSelectChange = (event: SelectChangeEvent<string>) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      level: event.target.value as string,
+    }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log(formData);
+
     onSubmit(formData);
   };
 
@@ -38,71 +58,53 @@ const UserForm = ({ onSubmit }: any) => {
       style={{
         display: "flex",
         flexDirection: "column",
-        maxWidth: "800px",
         gap: "12px",
       }}
     >
       <Grid container spacing={2}>
-        <Grid size={12}>
-          <FormControl fullWidth>
-            <TextField
-              label="Email address"
-              type="email"
-              fullWidth
-              required
-              color="info"
-              variant="outlined"
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
-            />
-          </FormControl>
+        <Grid size={8}>
+          <CustomTextField
+            label="Email address"
+            name="email"
+            type="email"
+            required
+            value={formData.email}
+            onChange={handleChange}
+          />
+          <CustomTextField
+            label="First name"
+            name="firstName"
+            type="text"
+            required
+            value={formData.firstName}
+            onChange={handleChange}
+          />
+          <CustomTextField
+            label="Last name"
+            name="lastName"
+            type="text"
+            required
+            value={formData.lastName}
+            onChange={handleChange}
+          />
+          <CustomTextField
+            label="Password"
+            name="password"
+            type="password"
+            required
+            value={formData.password}
+            onChange={handleChange}
+          />
         </Grid>
-        <Grid size={6}>
-          <FormControl sx={{ width: "100%" }}>
-            <TextField
-              label="First name"
-              fullWidth
-              required
-              color="info"
-              variant="outlined"
-              onChange={(e) =>
-                setFormData({ ...formData, firstName: e.target.value })
-              }
-            />
-          </FormControl>
-        </Grid>
-        <Grid size={6}>
-          <FormControl sx={{ width: "100%" }}>
-            <TextField
-              label="Last name"
-              fullWidth
-              required
-              color="info"
-              variant="outlined"
-              placeholder="Please insert property price"
-              onChange={(e) =>
-                setFormData({ ...formData, lastName: e.target.value })
-              }
-            />
-          </FormControl>
-        </Grid>
-        <Grid size={6}>
-          <FormControl fullWidth>
-            <TextField
-              label="Password"
-              fullWidth
-              required
-              color="info"
-              variant="outlined"
-              onChange={(e) =>
-                setFormData({ ...formData, password: e.target.value })
-              }
-            />
-          </FormControl>
-        </Grid>
-        <Grid size={6}>
-          <FormControl fullWidth>
+        <Grid size={4}>
+          <CustomSelect
+            label="Level"
+            name="level"
+            options={optionLevel}
+            value={formData.level}
+            onChange={handleSelectChange}
+          />
+          {/* <FormControl fullWidth>
             <Select
               value={formData.level}
               onChange={(e) =>
@@ -112,10 +114,9 @@ const UserForm = ({ onSubmit }: any) => {
               <MenuItem value="employee">employee</MenuItem>
               <MenuItem value="admin">admin</MenuItem>
             </Select>
-          </FormControl>
+          </FormControl> */}
         </Grid>
       </Grid>
-
       <Button type="submit" variant="contained" color="primary">
         Create User
       </Button>
