@@ -43,7 +43,6 @@ const menuService: MenuItem[] = [
 function Sidebar() {
   return (
     <Box
-      bgcolor={"primary.main"}
       sx={{
         position: "sticky",
         width: "300px",

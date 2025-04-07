@@ -14,21 +14,19 @@ const useCustomer = () => {
 
   const fetchCustomer = async (page: number, limit: number) => {
     const data = await customerService.getAllCustomer(page, limit);
-    console.log(data);
-
     if (data.customers) {
       setCustomer(data.customers);
     }
   };
 
-  const createProduct = async (payload: CustomerFormData) => {
+  const createCustomer = async (payload: CustomerFormData) => {
     const data = await customerService.createCustomer(payload);
     if (data.customer) {
       return data;
     }
   };
 
-  return { customers, createProduct, totalPage, setCurrentPage };
+  return { customers, createCustomer, totalPage, setCurrentPage };
 };
 
 export default useCustomer;

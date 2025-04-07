@@ -4,8 +4,8 @@ import React from "react";
 interface TextFieldProps {
   label: string;
   name: string;
-  type: "text" | "email" | "password" | "number";
-  value: string;
+  type: "text" | "email" | "password" | "number" | "tel";
+  value: string | number;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   required?: boolean;
 }

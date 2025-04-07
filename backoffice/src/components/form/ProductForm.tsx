@@ -1,15 +1,13 @@
-import {
-  Button,
-  FormControl,
-  FormHelperText,
-  Grid,
-  MenuItem,
-  Select,
-  Stack,
-  TextField,
-} from "@mui/material";
+import { Button, Grid, SelectChangeEvent } from "@mui/material";
 import { useState } from "react";
 import type { ProductFormData } from "../../interface/IProduct";
+import CustomTextField from "../input/CustomTextField";
+import CustomSelect from "../input/CustomSelect";
+
+const optionCategory = [
+  { label: "printer", value: "empprinterloyee" },
+  { label: "computer", value: "computer" },
+];
 
 const ProductForm = ({ onSubmit }: any) => {
   const [formData, setFormData] = useState<ProductFormData>({
@@ -18,6 +16,18 @@ const ProductForm = ({ onSubmit }: any) => {
     price: 0,
     categoryName: "",
   });
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target as HTMLInputElement;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  const handleSelectChange = (event: SelectChangeEvent<string>) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      level: event.target.value as string,
+    }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,73 +41,46 @@ const ProductForm = ({ onSubmit }: any) => {
         display: "flex",
         flexDirection: "column",
         gap: "12px",
-        maxWidth: "800px",
       }}
     >
       <Grid container spacing={2}>
-        <Grid size={12}>
-          <FormControl fullWidth>
-            <TextField
-              label="Product name"
-              type="text"
-              fullWidth
-              required
-              color="info"
-              variant="outlined"
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-            />
-          </FormControl>
-        </Grid>
-        <Grid size={6}>
-          <FormControl sx={{ width: "100%" }}>
-            <TextField
-              label="Cost"
-              type="number"
-              fullWidth
-              required
-              color="info"
-              variant="outlined"
-              onChange={(e) =>
-                setFormData({ ...formData, cost: parseInt(e.target.value) })
-              }
-            />
-          </FormControl>
-        </Grid>
-        <Grid size={6}>
-          <FormControl sx={{ width: "100%" }}>
-            <TextField
-              label="Price"
-              type="number"
-              fullWidth
-              required
-              color="info"
-              variant="outlined"
-              placeholder="Please insert property price"
-              onChange={(e) =>
-                setFormData({ ...formData, price: parseInt(e.target.value) })
-              }
-            />
-          </FormControl>
-        </Grid>
-        <Grid size={12}>
-          <FormControl fullWidth>
-            <Select
-              value={formData.categoryName}
-              onChange={(e) =>
-                setFormData({ ...formData, categoryName: e.target.value })
-              }
-            >
-              <MenuItem value="printer">printer</MenuItem>
-            </Select>
-          </FormControl>
-        </Grid>
+        <Grid size={8}>
+          <CustomTextField
+            label="Product name"
+            name="name"
+            type="text"
+            required
+            value={formData.name}
+            onChange={handleChange}
+          />
+          <CustomTextField
+            label="Cost."
+            name="cost"
+            type="number"
+            required
+            value={formData.cost}
+            onChange={handleChange}
+          />
+          <CustomTextField
+            label="Price."
+            name="price"
+            type="number"
+            required
+            value={formData.price}
+            onChange={handleChange}
+          />
+          <CustomSelect
+            label="Category"
+            name="categoryName"
+            options={optionCategory}
+            value={formData.categoryName}
+            onChange={handleSelectChange}
+          />
+        </Grid>{" "}
+        <Button type="submit" variant="contained" color="primary">
+          Create User
+        </Button>
       </Grid>
-
-      <Button type="submit" variant="contained" color="primary">
-        Add product
-      </Button>
     </form>
   );
 };

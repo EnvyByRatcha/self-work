@@ -1,36 +1,16 @@
-import {
-  Box,
-  Button,
-  FormControl,
-  Grid,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-} from "@mui/material";
+import { Button, Grid } from "@mui/material";
 import { useState } from "react";
 import CustomTextField from "../input/CustomTextField";
-import CustomSelect from "../input/CustomSelect";
+import type { CustomerFormData } from "../../interface/ICustomer";
 
-interface userFormData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  level: string;
-}
-
-const optionLevel = [
-  { label: "employee", value: "employee" },
-  { label: "admin", value: "admin" },
-];
-
-const UserForm = ({ onSubmit }: any) => {
-  const [formData, setFormData] = useState<userFormData>({
-    firstName: "",
-    lastName: "",
+const CustomerForm = ({ onSubmit }: any) => {
+  const [formData, setFormData] = useState<CustomerFormData>({
+    name: "",
+    customerCode: "",
+    address: "",
+    tel_1: "",
+    tel_2: "",
     email: "",
-    password: "",
-    level: "employee",
   });
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,17 +18,8 @@ const UserForm = ({ onSubmit }: any) => {
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleSelectChange = (event: SelectChangeEvent<string>) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      level: event.target.value as string,
-    }));
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
-
     onSubmit(formData);
   };
 
@@ -72,37 +43,43 @@ const UserForm = ({ onSubmit }: any) => {
             onChange={handleChange}
           />
           <CustomTextField
-            label="First name"
-            name="firstName"
+            label="Name"
+            name="name"
             type="text"
             required
-            value={formData.firstName}
+            value={formData.name}
             onChange={handleChange}
           />
           <CustomTextField
-            label="Last name"
-            name="lastName"
+            label="Customer code"
+            name="customerCode"
             type="text"
             required
-            value={formData.lastName}
+            value={formData.customerCode}
             onChange={handleChange}
           />
           <CustomTextField
-            label="Password"
-            name="password"
-            type="password"
+            label="Address"
+            name="address"
+            type="text"
             required
-            value={formData.password}
+            value={formData.address}
             onChange={handleChange}
           />
-        </Grid>
-        <Grid size={4}>
-          <CustomSelect
-            label="Level"
-            name="level"
-            options={optionLevel}
-            value={formData.level}
-            onChange={handleSelectChange}
+          <CustomTextField
+            label="Contact_1"
+            name="tel_1"
+            type="tel"
+            required
+            value={formData.tel_1}
+            onChange={handleChange}
+          />
+          <CustomTextField
+            label="Contact_2"
+            name="tel_2"
+            type="tel"
+            value={formData.tel_2}
+            onChange={handleChange}
           />
         </Grid>
       </Grid>
@@ -113,4 +90,4 @@ const UserForm = ({ onSubmit }: any) => {
   );
 };
 
-export default UserForm;
+export default CustomerForm;
