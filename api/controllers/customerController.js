@@ -46,7 +46,7 @@ exports.createCustomer = async (req, res, next) => {
     });
     await newCustomer.save();
 
-    res.status(201).json({ status: "Success", customer: newCustomer });
+    res.status(201).json({ status: "success", customer: newCustomer });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
   }

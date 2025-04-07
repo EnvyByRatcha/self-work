@@ -18,7 +18,7 @@ const productSchema = new mongoose.Schema(
 
 const productUnitSchema = new mongoose.Schema(
   {
-    serialNumber: { type: String, required: true, unique: true },
+    serialNumber: { type: String, unique: true, required: true },
     productId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Products",
