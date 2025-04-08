@@ -8,8 +8,10 @@ exports.getAllCategory = async (req, res, next) => {
     limit = parseInt(limit) || 10;
     const skip = (page - 1) * limit;
 
-    const categories = await Categories.find().skip(skip).limit(limit);
-    const totalCategories = await Categories.countDocuments();
+    const categories = await Categories.find({ status: "used" })
+      .skip(skip)
+      .limit(limit);
+    const totalCategories = await Categories.countDocuments({ status: "used" });
 
     const totalPages = Math.ceil(totalCategories / limit);
 
@@ -28,7 +30,8 @@ exports.getAllCategory = async (req, res, next) => {
 
 exports.createCategory = async (req, res, next) => {
   try {
-    const { name } = req.body;
+    let { name } = req.body;
+    name = name.trim().toLowerCase();
 
     const existingCategory = await Categories.findOne({ name });
     if (existingCategory) {
@@ -38,7 +41,6 @@ exports.createCategory = async (req, res, next) => {
     const newCategory = new Categories({
       name,
     });
-
     await newCategory.save();
 
     res.status(200).json({ message: "success", category: newCategory });

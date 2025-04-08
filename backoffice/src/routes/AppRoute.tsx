@@ -9,6 +9,7 @@ import ProductCreatePage from "../pages/product/ProductCreatePage";
 import SparePartListPage from "../pages/sparePart/SparePartListPage";
 import CustomerListPage from "../pages/customer/CustomerListPage";
 import CustomerCreatePage from "../pages/customer/CustomerCreatePage";
+import CategoryListPage from "../pages/category/CategoryListPage";
 
 const router = createBrowserRouter([
   {
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
       {
         path: "user/create",
         element: <UserCreatePage />,
+      },
+      {
+        path: "category",
+        element: <CategoryListPage />,
       },
       {
         path: "product",

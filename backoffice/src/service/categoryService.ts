@@ -1,15 +1,20 @@
 import axios from "axios";
 import config from "../config";
-import type { Category } from "../interface/ICategory";
+import type { Category, CategoryFormData } from "../interface/ICategory";
 
 const baseUrl = `${config.apiPath}/categories`;
 
-const productService = {
-  getAllCategory: async (): Promise<GetResponseProducts> => {
-    const response = await axios.get(`${baseUrl}`);
+const categoryService = {
+  getAllCategory: async (
+    page: number,
+    limit: number
+  ): Promise<GetResponseProducts> => {
+    const response = await axios.get(`${baseUrl}?page=${page}&limit=${limit}`);
     return response.data;
   },
-  createCategory: async (payload: Category): Promise<CategoryResponse> => {
+  createCategory: async (
+    payload: CategoryFormData
+  ): Promise<CategoryResponse> => {
     const response = await axios.post(baseUrl, payload);
     return response.data;
   },
@@ -26,7 +31,7 @@ const productService = {
   },
 };
 
-export default productService;
+export default categoryService;
 
 interface GetResponseProducts {
   message: string;

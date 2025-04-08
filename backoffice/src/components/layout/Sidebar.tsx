@@ -29,6 +29,11 @@ const menuService: MenuItem[] = [
     icon: SupportAgentOutlinedIcon,
   },
   {
+    title: "Category",
+    to: "/category",
+    icon: ProductionQuantityLimitsOutlinedIcon,
+  },
+  {
     title: "Product",
     to: "/product",
     icon: ProductionQuantityLimitsOutlinedIcon,

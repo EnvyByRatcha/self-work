@@ -23,9 +23,10 @@ const ProductForm = ({ onSubmit }: any) => {
   };
 
   const handleSelectChange = (event: SelectChangeEvent<string>) => {
+    const { name, value } = event.target;
     setFormData((prevData) => ({
       ...prevData,
-      level: event.target.value as string,
+      [name]: value,
     }));
   };
 
@@ -78,7 +79,7 @@ const ProductForm = ({ onSubmit }: any) => {
           />
         </Grid>{" "}
         <Button type="submit" variant="contained" color="primary">
-          Create User
+          Add product
         </Button>
       </Grid>
     </form>
