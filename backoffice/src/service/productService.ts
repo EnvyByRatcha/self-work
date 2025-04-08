@@ -5,8 +5,11 @@ import { Product, ProductFormData } from "../interface/IProduct";
 const baseUrl = `${config.apiPath}/products`;
 
 const productService = {
-  getAllProducts: async (): Promise<ProductsResponse> => {
-    const response = await axios.get(baseUrl);
+  getAllProducts: async (
+    page: number,
+    limit: number
+  ): Promise<ProductsResponse> => {
+    const response = await axios.get(`${baseUrl}?page=${page}&limit=${limit}`);
     return response.data;
   },
   createProduct: async (payload: ProductFormData): Promise<ProductResponse> => {

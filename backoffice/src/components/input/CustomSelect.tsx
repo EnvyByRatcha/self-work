@@ -4,7 +4,6 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
-  TextField,
 } from "@mui/material";
 
 interface SelectProps {
@@ -15,6 +14,17 @@ interface SelectProps {
   onChange: (event: SelectChangeEvent<string>) => void;
   required?: boolean;
 }
+
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = -24;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
 
 const CustomSelect = ({
   label,
@@ -33,6 +43,7 @@ const CustomSelect = ({
         required={required}
         onChange={onChange}
         fullWidth
+        MenuProps={MenuProps}
         sx={{
           backgroundColor: "#EBF2F5",
           borderRadius: "8px",

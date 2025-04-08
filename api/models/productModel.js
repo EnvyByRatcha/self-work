@@ -11,6 +11,7 @@ const productSchema = new mongoose.Schema(
       ref: "Categories",
       default: null,
     },
+    photoUrl: { type: String, require: true },
     status: { type: String, default: "used" },
   },
   { timestamps: true }

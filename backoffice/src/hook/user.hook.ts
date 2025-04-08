@@ -7,7 +7,7 @@ import type { UserFormData } from "../interface/IUser";
 const useUser = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPage, setTotalPage] = useState(5);
+  const [totalPage, setTotalPage] = useState(1);
   const [limit, setLimit] = useState(5);
 
   useEffect(() => {

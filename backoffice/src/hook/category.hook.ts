@@ -10,7 +10,7 @@ const useCategory = () => {
 
   useEffect(() => {
     fetchCategory(currentPage, limit);
-  }, []);
+  }, [currentPage]);
 
   const fetchCategory = async (page: number, limit: number) => {
     const data = await categoryService.getAllCategory(page, limit);
@@ -27,7 +27,14 @@ const useCategory = () => {
     }
   };
 
-  return { categories, createCustomer, totalPage, setCurrentPage, setLimit };
+  return {
+    categories,
+    createCustomer,
+    totalPage,
+    setCurrentPage,
+    setLimit,
+    fetchCategory,
+  };
 };
 
 export default useCategory;

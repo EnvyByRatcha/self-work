@@ -4,9 +4,10 @@ import LinkButton from "../../components/common/LinkButton";
 import CustomTable from "../../components/table/CustomTable";
 import useSparePart from "../../hook/sparePart.hook";
 import { sparePartColumn } from "../../constants/sparePartColumn";
+import { Pagination } from "@mui/material";
 
 const SparePartListPage = () => {
-  const { spareParts } = useSparePart();
+  const { spareParts, totalPage, setCurrentPage } = useSparePart();
 
   return (
     <>
@@ -14,6 +15,17 @@ const SparePartListPage = () => {
       <ContentBox>
         <LinkButton title="Add Product" to="/product/create" />
         <CustomTable data={spareParts} columns={sparePartColumn} />
+        <Pagination
+          count={totalPage}
+          color="primary"
+          sx={{
+            marginTop: "12px",
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+          }}
+          onChange={(_, page) => setCurrentPage(page)}
+        />
       </ContentBox>
     </>
   );

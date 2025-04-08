@@ -6,6 +6,8 @@ import Modal from "@mui/material/Modal";
 
 interface ContentBoxProps {
   title: String;
+  open: boolean;
+  setOpen: (open: boolean) => void;
   children: React.ReactNode;
 }
 
@@ -16,27 +18,34 @@ const style = {
   transform: "translate(-50%, -50%)",
   width: 400,
   bgcolor: "background.paper",
-  border: "2px solid #000",
+  border: "2px solid rgb(195, 211, 219)",
+  borderRadius: "8px",
   boxShadow: 24,
   p: 4,
 };
 
-const CustomModal = ({ title, children }: ContentBoxProps) => {
-  const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
+const CustomModal = ({ title, open, setOpen, children }: ContentBoxProps) => {
   const handleClose = () => setOpen(false);
 
   return (
     <div>
-      <Button onClick={handleOpen}>{title}</Button>
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
+      <Button
+        variant="contained"
+        sx={{
+          bgcolor: "#3385F0",
+          padding: "8px 16px",
+          borderRadius: "8px",
+          "&:hover": {
+            bgcolor: "#2B71CC",
+          },
+        }}
+        onClick={() => setOpen(true)}
       >
+        {title}
+      </Button>
+      <Modal open={open} onClose={handleClose}>
         <Box sx={style}>
-          <Typography>{title}</Typography>
+          <Typography fontWeight={700}>{title}</Typography>
           {children}
         </Box>
       </Modal>

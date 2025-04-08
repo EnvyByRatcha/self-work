@@ -1,5 +1,11 @@
 const { Products, Categories } = require("../models/productModel");
 const errorHandler = require("../utils/error");
+const cloudinary = require("cloudinary").v2;
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 exports.getAllProduct = async (req, res, next) => {
   try {
@@ -28,7 +34,7 @@ exports.getAllProduct = async (req, res, next) => {
 
 exports.createProduct = async (req, res, next) => {
   try {
-    const { name, cost, categoryName, price } = req.body;
+    const { name, cost, categoryName, price, photo } = req.body;
 
     const existingProduct = await Products.findOne({ name });
     if (existingProduct) {
@@ -36,12 +42,18 @@ exports.createProduct = async (req, res, next) => {
     }
 
     const category = await Categories.findOne({ name: categoryName });
+    if (!category) {
+      return res.status(404).json({ message: "Category not found" });
+    }
+
+    const photoUrl = await cloudinary.uploader.upload(photo);
 
     const newProduct = new Products({
       name,
       cost,
       price,
-      categoryId: category.id,
+      categoryId: category._id,
+      photoUrl: photoUrl.url,
     });
 
     await newProduct.save();

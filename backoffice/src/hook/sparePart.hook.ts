@@ -4,15 +4,19 @@ import type { SparePart, SparePartFormData } from "../interface/ISparePart";
 
 const useSparePart = () => {
   const [spareParts, setSpareParts] = useState<SparePart[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+  const [limit, setLimit] = useState(5);
 
   useEffect(() => {
-    fetchSparePart();
-  }, []);
+    fetchSparePart(currentPage, limit);
+  }, [currentPage]);
 
-  const fetchSparePart = async () => {
-    const data = await sparePartService.getAllSparePart();
+  const fetchSparePart = async (page: number, limit: number) => {
+    const data = await sparePartService.getAllSparePart(page, limit);
     if (data.spareParts) {
       setSpareParts(data.spareParts);
+      setTotalPage(data.page.totalPage);
     }
   };
 
@@ -23,7 +27,7 @@ const useSparePart = () => {
     }
   };
 
-  return { spareParts, createProduct: createSparePart };
+  return { spareParts, createSparePart, totalPage, setCurrentPage, setLimit };
 };
 
 export default useSparePart;

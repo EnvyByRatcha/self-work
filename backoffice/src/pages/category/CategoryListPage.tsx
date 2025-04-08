@@ -1,13 +1,14 @@
-import { Button, Pagination } from "@mui/material";
+import { Pagination, setRef } from "@mui/material";
 import ContentBox from "../../components/common/ContentBox";
 import TitleBox from "../../components/common/TitleBox";
 import CustomTextField from "../../components/input/CustomTextField";
 import CustomModal from "../../components/Modal/CustomModal";
-import type { CategoryFormData } from "../../interface/ICategory";
 import { useState } from "react";
 import useCategory from "../../hook/category.hook";
 import CustomTable from "../../components/table/CustomTable";
 import { categoryColumn } from "../../constants/categoryColumn";
+import CustomButton from "../../components/button/CustomButton";
+import type { CategoryFormData } from "../../interface/ICategory";
 
 const CategoryListPage = () => {
   const { categories, createCustomer, totalPage, setCurrentPage } =
@@ -17,11 +18,15 @@ const CategoryListPage = () => {
     name: "",
   });
 
+  const [openModal, setOpenModal] = useState<boolean>(false);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     createCustomer(formData).then((data) => {
       if (data?.message == "success") {
-        console.log("success");
+        setFormData({ name: "" });
+        setOpenModal(false);
+        categories.unshift(data.category!);
       }
     });
   };
@@ -30,7 +35,11 @@ const CategoryListPage = () => {
     <>
       <TitleBox title={"Category list"} />
       <ContentBox>
-        <CustomModal title="Add category">
+        <CustomModal
+          title="Add category"
+          open={openModal}
+          setOpen={setOpenModal}
+        >
           <form
             onSubmit={handleSubmit}
             style={{
@@ -46,11 +55,11 @@ const CategoryListPage = () => {
               type="text"
               required
               value={formData.name}
-              onChange={(e) => setFormData({ name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
             />
-            <Button type="submit" variant="contained" color="primary">
-              Add category
-            </Button>
+            <CustomButton type="submit" title="Add category" />
           </form>
         </CustomModal>
         <CustomTable data={categories} columns={categoryColumn} />

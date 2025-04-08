@@ -15,4 +15,5 @@ export interface ProductFormData {
   cost: number;
   price: number;
   categoryName: string;
+  photo: string;
 }

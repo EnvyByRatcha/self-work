@@ -46,7 +46,7 @@ function CustomTable<T extends { _id: string }>({
             </TableCell>
           );
         })}
-        <TableCell align="center">
+        <TableCell align="center" sx={{ width: "240px" }}>
           <Button>
             <ArticleOutlinedIcon />
           </Button>
