@@ -11,9 +11,9 @@ const SparePartListPage = () => {
 
   return (
     <>
-      <TitleBox title={"Product list"} />
+      <TitleBox title={"Sparepart list"} />
       <ContentBox>
-        <LinkButton title="Add Product" to="/product/create" />
+        <LinkButton title="Add Sparepart" to="/sparePart/create" />
         <CustomTable data={spareParts} columns={sparePartColumn} />
         <Pagination
           count={totalPage}

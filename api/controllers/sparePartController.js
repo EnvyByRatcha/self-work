@@ -1,5 +1,12 @@
+const { Products } = require("../models/productModel");
 const SpareParts = require("../models/sparePartModel");
 const errorHandler = require("../utils/error");
+const cloudinary = require("cloudinary").v2;
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 exports.getAllSpareParts = async (req, res, next) => {
   try {
@@ -9,7 +16,7 @@ exports.getAllSpareParts = async (req, res, next) => {
     const skip = (page - 1) * limit;
 
     const spareParts = await SpareParts.find()
-      .populate("productId","name")
+      .populate("productId", "name")
       .skip(skip)
       .limit(limit);
     const totalProducts = await SpareParts.countDocuments();
@@ -30,23 +37,31 @@ exports.getAllSpareParts = async (req, res, next) => {
 
 exports.createSparePart = async (req, res, next) => {
   try {
-    const { name, cost, price, productId } = req.body;
+    const { name, cost, price, productId, photo } = req.body;
 
     const existingSparePart = await SpareParts.findOne({ name });
     if (existingSparePart) {
       return res.status(409).json({ message: "SparePart already exits" });
     }
 
+    const product = await Products.findOne({ _id: productId });
+    if (!product) {
+      return res.status(404).json({ message: "SparePart not found" });
+    }
+
+    const photoUrl = await cloudinary.uploader.upload(photo);
+
     const newSparePart = new SpareParts({
       name,
       cost,
       price,
-      productId,
+      productId: product._id,
+      photoUrl: photoUrl.url,
     });
 
     await newSparePart.save();
 
-    res.status(200).json({ message: "success", sparePart: newSparePart });
+    res.status(200).json({ message: "success" });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
   }

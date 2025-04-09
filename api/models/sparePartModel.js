@@ -11,6 +11,7 @@ const sparePartSchema = new mongoose.Schema(
       ref: "Products",
       required: true,
     },
+    photoUrl: { type: String, require: true },
     status: { type: String, default: "used" },
   },
   { timestamps: true }

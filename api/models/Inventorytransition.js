@@ -21,6 +21,7 @@ const inventoryTransitionDetail = new mongoose.Schema(
       ref: "InventoryTransitions",
       required: true,
     },
+    qty: { type: Number, default: 1 },
     status: { type: String, default: "pending" },
   },
   { timestamps: true }

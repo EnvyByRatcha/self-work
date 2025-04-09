@@ -5,6 +5,7 @@ import GridViewOutlinedIcon from "@mui/icons-material/GridViewOutlined";
 import SupportAgentOutlinedIcon from "@mui/icons-material/SupportAgentOutlined";
 import PrecisionManufacturingOutlinedIcon from "@mui/icons-material/PrecisionManufacturingOutlined";
 import ProductionQuantityLimitsOutlinedIcon from "@mui/icons-material/ProductionQuantityLimitsOutlined";
+import WarehouseIcon from "@mui/icons-material/Warehouse";
 
 interface MenuItem {
   title: string;
@@ -42,6 +43,14 @@ const menuService: MenuItem[] = [
     title: "SparePart",
     to: "/sparePart",
     icon: PrecisionManufacturingOutlinedIcon,
+  },
+];
+
+const menuInventory: MenuItem[] = [
+  {
+    title: "Inventory",
+    to: "/inventory",
+    icon: WarehouseIcon,
   },
 ];
 
@@ -83,6 +92,23 @@ function Sidebar() {
         </Typography>
 
         {menuService.map((item, index) => {
+          return <NavButton key={index} {...item} />;
+        })}
+      </Stack>
+
+      <Stack px={"32px"} py={"16px"} gap={"2px"}>
+        <Typography
+          fontSize={"0.75rem"}
+          fontWeight={700}
+          color="rgb(156, 174, 184)"
+          textTransform={"uppercase"}
+          py={"8px"}
+          pl={"16px"}
+        >
+          Management
+        </Typography>
+
+        {menuInventory.map((item, index) => {
           return <NavButton key={index} {...item} />;
         })}
       </Stack>

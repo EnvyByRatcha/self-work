@@ -10,6 +10,7 @@ import SparePartListPage from "../pages/sparePart/SparePartListPage";
 import CustomerListPage from "../pages/customer/CustomerListPage";
 import CustomerCreatePage from "../pages/customer/CustomerCreatePage";
 import CategoryListPage from "../pages/category/CategoryListPage";
+import SparePartCreatePage from "../pages/sparePart/SparePartCreatePage";
 
 const router = createBrowserRouter([
   {
@@ -50,7 +51,7 @@ const router = createBrowserRouter([
       },
       {
         path: "sparePart/create",
-        element: <SparePartListPage />,
+        element: <SparePartCreatePage />,
       },
       {
         path: "customer",

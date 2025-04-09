@@ -22,7 +22,7 @@ const useSparePart = () => {
 
   const createSparePart = async (payload: SparePartFormData) => {
     const data = await sparePartService.createSparePart(payload);
-    if (data.sparePart) {
+    if (data) {
       return data;
     }
   };

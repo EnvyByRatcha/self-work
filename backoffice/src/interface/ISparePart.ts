@@ -14,5 +14,7 @@ export interface SparePartFormData {
   name: string;
   cost: number;
   price: number;
-  productId: any;
+  qty: number;
+  productId: string;
+  photo: string;
 }

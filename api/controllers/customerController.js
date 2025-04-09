@@ -20,8 +20,6 @@ exports.getAllCustomers = async (req, res, next) => {
       },
       customers: customers,
     });
-
-    res.status(200).json({ message: "success", customers: customers });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
   }
