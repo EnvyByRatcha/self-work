@@ -21,6 +21,15 @@ const inventoryTransitionDetail = new mongoose.Schema(
       ref: "InventoryTransitions",
       required: true,
     },
+    productBashId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ProductBash",
+    },
+    sparePartBashId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SparePartBash",
+    },
+    cost: { type: Number, required: true },
     qty: { type: Number, default: 1 },
     status: { type: String, default: "pending" },
   },

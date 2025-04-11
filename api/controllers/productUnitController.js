@@ -28,21 +28,22 @@ exports.getAllProductUnit = async (req, res, next) => {
 
 exports.createProductUnit = async (req, res, next) => {
   try {
-    const { serialNumber, customerId } = req.body;
+    const { serialNumber, customerId, productId } = req.body;
 
-    const existingProductUnit = await Products.findOne({ serialNumber });
+    const existingProductUnit = await ProductUnits.findOne({ serialNumber });
     if (existingProductUnit) {
       return res.status(409).json({ message: "Product already exits" });
     }
 
-    const newProductUnit = new Products({
+    const newProductUnit = new ProductUnits({
       serialNumber,
       customerId,
+      productId,
     });
 
     await newProductUnit.save();
 
-    res.status(200).json({ message: "success", productUnit: productUnit });
+    res.status(200).json({ message: "success", productUnit: newProductUnit });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
   }
