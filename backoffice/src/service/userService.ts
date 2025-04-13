@@ -5,20 +5,7 @@ import type { User, UserFormData } from "../interface/IUser";
 const baseUrl = `${config.apiPath}/users`;
 
 const userService = {
-  // login: async (
-  //   email: string,
-  //   password: string,
-  //   navigate: (path: string) => void
-  // ) => {
-  //   const response = await axios.post(`${config.apiPath}/auth`, {
-  //     email: email,
-  //     password: password,
-  //   });
-  //   if (response.status == 200) {
-  //     localStorage.setItem("token", response.data.token);
-  //     navigate("/dashboard");
-  //   }
-  // },
+ 
   getAllUsers: async (page: number, limit: number): Promise<UsersResponse> => {
     const response = await axios.get(`${baseUrl}?page=${page}&limit=${limit}`);
     return response.data;

@@ -7,17 +7,26 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-import userService from "../../service/userService";
+import authService from "../../service/authService";
 import { useNavigate } from "react-router-dom";
 
-function Login() {
+function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (event: any) => {
-    event.preventDefault();
-    // await userService.login(email, password, navigate);
+    try {
+      event.preventDefault();
+      await authService.login(email, password).then((data) => {
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+          navigate("/user");
+        }
+      });
+    } catch (error) {
+      console.log("error");
+    }
   };
 
   return (
@@ -62,4 +71,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default LoginPage;

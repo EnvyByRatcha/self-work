@@ -7,7 +7,7 @@ function InventoryListPage() {
     <>
       <TitleBox title={"Inventory management"} />
       <ContentBox>
-        <LinkButton title="Add Product" to="/product/create" />
+        <LinkButton title="Add Transition" to="/inventory/create" />
       </ContentBox>
     </>
   );

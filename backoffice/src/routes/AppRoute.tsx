@@ -1,6 +1,6 @@
-import { Login } from "@mui/icons-material";
 import { createBrowserRouter } from "react-router-dom";
 import Layout from "../components/layout/Layout";
+import LoginPage from "../pages/login/LoginPage";
 import DashboardPage from "../pages/dashboard/DashboardPage";
 import UserListPage from "../pages/user/UserListPage";
 import UserCreatePage from "../pages/user/UserCreatePage";
@@ -11,11 +11,13 @@ import CustomerListPage from "../pages/customer/CustomerListPage";
 import CustomerCreatePage from "../pages/customer/CustomerCreatePage";
 import CategoryListPage from "../pages/category/CategoryListPage";
 import SparePartCreatePage from "../pages/sparePart/SparePartCreatePage";
+import InventoryListPage from "../pages/inventory/InventoryListPage";
+import InventoryCreatePage from "../pages/inventory/InventoryCreatePage";
 
 const router = createBrowserRouter([
   {
     path: "/login",
-    element: <Login />,
+    element: <LoginPage />,
   },
   {
     path: "/",
@@ -60,6 +62,14 @@ const router = createBrowserRouter([
       {
         path: "customer/create",
         element: <CustomerCreatePage />,
+      },
+      {
+        path: "inventory",
+        element: <InventoryListPage />,
+      },
+      {
+        path: "inventory/create",
+        element: <InventoryCreatePage />,
       },
     ],
   },

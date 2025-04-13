@@ -1,5 +1,5 @@
 const { Products } = require("../models/productModel");
-const SpareParts = require("../models/sparePartModel");
+const { SpareParts } = require("../models/sparePartModel");
 const errorHandler = require("../utils/error");
 const cloudinary = require("cloudinary").v2;
 cloudinary.config({
