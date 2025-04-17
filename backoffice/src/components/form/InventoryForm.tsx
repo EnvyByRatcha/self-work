@@ -1,10 +1,14 @@
-import { Button, Grid, SelectChangeEvent, Typography } from "@mui/material";
+import { Grid, SelectChangeEvent, Stack, Typography } from "@mui/material";
 import { useState } from "react";
-import CustomTextField from "../input/CustomTextField";
 import CustomSelect from "../input/CustomSelect";
-import useCategory from "../../hook/category.hook";
 import CustomButton from "../button/CustomButton";
-import type { InventorytransitionFormData } from "../../interface/IInventory";
+import type {
+  InventoryTransitionDetailFormData,
+  InventoryTransitionFormData,
+} from "../../interface/IInventory";
+import useProduct from "../../hook/product.hook";
+import useSparePart from "../../hook/sparePart.hook";
+import CustomTextField from "../input/CustomTextField";
 
 const transitionTypes = [
   {
@@ -25,23 +29,30 @@ const itemTypes = [
 ];
 
 const InventoryForm = ({ onSubmit }: any) => {
-  const [formData, setFormData] = useState<InventorytransitionFormData>({
+  const [formData, setFormData] = useState<InventoryTransitionFormData>({
     transitionType: "stock-in",
     from: "",
     to: "",
   });
-  const [formDataDetail, setFormDataDetail] = useState([
+  const [formDataDetail, setFormDataDetail] = useState<
+    InventoryTransitionDetailFormData[]
+  >([
     {
-      Type: "product",
+      type: "product",
+      productId: "",
+      sparePartId: "",
+      qty: 1,
+      cost: 0,
     },
   ]);
 
-  const { categories } = useCategory();
+  const { products } = useProduct();
+  const { spareParts } = useSparePart();
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target as HTMLInputElement;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
-  };
+  // const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const { name, value } = event.target as HTMLInputElement;
+  //   setFormData((prevData) => ({ ...prevData, [name]: value }));
+  // };
 
   const handleSelectChange = (event: SelectChangeEvent<string>) => {
     const { name, value } = event.target;
@@ -51,19 +62,109 @@ const InventoryForm = ({ onSubmit }: any) => {
     }));
   };
 
+  const handleInputChangeInArr = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    index: number
+  ) => {
+    const { name, value } = event.target as HTMLInputElement;
+    setFormDataDetail((prevData) =>
+      prevData.map((item, i) =>
+        i == index ? { ...item, [name]: value } : item
+      )
+    );
+  };
+
+  const handleSelectChangeInArr = (
+    event: SelectChangeEvent<String>,
+    index: number
+  ) => {
+    const { name, value } = event.target;
+    setFormDataDetail((prevData) =>
+      prevData.map((item, i) =>
+        i == index ? { ...item, [name]: value } : item
+      )
+    );
+  };
+
   const handleAddMoreItem = () => {
     setFormDataDetail([
       ...formDataDetail,
       {
-        Type: "product",
+        type: "product",
+        productId: "",
+        sparePartId: "",
+        qty: 1,
+        cost: 0,
       },
     ]);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    onSubmit(formData, formDataDetail);
   };
+
+  const renderForm = formDataDetail.map((detail, index) => {
+    return (
+      <Stack
+        key={index}
+        direction={"row"}
+        alignItems={"center"}
+        gap={2}
+        marginBottom={2}
+      >
+        <CustomSelect
+          label="Product type"
+          name="type"
+          options={itemTypes.map((type) => {
+            return type;
+          })}
+          value={detail.type}
+          onChange={(e) => handleSelectChangeInArr(e, index)}
+        />
+        {detail.type == "product" ? (
+          <CustomSelect
+            label="Product name"
+            name="productId"
+            required
+            options={products.map((product) => {
+              return { label: product.name, value: product._id };
+            })}
+            value={detail.productId}
+            onChange={(e) => handleSelectChangeInArr(e, index)}
+          />
+        ) : (
+          <CustomSelect
+            label="Sparepart name"
+            name="sparePartId"
+            required
+            options={spareParts.map((sparePart) => {
+              return { label: sparePart.name, value: sparePart._id };
+            })}
+            value={detail.sparePartId}
+            onChange={(e) => handleSelectChangeInArr(e, index)}
+          />
+        )}
+        <CustomTextField
+          label="QTY"
+          name="qty"
+          type="number"
+          required
+          value={detail.qty}
+          onChange={(e) => handleInputChangeInArr(e, index)}
+        />
+        <CustomTextField
+          label="Cost"
+          name="cost"
+          type="number"
+          required
+          value={detail.cost}
+          onChange={(e) => handleInputChangeInArr(e, index)}
+        />
+        <CustomButton title="Remove" backgroundColor="secondary.main" />
+      </Stack>
+    );
+  });
 
   return (
     <>
@@ -98,21 +199,9 @@ const InventoryForm = ({ onSubmit }: any) => {
             />
           </Grid>
           <Grid size={12} paddingX={"40px"} paddingBottom={2}>
-            {formDataDetail.map((detail) => {
-              return (
-                <CustomSelect
-                  label="Product type"
-                  name="type"
-                  options={itemTypes.map((type) => {
-                    return type;
-                  })}
-                  value={detail.Type}
-                  onChange={handleSelectChange}
-                />
-              );
-            })}
-
+            {renderForm}
             <CustomButton title="add more" handleClick={handleAddMoreItem} />
+            <CustomButton title="confirm" type="submit" />
           </Grid>
         </Grid>
       </form>

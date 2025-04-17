@@ -9,7 +9,6 @@ exports.apiError = (err, req, res, next) => {
 };
 
 exports.mapError = (err, status, msg, next) => {
-  console.log("Error: ", err.message);
 
   let error = new Error();
   error.statusCode = status || 500;

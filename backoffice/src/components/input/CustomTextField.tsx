@@ -19,7 +19,7 @@ const CustomTextField = ({
   required,
 }: TextFieldProps) => {
   return (
-    <FormControl fullWidth sx={{ marginBottom: 2 }}>
+    <FormControl fullWidth>
       <TextField
         label={label}
         name={name}

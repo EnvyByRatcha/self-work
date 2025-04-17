@@ -35,7 +35,7 @@ const CustomSelect = ({
   required,
 }: SelectProps) => {
   return (
-    <FormControl variant="filled" fullWidth sx={{ marginBottom: 2 }}>
+    <FormControl variant="filled" fullWidth>
       <InputLabel>{label}</InputLabel>
       <Select
         name={name}

@@ -10,6 +10,7 @@ const sparePartRouter = require("./routes/sparePartRoute");
 const customerRouter = require("./routes/customerRoute");
 const categoryRouter = require("./routes/categoryRoute");
 const productUnitRoute = require("./routes/productUnitRoute");
+const inventoryTransitionRouter = require("./routes/inventoryTransition");
 
 const authRouter = require("./routes/authRoute");
 
@@ -33,6 +34,7 @@ app.use("/api/v1/productUnits", productUnitRoute);
 app.use("/api/v1/spareParts", sparePartRouter);
 app.use("/api/v1/customers", customerRouter);
 app.use("/api/v1/categories", categoryRouter);
+app.use("/api/v1/inventoryTransition", inventoryTransitionRouter);
 
 app.all("*", (req, res, next) => {
   const err = new Error(`Path ${req.originalUrl} not found`);

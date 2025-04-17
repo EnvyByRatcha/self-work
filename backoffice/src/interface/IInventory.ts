@@ -9,7 +9,7 @@ export interface InventoryTransitions {
   updatedAt: string;
 }
 
-export interface InventorytransitionFormData {
+export interface InventoryTransitionFormData {
   transitionType: string;
   from: string;
   to: string;
@@ -19,6 +19,14 @@ export interface InventoryTransitionDetail {
   _id: string;
   transitionId: string;
   itemType: string;
+  qty: number;
+  cost: number;
+}
+
+export interface InventoryTransitionDetailFormData {
+  type: "product" | "sparepart";
+  productId: string;
+  sparePartId: string;
   qty: number;
   cost: number;
 }
