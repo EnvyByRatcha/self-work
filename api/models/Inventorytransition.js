@@ -23,11 +23,11 @@ const inventoryTransitionDetail = new mongoose.Schema(
     },
     productId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Product",
+      ref: "Products",
     },
     sparePartId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "SparePart",
+      ref: "SpareParts",
     },
     cost: { type: Number, required: true },
     qty: { type: Number, default: 1 },

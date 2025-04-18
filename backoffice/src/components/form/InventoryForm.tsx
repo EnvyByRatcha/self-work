@@ -99,6 +99,12 @@ const InventoryForm = ({ onSubmit }: any) => {
     ]);
   };
 
+  const handleRemoveItem = (index: number) => {
+    if (formDataDetail.length > 1) {
+      setFormDataDetail((prevData) => prevData.filter((_, i) => i !== index));
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(formData, formDataDetail);
@@ -161,7 +167,11 @@ const InventoryForm = ({ onSubmit }: any) => {
           value={detail.cost}
           onChange={(e) => handleInputChangeInArr(e, index)}
         />
-        <CustomButton title="Remove" backgroundColor="secondary.main" />
+        <CustomButton
+          title="Remove"
+          backgroundColor="secondary.main"
+          handleClick={() => handleRemoveItem(index)}
+        />
       </Stack>
     );
   });

@@ -4,6 +4,7 @@ export interface InventoryTransitions {
   userId: string;
   from: string;
   to: string;
+  cost: number;
   status: string;
   createdAt: string;
   updatedAt: string;
@@ -18,7 +19,14 @@ export interface InventoryTransitionFormData {
 export interface InventoryTransitionDetail {
   _id: string;
   transitionId: string;
-  itemType: string;
+  productId: {
+    _id: string;
+    name: string;
+  };
+  sparePartId: {
+    _id: string;
+    name: string;
+  };
   qty: number;
   cost: number;
 }
@@ -29,4 +37,9 @@ export interface InventoryTransitionDetailFormData {
   sparePartId: string;
   qty: number;
   cost: number;
+}
+
+export interface TransitionFormData {
+  transition: InventoryTransitionFormData;
+  details: InventoryTransitionDetailFormData[];
 }

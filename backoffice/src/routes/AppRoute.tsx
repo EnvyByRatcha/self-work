@@ -13,6 +13,7 @@ import CategoryListPage from "../pages/category/CategoryListPage";
 import SparePartCreatePage from "../pages/sparePart/SparePartCreatePage";
 import InventoryListPage from "../pages/inventory/InventoryListPage";
 import InventoryCreatePage from "../pages/inventory/InventoryCreatePage";
+import InventoryTransitionDetailPage from "../pages/inventory/InventoryTransitionDetailPage";
 
 const router = createBrowserRouter([
   {
@@ -70,6 +71,10 @@ const router = createBrowserRouter([
       {
         path: "inventory/create",
         element: <InventoryCreatePage />,
+      },
+      {
+        path: "inventory/:id",
+        element: <InventoryTransitionDetailPage />,
       },
     ],
   },

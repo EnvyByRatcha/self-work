@@ -11,6 +11,7 @@ import {
 import DoDisturbAltOutlinedIcon from "@mui/icons-material/DoDisturbAltOutlined";
 import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
 import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
+import { useLocation } from "react-router-dom";
 
 interface TableProps<T> {
   data: T[];
@@ -20,13 +21,17 @@ interface TableProps<T> {
     align?: "left" | "center" | "right";
   }[];
   onRemove?: (id: string) => void;
+  isLinkButton?: boolean;
 }
 
 function CustomTable<T extends { _id: string }>({
   data,
   columns,
   onRemove,
+  isLinkButton,
 }: TableProps<T>) {
+  const location = useLocation();
+
   const renderColumns = columns.map((col) => (
     <TableCell key={col.key as string} align={col.align}>
       {col.label}
@@ -47,9 +52,11 @@ function CustomTable<T extends { _id: string }>({
           );
         })}
         <TableCell align="center" sx={{ width: "240px" }}>
-          <Button>
-            <ArticleOutlinedIcon />
-          </Button>
+          {isLinkButton && (
+            <Button href={`${location.pathname}/${item._id}`}>
+              <ArticleOutlinedIcon />
+            </Button>
+          )}
           <Button>
             <BorderColorOutlinedIcon />
           </Button>

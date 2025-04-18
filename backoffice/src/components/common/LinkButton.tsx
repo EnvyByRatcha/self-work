@@ -1,7 +1,7 @@
 import { Button, Typography } from "@mui/material";
 
 interface LinkButtonProps {
-  title: string;
+  title?: string;
   to: string;
 }
 

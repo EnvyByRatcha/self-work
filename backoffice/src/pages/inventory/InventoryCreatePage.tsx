@@ -4,6 +4,7 @@ import useInventoryTransition from "../../hook/inventoryTransition.hook";
 import {
   InventoryTransitionDetailFormData,
   InventoryTransitionFormData,
+  TransitionFormData,
 } from "../../interface/IInventory";
 
 const InventoryCreatePage = () => {
@@ -11,10 +12,13 @@ const InventoryCreatePage = () => {
 
   const handleTranstionFormSubmit = (
     formData: InventoryTransitionFormData,
-    formDataDetail: InventoryTransitionDetailFormData
+    formDataDetail: InventoryTransitionDetailFormData[]
   ) => {
-    console.log(formData, formDataDetail);
-    createInventoryTransition(formData, formDataDetail);
+    const payload: TransitionFormData = {
+      transition: formData,
+      details: formDataDetail,
+    };
+    createInventoryTransition(payload);
   };
 
   return (
