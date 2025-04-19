@@ -20,6 +20,13 @@ const useSparePart = () => {
     }
   };
 
+  const getSparePartById = async (id: string) => {
+    const data = await sparePartService.getSparePartById(id);
+    if (data.message == "success") {
+      return data;
+    }
+  };
+
   const createSparePart = async (payload: SparePartFormData) => {
     const data = await sparePartService.createSparePart(payload);
     if (data) {
@@ -27,7 +34,14 @@ const useSparePart = () => {
     }
   };
 
-  return { spareParts, createSparePart, totalPage, setCurrentPage, setLimit };
+  return {
+    spareParts,
+    getSparePartById,
+    createSparePart,
+    totalPage,
+    setCurrentPage,
+    setLimit,
+  };
 };
 
 export default useSparePart;

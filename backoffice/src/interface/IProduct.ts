@@ -5,6 +5,7 @@ export interface Product {
   cost: number;
   price: number;
   qty: number;
+  photoUrl: string;
   status: string;
   createdAt: string;
   updatedAt: string;

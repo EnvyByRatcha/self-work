@@ -32,6 +32,20 @@ exports.getAllProduct = async (req, res, next) => {
   }
 };
 
+exports.getProductById = async (req, res, next) => {
+  try {
+    let { id } = req.params;
+    const product = await Products.findById(id);
+
+    res.status(200).json({
+      message: "success",
+      product: product,
+    });
+  } catch (error) {
+    errorHandler.mapError(error, 500, "Internal Server Error", next);
+  }
+};
+
 exports.createProduct = async (req, res, next) => {
   try {
     const { name, cost, categoryName, price, photo } = req.body;

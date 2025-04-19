@@ -7,8 +7,9 @@ sparePartRouter
   .route("/")
   .get(sparePartController.getAllSpareParts)
   .post(sparePartController.createSparePart);
-  sparePartRouter
+sparePartRouter
   .route("/:id")
+  .get(sparePartController.getSparePartById)
   .delete(sparePartController.removeSparePart)
   .put(sparePartController.updateSparePart);
 

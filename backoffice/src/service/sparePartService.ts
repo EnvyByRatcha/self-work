@@ -12,6 +12,10 @@ const sparePartService = {
     const response = await axios.get(`${baseUrl}?page=${page}&limit=${limit}`);
     return response.data;
   },
+  getSparePartById: async (id: string): Promise<SparePartResponse> => {
+    const response = await axios.get(`${baseUrl}/${id}`);
+    return response.data;
+  },
   createSparePart: async (
     payload: SparePartFormData
   ): Promise<SparePartResponse> => {

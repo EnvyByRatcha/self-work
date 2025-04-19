@@ -5,7 +5,7 @@ import useInventoryTransition from "../../hook/inventoryTransition.hook";
 import { inventoryTransitionColumn } from "../../constants/inventoryTransitionColumn";
 import CustomTable from "../../components/table/CustomTable";
 
-function InventoryListPage() {
+const InventoryListPage = () => {
   const { inventoryTransitions } = useInventoryTransition();
 
   return (
@@ -21,6 +21,6 @@ function InventoryListPage() {
       </ContentBox>
     </>
   );
-}
+};
 
 export default InventoryListPage;

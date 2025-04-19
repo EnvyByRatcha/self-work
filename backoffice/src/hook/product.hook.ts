@@ -20,6 +20,13 @@ const useProduct = () => {
     }
   };
 
+  const getProductById = async (id: string) => {
+    const data = await productService.getProductById(id);
+    if (data.message == "success") {
+      return data;
+    }
+  };
+
   const createProduct = async (payload: ProductFormData) => {
     const data = await productService.createProduct(payload);
     if (data) {
@@ -27,7 +34,14 @@ const useProduct = () => {
     }
   };
 
-  return { products, createProduct, totalPage, setCurrentPage, setLimit };
+  return {
+    products,
+    getProductById,
+    createProduct,
+    totalPage,
+    setCurrentPage,
+    setLimit,
+  };
 };
 
 export default useProduct;

@@ -35,6 +35,20 @@ exports.getAllSpareParts = async (req, res, next) => {
   }
 };
 
+exports.getSparePartById = async (req, res, next) => {
+  try {
+    let { id } = req.params;
+    const product = await SpareParts.findById(id);
+
+    res.status(200).json({
+      message: "success",
+      sparePart: sparePart,
+    });
+  } catch (error) {
+    errorHandler.mapError(error, 500, "Internal Server Error", next);
+  }
+};
+
 exports.createSparePart = async (req, res, next) => {
   try {
     const { name, cost, price, productId, photo } = req.body;

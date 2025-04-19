@@ -13,7 +13,7 @@ const ProductListPage = () => {
       <TitleBox title={"Product list"} />
       <ContentBox>
         <LinkButton title="Add Product" to="/product/create" />
-        <CustomTable data={products} columns={productColumn} />
+        <CustomTable data={products} columns={productColumn} isLinkButton/>
       </ContentBox>
     </>
   );

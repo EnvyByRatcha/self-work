@@ -14,6 +14,8 @@ import SparePartCreatePage from "../pages/sparePart/SparePartCreatePage";
 import InventoryListPage from "../pages/inventory/InventoryListPage";
 import InventoryCreatePage from "../pages/inventory/InventoryCreatePage";
 import InventoryTransitionDetailPage from "../pages/inventory/InventoryTransitionDetailPage";
+import ProductDetailPage from "../pages/product/ProductDetailPage";
+import SparePartDetailPage from "../pages/sparePart/SparePartDetailPage";
 
 const router = createBrowserRouter([
   {
@@ -49,12 +51,20 @@ const router = createBrowserRouter([
         element: <ProductCreatePage />,
       },
       {
+        path: "product/:id",
+        element: <ProductDetailPage />,
+      },
+      {
         path: "sparePart",
         element: <SparePartListPage />,
       },
       {
         path: "sparePart/create",
         element: <SparePartCreatePage />,
+      },
+      {
+        path: "sparePart/:id",
+        element: <SparePartDetailPage />,
       },
       {
         path: "customer",

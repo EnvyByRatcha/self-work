@@ -14,7 +14,7 @@ const SparePartListPage = () => {
       <TitleBox title={"Sparepart list"} />
       <ContentBox>
         <LinkButton title="Add Sparepart" to="/sparePart/create" />
-        <CustomTable data={spareParts} columns={sparePartColumn} />
+        <CustomTable data={spareParts} columns={sparePartColumn} isLinkButton />
         <Pagination
           count={totalPage}
           color="primary"

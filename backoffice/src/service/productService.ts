@@ -12,6 +12,10 @@ const productService = {
     const response = await axios.get(`${baseUrl}?page=${page}&limit=${limit}`);
     return response.data;
   },
+  getProductById: async (id: string): Promise<ProductResponse> => {
+    const response = await axios.get(`${baseUrl}/${id}`);
+    return response.data;
+  },
   createProduct: async (payload: ProductFormData): Promise<ProductResponse> => {
     const response = await axios.post(baseUrl, payload);
     return response.data;
