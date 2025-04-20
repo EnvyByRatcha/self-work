@@ -30,7 +30,7 @@ const ProductDetailPage = () => {
 
   return (
     <>
-      <TitleBox title={"Transition Detail"} />
+      <TitleBox title={product?.name || "Product name"} />
       <ContentBox>
         <Stack direction={"row"}>
           {product && !loading && (
@@ -42,7 +42,7 @@ const ProductDetailPage = () => {
                     alt="Product Preview"
                     style={{
                       width: "100%",
-                      maxWidth: "300px",
+                      maxWidth: "160px",
                       marginTop: "10px",
                       objectFit: "contain",
                       border: "1px solid rgb(195, 211, 219)",

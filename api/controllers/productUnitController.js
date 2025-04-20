@@ -1,14 +1,17 @@
-const { ProductUnits } = require("../models/productModel");
+const { ProductUnits, ProductBashes } = require("../models/productModel");
 const errorHandler = require("../utils/error");
 
 exports.getAllProductUnit = async (req, res, next) => {
   try {
+    const productId = req.params.id;
     let { page, limit } = req.body;
     page = parseInt(page) || 1;
     limit = parseInt(limit) || 10;
     const skip = (page - 1) * limit;
 
-    const productUnits = await ProductUnits.find().skip(skip).limit(limit);
+    const productUnits = await ProductUnits.find({ productId })
+      .skip(skip)
+      .limit(limit);
     const totalProductUnits = await ProductUnits.countDocuments();
 
     const totalPages = Math.ceil(totalProductUnits / limit);
@@ -28,17 +31,33 @@ exports.getAllProductUnit = async (req, res, next) => {
 
 exports.createProductUnit = async (req, res, next) => {
   try {
-    const { serialNumber, customerId, productId } = req.body;
+    const { serialNumber, productBashId, productId, customerId } = req.body;
+
+    const productBash = await ProductBashes.findById(productBashId);
+    if (!productBash) {
+      return res.status(404).json({ message: "Product bash not found" });
+    }
 
     const existingProductUnit = await ProductUnits.findOne({ serialNumber });
     if (existingProductUnit) {
       return res.status(409).json({ message: "Product already exits" });
     }
 
+    const totalProductUnits = await ProductUnits.countDocuments({
+      productBashId,
+    });
+
+    if (totalProductUnits >= productBash.qty) {
+      return res
+        .status(409)
+        .json({ message: "Cannot register more units than available" });
+    }
+
     const newProductUnit = new ProductUnits({
       serialNumber,
       customerId,
       productId,
+      productBashId,
     });
 
     await newProductUnit.save();

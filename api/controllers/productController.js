@@ -37,6 +37,10 @@ exports.getProductById = async (req, res, next) => {
     let { id } = req.params;
     const product = await Products.findById(id);
 
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
     res.status(200).json({
       message: "success",
       product: product,
@@ -92,7 +96,7 @@ exports.updateProduct = async (req, res, next) => {
     );
 
     if (!updateProduct) {
-      return res.status(409).json({ message: "Product already exits" });
+      return res.status(404).json({ message: "Product not found" });
     }
 
     res.status(200).json({ message: "success", product: updateProduct });

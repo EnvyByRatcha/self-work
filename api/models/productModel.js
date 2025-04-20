@@ -41,9 +41,14 @@ const productBashSchema = new mongoose.Schema(
 const productUnitSchema = new mongoose.Schema(
   {
     serialNumber: { type: String, unique: true, required: true },
-    producBashtId: {
+    productId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "ProductBash",
+      ref: "Products",
+      required: true,
+    },
+    productBashId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ProductBashes",
       required: true,
     },
     customerId: {
@@ -59,7 +64,7 @@ const productUnitSchema = new mongoose.Schema(
 const Categories = mongoose.model("Categories", categorySchema);
 
 const Products = mongoose.model("Products", productSchema);
-const ProductBash = mongoose.model("ProductBash", productBashSchema);
+const ProductBashes = mongoose.model("ProductBashes", productBashSchema);
 const ProductUnits = mongoose.model("ProductUnits", productUnitSchema);
 
-module.exports = { Products, ProductBash, ProductUnits, Categories };
+module.exports = { Products, ProductBashes, ProductUnits, Categories };
