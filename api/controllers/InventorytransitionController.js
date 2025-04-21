@@ -2,8 +2,8 @@ const {
   InventoryTransitions,
   InventoryTransitionDetail,
 } = require("../models/Inventorytransition");
-const { ProductBash } = require("../models/productModel");
-const { SparePartBash } = require("../models/sparePartModel");
+const { ProductBashes } = require("../models/productModel");
+const { SparePartBashes } = require("../models/sparePartModel");
 const errorHandler = require("../utils/error");
 
 exports.getAllInventoryTransitions = async (req, res, next) => {
@@ -111,7 +111,7 @@ exports.approveTransition = async (req, res, next) => {
     for (let i = 0; i < transitionDetails.length; i++) {
       const target = transitionDetails[i];
       if (target.productId !== null) {
-        await ProductBash.create([
+        await ProductBashes.create([
           {
             productId: target.productId.toString(),
             cost: target.cost,
@@ -120,7 +120,7 @@ exports.approveTransition = async (req, res, next) => {
         ]);
       }
       if (target.sparePartId !== null) {
-        await SparePartBash.create([
+        await SparePartBashes.create([
           {
             sparePartId: target.sparePartId.toString(),
             cost: target.cost,

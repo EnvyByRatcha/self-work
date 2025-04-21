@@ -12,7 +12,8 @@ import CustomButton from "../../components/button/CustomButton";
 
 function InventoryTransitionDetailPage() {
   const { id } = useParams();
-  const { fetchInventoryTransitionDetail } = useInventoryTransition();
+  const { fetchInventoryTransitionDetail, approveTransition } =
+    useInventoryTransition();
 
   const [transition, setTransition] = useState<InventoryTransitions>();
   const [transitionDetail, setTransitionDetail] = useState<
@@ -36,7 +37,11 @@ function InventoryTransitionDetailPage() {
     });
   };
 
-  const handleConfirm = () => {};
+  const handleConfirm = (id: string) => {
+    approveTransition(id).then((result) => {
+      console.log("success");
+    });
+  };
 
   return (
     <>
@@ -70,7 +75,10 @@ function InventoryTransitionDetailPage() {
             </Paper>
           )}
         </Stack>
-        <CustomButton title="confirm" handleClick={handleConfirm} />
+        <CustomButton
+          title="confirm"
+          handleClick={() => handleConfirm(transition!._id)}
+        />
       </ContentBox>
     </>
   );

@@ -49,7 +49,7 @@ const sparePartUnitSchema = new mongoose.Schema(
 );
 
 const SpareParts = mongoose.model("SpareParts", sparePartSchema);
-const SparePartBash = mongoose.model("SparePartBashes", sparePartBashSchema);
+const SparePartBashes = mongoose.model("SparePartBashes", sparePartBashSchema);
 const SpartPartUnit = mongoose.model("SparePartUnit", sparePartUnitSchema);
 
-module.exports = { SpareParts, SparePartBash, SpartPartUnit };
+module.exports = { SpareParts, SparePartBashes, SpartPartUnit };

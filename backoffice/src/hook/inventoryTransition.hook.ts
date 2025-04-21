@@ -46,10 +46,18 @@ const useInventoryTransition = () => {
     }
   };
 
+  const approveTransition = async (id: string) => {
+    const data = await inventoryTransitionService.approveTransition(id);
+    if (data) {
+      return data;
+    }
+  };
+
   return {
     inventoryTransitions,
     fetchInventoryTransitionDetail,
     createInventoryTransition,
+    approveTransition,
     totalPage,
     setCurrentPage,
     setLimit,

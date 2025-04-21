@@ -18,3 +18,16 @@ export interface ProductFormData {
   categoryName: string;
   photo: string;
 }
+
+export interface ProductUnit {
+  serialNumber: string;
+  productBashId: string;
+  customerId: string;
+  status: string;
+}
+
+export interface ProductUnitFormData {
+  serialNumber: string;
+  productId: string;
+  productBashId: string;
+}

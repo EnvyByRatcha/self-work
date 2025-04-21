@@ -6,6 +6,7 @@ const cors = require("cors");
 const errorHandler = require("./utils/error");
 const userRouter = require("./routes/userRoute");
 const productRouter = require("./routes/productRoute");
+const productBashRouter = require("./routes/productBashRoute");
 const sparePartRouter = require("./routes/sparePartRoute");
 const customerRouter = require("./routes/customerRoute");
 const categoryRouter = require("./routes/categoryRoute");
@@ -30,6 +31,7 @@ mongoose
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/products", productRouter);
+app.use("/api/v1/productBash", productBashRouter);
 app.use("/api/v1/productUnits", productUnitRoute);
 app.use("/api/v1/spareParts", sparePartRouter);
 app.use("/api/v1/customers", customerRouter);

@@ -1,18 +1,18 @@
 import axios from "axios";
 import config from "../config";
-import type {
-  ProductUnit,
-  ProductUnitFormData,
-} from "../interface/IProductUnit";
+import type { ProductUnit, ProductUnitFormData } from "../interface/IProduct";
 
 const baseUrl = `${config.apiPath}/productUnits`;
 
-const productService = {
+const productUnitService = {
   getAllProductUnit: async (
+    id: string,
     page: number,
     limit: number
   ): Promise<ProductUnitsResponse> => {
-    const response = await axios.get(`${baseUrl}?page=${page}&limit=${limit}`);
+    const response = await axios.get(
+      `${baseUrl}/${id}?page=${page}&limit=${limit}`
+    );
     return response.data;
   },
   createProductUnit: async (
@@ -34,11 +34,11 @@ const productService = {
   },
 };
 
-export default productService;
+export default productUnitService;
 
 interface ProductUnitResponse {
   message: string;
-  product?: ProductUnit;
+  productUnit?: ProductUnit;
 }
 
 interface ProductUnitsResponse {
@@ -47,5 +47,5 @@ interface ProductUnitsResponse {
     totalPage: number;
     currentPage: number;
   };
-  products: ProductUnit[];
+  productUnits: ProductUnit[];
 }

@@ -29,6 +29,12 @@ const inventoryTransitionService = {
     const response = await axios.post(baseUrl, payload, { headers });
     return response.data;
   },
+  approveTransition: async (
+    id: string
+  ): Promise<InventoryTransitionResponse> => {
+    const response = await axios.put(`${baseUrl}/approve/${id}`);
+    return response.data;
+  },
 };
 
 export default inventoryTransitionService;

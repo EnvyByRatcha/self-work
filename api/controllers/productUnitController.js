@@ -1,7 +1,7 @@
 const { ProductUnits, ProductBashes } = require("../models/productModel");
 const errorHandler = require("../utils/error");
 
-exports.getAllProductUnit = async (req, res, next) => {
+exports.getProductUnitByProductId = async (req, res, next) => {
   try {
     const productId = req.params.id;
     let { page, limit } = req.body;

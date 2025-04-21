@@ -1,4 +1,4 @@
-import { Pagination, setRef } from "@mui/material";
+import { Pagination } from "@mui/material";
 import ContentBox from "../../components/common/ContentBox";
 import TitleBox from "../../components/common/TitleBox";
 import CustomTextField from "../../components/input/CustomTextField";
