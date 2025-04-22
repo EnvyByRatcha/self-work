@@ -127,8 +127,8 @@ const ProductDetailPage = () => {
             }}
           >
             <CustomSelect
-              label="Category"
-              name="categoryName"
+              label="Bash-Id"
+              name="productBashId"
               options={productBashes.map((bash) => {
                 return { label: bash._id, value: bash._id };
               })}

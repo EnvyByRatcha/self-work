@@ -8,12 +8,14 @@ function TitleBox({ title }: TitleBoxProps) {
   return (
     <Box
       sx={{
-        borderBottom: "1px solid rgb(195, 211, 219)",
+        backgroundColor: "background.default",
+        outline: "solid 1px",
+        outlineColor: "outline.color",
         paddingX: "40px",
         paddingY: "24px",
       }}
     >
-      <Typography fontSize={"1.75rem"} fontWeight={700}>
+      <Typography fontSize={"1.75rem"} fontWeight={700} color="textPrimary">
         {title}
       </Typography>
     </Box>
