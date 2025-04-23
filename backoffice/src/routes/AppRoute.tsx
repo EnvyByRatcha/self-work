@@ -1,4 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
+import ProtectRoute from "./ProtectRoute";
 import Layout from "../components/layout/Layout";
 import LoginPage from "../pages/login/LoginPage";
 import DashboardPage from "../pages/dashboard/DashboardPage";
@@ -16,6 +17,7 @@ import InventoryCreatePage from "../pages/inventory/InventoryCreatePage";
 import InventoryTransitionDetailPage from "../pages/inventory/InventoryTransitionDetailPage";
 import ProductDetailPage from "../pages/product/ProductDetailPage";
 import SparePartDetailPage from "../pages/sparePart/SparePartDetailPage";
+import NotFoundPage from "../pages/notFound/NotFoundPage";
 
 const router = createBrowserRouter([
   {
@@ -24,7 +26,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/",
-    element: <Layout />,
+    element: (
+      <ProtectRoute>
+        <Layout />
+      </ProtectRoute>
+    ),
     children: [
       {
         path: "dashboard",
@@ -86,7 +92,12 @@ const router = createBrowserRouter([
         path: "inventory/:id",
         element: <InventoryTransitionDetailPage />,
       },
+      { path: "*", element: <NotFoundPage /> },
     ],
+  },
+  {
+    path: "*",
+    element: <NotFoundPage />,
   },
 ]);
 

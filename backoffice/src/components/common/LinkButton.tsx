@@ -9,14 +9,15 @@ function LinkButton({ title, to }: LinkButtonProps) {
   return (
     <Button
       href={to}
-      variant="contained"
       sx={{
-        bgcolor: "#3385F0",
+        bgcolor: "custom.linkButton",
         padding: "8px 16px",
         borderRadius: "8px",
         "&:hover": {
-          bgcolor: "#2B71CC",
+          bgcolor: "custom.linkButtonHover",
         },
+        textTransform: "none",
+        color: "text.secondary",
       }}
       disableElevation
     >

@@ -1,15 +1,8 @@
-import {
-  Box,
-  Button,
-  FormControl,
-  Grid,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-} from "@mui/material";
+import { Box, Grid, SelectChangeEvent, Stack } from "@mui/material";
 import { useState } from "react";
 import CustomTextField from "../input/CustomTextField";
 import CustomSelect from "../input/CustomSelect";
+import CustomButton from "../button/CustomButton";
 
 interface userFormData {
   firstName: string;
@@ -53,63 +46,72 @@ const UserForm = ({ onSubmit }: any) => {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "12px",
-      }}
-    >
-      <Grid container spacing={2}>
-        <Grid size={8}>
-          <CustomTextField
-            label="Email address"
-            name="email"
-            type="email"
-            required
-            value={formData.email}
-            onChange={handleChange}
-          />
-          <CustomTextField
-            label="First name"
-            name="firstName"
-            type="text"
-            required
-            value={formData.firstName}
-            onChange={handleChange}
-          />
-          <CustomTextField
-            label="Last name"
-            name="lastName"
-            type="text"
-            required
-            value={formData.lastName}
-            onChange={handleChange}
-          />
-          <CustomTextField
-            label="Password"
-            name="password"
-            type="password"
-            required
-            value={formData.password}
-            onChange={handleChange}
-          />
+    <Box sx={{ maxWidth: "900px", marginX: "auto" }}>
+      <form
+        onSubmit={handleSubmit}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "40px",
+        }}
+      >
+        <Grid container rowSpacing={2} spacing={2}>
+          <Grid size={{ xs: 12 }}>
+            <CustomTextField
+              label="Email address"
+              name="email"
+              type="email"
+              required
+              value={formData.email}
+              onChange={handleChange}
+            />
+          </Grid>
+
+          <Grid size={{ xs: 12 }}>
+            <CustomTextField
+              label="First name"
+              name="firstName"
+              type="text"
+              required
+              value={formData.firstName}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid size={{ xs: 12 }}>
+            <CustomTextField
+              label="Last name"
+              name="lastName"
+              type="text"
+              required
+              value={formData.lastName}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid size={{ xs: 12 }}>
+            <CustomTextField
+              label="Password"
+              name="password"
+              type="password"
+              required
+              value={formData.password}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid size={{ xs: 12 }}>
+            <CustomSelect
+              label="Level"
+              name="level"
+              options={optionLevel}
+              value={formData.level}
+              onChange={handleSelectChange}
+            />
+          </Grid>
         </Grid>
-        <Grid size={4}>
-          <CustomSelect
-            label="Level"
-            name="level"
-            options={optionLevel}
-            value={formData.level}
-            onChange={handleSelectChange}
-          />
-        </Grid>
-      </Grid>
-      <Button type="submit" variant="contained" color="primary">
-        Create User
-      </Button>
-    </form>
+        <Stack direction={"row"}>
+          <CustomButton title="Proceed" type="submit" />
+        </Stack>
+      </form>
+    </Box>
   );
 };
 

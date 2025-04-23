@@ -58,10 +58,13 @@ function Sidebar() {
   return (
     <Box
       sx={{
+        backgroundColor: "sidebar.color",
         position: "sticky",
         width: "300px",
         height: "100vh",
-        borderRight: "1px solid rgb(195, 211, 219)",
+        outline: "solid 1px",
+        outlineColor: "outline.color",
+        zIndex: 2,
       }}
     >
       <Box
@@ -74,7 +77,7 @@ function Sidebar() {
           paddingRight: "32px",
         }}
       >
-        <Typography fontSize={"1.25rem"} fontWeight={600}>
+        <Typography fontSize={"1.25rem"} fontWeight={600} color="textPrimary">
           {`< SELF WORK />`}
         </Typography>
       </Box>

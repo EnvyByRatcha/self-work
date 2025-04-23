@@ -9,9 +9,8 @@ function ContentBox({ children }: ContentBoxProps) {
     <Box
       sx={{
         backgroundColor: "background.default",
-        outline: "solid 1px",
-        outlineColor: "outline.color",
         padding: "40px",
+        minHeight: "calc(100vh - 308px)",
       }}
     >
       {children}

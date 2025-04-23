@@ -42,7 +42,11 @@ function CustomTable<T extends { _id: string }>({
     return (
       <TableRow
         key={item._id}
-        sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+        sx={{
+          bgcolor: "background.default",
+          borderBottom: "1px solid",
+          borderColor: "outline.color",
+        }}
       >
         {columns.map((col) => {
           return (
@@ -73,10 +77,11 @@ function CustomTable<T extends { _id: string }>({
   return (
     <TableContainer
       component={Paper}
-      sx={{ marginTop: "40px", borderRadius: "12px" }}
+      elevation={0}
+      sx={{ marginTop: "40px", borderRadius: "12px 12px 0px 0px" }}
     >
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
-        <TableHead sx={{ bgcolor: "#F7FAFC" }}>
+        <TableHead sx={{ bgcolor: "table.color" }}>
           <TableRow>
             {renderColumns}
             <TableCell align="center">Option</TableCell>

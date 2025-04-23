@@ -17,11 +17,11 @@ function NavButton({ title, to, icon: Icon }: LinkButtonProps) {
         paddingX: "16px",
         paddingY: "8px",
         "&:hover": {
-          bgcolor: "#F1F6F8",
+          bgcolor: "siderbar.hover",
         },
       }}
     >
-      <Stack direction={"row"} gap={"8px"} color={"rgb(27, 33, 36)"}>
+      <Stack direction={"row"} gap={"8px"} color={"sidebar.text"}>
         {Icon && <Icon sx={{ fontSize: "1rem" }} />}
         <Typography fontSize={"12px"}>{title}</Typography>
       </Stack>

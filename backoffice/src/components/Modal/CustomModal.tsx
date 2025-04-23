@@ -30,18 +30,21 @@ const CustomModal = ({ title, open, setOpen, children }: ContentBoxProps) => {
   return (
     <div>
       <Button
-        variant="contained"
         sx={{
-          bgcolor: "#3385F0",
+          bgcolor: "custom.linkButton",
           padding: "8px 16px",
           borderRadius: "8px",
           "&:hover": {
-            bgcolor: "#2B71CC",
+            bgcolor: "custom.linkButtonHover",
           },
+          textTransform: "none",
+          color: "text.secondary",
         }}
         onClick={() => setOpen(true)}
       >
-        {title}
+        <Typography fontSize={"14px"} fontWeight={600}>
+          {title}
+        </Typography>
       </Button>
       <Modal open={open} onClose={handleClose}>
         <Box sx={style}>

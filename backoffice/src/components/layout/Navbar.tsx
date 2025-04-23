@@ -7,15 +7,24 @@ function Navbar() {
   return (
     <Box
       sx={{
-        bgcolor: "rgb(255,255,255)",
-        paddingLeft: "40px",
-        paddingRight: "40px",
-        borderBottom: "1px solid rgb(195, 211, 219)",
+        position: "sticky",
+        top: 0,
+        zIndex: 1,
+        backgroundColor: "background.default",
+        outline: "solid 1px",
+        outlineColor: "outline.color",
+        paddingX: "40px",
         minHeight: "82px",
       }}
     >
-      <Stack direction={"row"} height={"100%"} alignItems={"center"}>
-        <Typography fontSize={"1.5rem"} fontWeight={600}>
+      <Stack
+        direction={"row"}
+        height={"82px"}
+        justifyContent={"center"}
+        spacing={2}
+        alignItems={"center"}
+      >
+        <Typography fontSize={"1.5rem"} fontWeight={600} color="textPrimary">
           Navbar
         </Typography>
         <Button onClick={toggleTheme}>

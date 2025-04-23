@@ -44,20 +44,6 @@ const CustomSelect = ({
         onChange={onChange}
         fullWidth
         MenuProps={MenuProps}
-        sx={{
-          backgroundColor: "#EBF2F5",
-          borderRadius: "8px",
-          "&:hover": {
-            backgroundColor: "#DBE6EB",
-          },
-          "&.Mui-focused": {
-            backgroundColor: "#EAF3FD",
-            outline: "1px solid #2C7BE5",
-          },
-          "&:before, &:after": {
-            display: "none",
-          },
-        }}
       >
         {options.map((option) => (
           <MenuItem key={option.value} value={option.value}>

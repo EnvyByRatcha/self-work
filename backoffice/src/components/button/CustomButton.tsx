@@ -27,25 +27,29 @@ const CustomButton = ({
       disabled={disable}
       type={type == "submit" ? "submit" : "button"}
       sx={{
-        flex: fullWidth ? 1 : "unset",
         justifyContent: "center",
         alignItems: "center",
-        width: fullWidth ? "100%" : "unset",
-        backgroundColor: backgroundColor ? backgroundColor : "#3385F0",
-        color: color ? color : "#ffffff",
-        fontSize: "16px",
-        fontWeight: 700,
+        minWidth: 0,
+        width: fullWidth ? "100%" : "auto",
+        padding: "8px 16px",
+        backgroundColor: backgroundColor
+          ? backgroundColor
+          : "custom.customButton",
+        color: color ? color : "text.primary",
+        borderRadius: "8px",
         gap: "8px",
         "&:hover": {
-          opacity: 0.9,
-          backgroundColor,
+          backgroundColor: "custom.customButtonHover",
         },
+        textTransform: "none",
       }}
-      variant="contained"
+      variant="text"
       onClick={handleClick}
     >
       {icon && <Stack>{icon}</Stack>}
-      <Typography>{title}</Typography>
+      <Typography fontWeight={600} fontSize={"14px"}>
+        {title}
+      </Typography>
     </Button>
   );
 };
