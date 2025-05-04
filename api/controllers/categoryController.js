@@ -1,7 +1,7 @@
-const mongoose = require("mongoose");
 const { Category } = require("../models/productModel");
 const errorHandler = require("../utils/error");
 const { GENERAL_STATUS } = require("../utils/enum");
+const { isValidObjectId } = require("../utils/validators");
 
 const MAX_LIMIT = 50;
 
@@ -36,7 +36,7 @@ exports.getAllCategory = async (req, res, next) => {
     }
 
     const filter = {};
-    if (search) {
+    if (search.trim()) {
       filter.name = { $regex: search.trim(), $options: "i" };
     }
 
@@ -68,7 +68,8 @@ exports.getAllCategory = async (req, res, next) => {
     const categories = await Category.find(filter)
       .sort(sortOption)
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .learn();
 
     res.status(200).json({
       success: true,
@@ -91,8 +92,12 @@ exports.createCategory = async (req, res, next) => {
   try {
     let { name } = req.body;
 
-    if (!name || typeof name !== "string") {
-      return res.status(400).json({ message: "Invalid category name" });
+    if (!name || typeof name !== "string" || name.trim() === "") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid category name",
+        errors: { name: "Name must be a non-empty string" },
+      });
     }
 
     name = name.trim().toLowerCase();
@@ -123,9 +128,9 @@ exports.createCategory = async (req, res, next) => {
 
 exports.updateCategoryById = async (req, res, next) => {
   try {
-    const categoryId = req.params.id;
+    const { id } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+    if (!isValidObjectId(categoryId)) {
       return res.status(400).json({
         success: false,
         message: "Invalid category ID",
@@ -141,14 +146,30 @@ exports.updateCategoryById = async (req, res, next) => {
       }
     });
 
-    const updatedCategory = await Category.findByIdAndUpdate(
-      categoryId,
-      updates,
-      {
-        new: true,
-        runValidators: true,
+    if (updates.name) {
+      if (typeof updates.name !== "string" || updates.name.trim() === "") {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid category name",
+          errors: { name: "Name must be a non-empty string" },
+        });
       }
-    );
+
+      updates.name = updates.name.trim().toLowerCase();
+      const duplicate = await Category.findOne({ name: updates.name });
+      if (duplicate && duplicate._id.toString() !== id) {
+        return res.status(409).json({
+          success: false,
+          message: "Category already exists",
+          errors: { name: "Duplicate category name" },
+        });
+      }
+    }
+
+    const updatedCategory = await Category.findByIdAndUpdate(id, updates, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!updatedCategory) {
       return res.status(404).json({
@@ -168,11 +189,11 @@ exports.updateCategoryById = async (req, res, next) => {
   }
 };
 
-exports.removeCategoryById = async (req, res, next) => {
+exports.inactiveCategoryById = async (req, res, next) => {
   try {
-    const categoryId = req.params.id;
+    const { id } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+    if (!isValidObjectId(categoryId)) {
       return res.status(400).json({
         success: false,
         message: "Invalid category ID",
@@ -180,7 +201,7 @@ exports.removeCategoryById = async (req, res, next) => {
       });
     }
 
-    const category = await Category.findById(categoryId);
+    const category = await Category.findById(id);
 
     if (!category) {
       return res.status(404).json({
