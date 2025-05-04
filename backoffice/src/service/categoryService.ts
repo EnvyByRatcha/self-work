@@ -1,48 +1,89 @@
 import axios from "axios";
 import config from "../config";
 import type { Category, CategoryFormData } from "../interface/ICategory";
+import type { ErrorResponse } from "../interface/IError";
+import { handleAxiosError } from "../utils/handleAxiosError";
 
 const baseUrl = `${config.apiPath}/categories`;
 
 const categoryService = {
   getAllCategory: async (
     page: number,
-    limit: number
-  ): Promise<GetResponseProducts> => {
-    const response = await axios.get(`${baseUrl}?page=${page}&limit=${limit}`);
-    return response.data;
+    limit: number,
+    search?: string,
+    sort?: string,
+    order?: "asc" | "desc",
+    status?: string
+  ): Promise<GetCategoriesResponse | ErrorResponse> => {
+    try {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+      });
+
+      if (search) params.append("search", search);
+      if (sort) params.append("sort", sort);
+      if (order) params.append("order", order);
+      if (status) params.append("status", status);
+
+      const response = await axios.get(`${baseUrl}?${params.toString()}`);
+      return response.data;
+    } catch (error) {
+      return handleAxiosError(error, "fetching the categories");
+    }
   },
   createCategory: async (
     payload: CategoryFormData
-  ): Promise<CategoryResponse> => {
-    const response = await axios.post(baseUrl, payload);
-    return response.data;
+  ): Promise<CategoryResponse | ErrorResponse> => {
+    try {
+      const response = await axios.post(baseUrl, payload);
+      return response.data;
+    } catch (error) {
+      return handleAxiosError(error, "creating the category");
+    }
   },
   updateCategory: async (
     id: string,
     payload: Category
-  ): Promise<CategoryResponse> => {
-    const response = await axios.put(`${baseUrl}/${id}`, payload);
-    return response.data;
+  ): Promise<CategoryResponse | ErrorResponse> => {
+    try {
+      const response = await axios.put(`${baseUrl}/${id}`, payload);
+      return response.data;
+    } catch (error) {
+      return handleAxiosError(error, "updating the category");
+    }
   },
-  removeCategory: async (id: string): Promise<CategoryResponse> => {
-    const response = await axios.delete(`${baseUrl}/${id}`);
-    return response.data;
+  removeCategory: async (
+    id: string
+  ): Promise<CategoryResponse | ErrorResponse> => {
+    try {
+      const response = await axios.delete(`${baseUrl}/${id}`);
+      return response.data;
+    } catch (error) {
+      return handleAxiosError(error, "removing the category");
+    }
   },
 };
 
 export default categoryService;
 
-interface GetResponseProducts {
+interface GetCategoriesResponse {
+  success: boolean;
   message: string;
-  page: {
-    totalPage: number;
-    currentPage: number;
+  data: {
+    categories: Category[];
+    pagination: {
+      totalPage: number;
+      currentPage: number;
+      totalItems: number;
+    };
   };
-  categories: Category[];
 }
 
 interface CategoryResponse {
+  success: boolean;
   message: string;
-  category?: Category;
+  data: {
+    category: Category;
+  };
 }

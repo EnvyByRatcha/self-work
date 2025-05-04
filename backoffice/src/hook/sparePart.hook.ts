@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import sparePartService from "../service/sparePartService";
 import type { SparePart, SparePartFormData } from "../interface/ISparePart";
+import { unwrapOrError } from "../utils/upwrapOrError";
 
 const useSparePart = () => {
   const [spareParts, setSpareParts] = useState<SparePart[]>([]);
@@ -8,30 +9,36 @@ const useSparePart = () => {
   const [totalPage, setTotalPage] = useState(1);
   const [limit, setLimit] = useState(5);
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     fetchSparePart(currentPage, limit);
   }, [currentPage]);
 
   const fetchSparePart = async (page: number, limit: number) => {
-    const data = await sparePartService.getAllSparePart(page, limit);
-    if (data.spareParts) {
-      setSpareParts(data.spareParts);
-      setTotalPage(data.page.totalPage);
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await sparePartService.getAllSparePart(page, limit);
+      const result = unwrapOrError(data);
+      setSpareParts(result.data.spareParts);
+      setTotalPage(result.data.pagination.totalPage);
+    } catch (error) {
+      setError("fail to fetching product");
+    } finally {
+      setLoading(false);
     }
   };
 
   const getSparePartById = async (id: string) => {
     const data = await sparePartService.getSparePartById(id);
-    if (data.message == "success") {
-      return data;
-    }
+    return data;
   };
 
   const createSparePart = async (payload: SparePartFormData) => {
     const data = await sparePartService.createSparePart(payload);
-    if (data) {
-      return data;
-    }
+    return data;
   };
 
   return {
@@ -41,6 +48,8 @@ const useSparePart = () => {
     totalPage,
     setCurrentPage,
     setLimit,
+    loading,
+    error,
   };
 };
 

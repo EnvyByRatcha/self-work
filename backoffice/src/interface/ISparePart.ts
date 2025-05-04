@@ -1,9 +1,8 @@
 export interface SparePart {
   _id: string;
   name: string;
-  cost: number;
-  price: number;
   qty: number;
+  photoUrl: string;
   productId: any;
   status: string;
   createdAt: string;
@@ -12,9 +11,6 @@ export interface SparePart {
 
 export interface SparePartFormData {
   name: string;
-  cost: number;
-  price: number;
-  qty: number;
   productId: string;
   photo: string;
 }

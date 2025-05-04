@@ -21,7 +21,7 @@ const UserCreatePage = () => {
   return (
     <>
       <TitleBox title="Add user" />
-      <ContentBox>
+      <ContentBox padding>
         <UserForm onSubmit={handleUserFormSubmit} />
       </ContentBox>
     </>

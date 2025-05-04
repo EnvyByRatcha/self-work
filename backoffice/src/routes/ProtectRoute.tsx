@@ -12,9 +12,6 @@ const isTokenValid = () => {
   try {
     const decode = jwtDecode(token);
     const currentTime = Date.now() / 1000;
-    console.log(currentTime);
-    console.log(decode.exp);
-
     if (!decode.exp) {
       return false;
     }

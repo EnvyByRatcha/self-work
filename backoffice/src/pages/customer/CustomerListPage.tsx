@@ -12,7 +12,7 @@ const CustomerListPage = () => {
   return (
     <>
       <TitleBox title={"Customer list"} />
-      <ContentBox>
+      <ContentBox padding>
         <LinkButton title="Add customer" to="/customer/create" />
         <CustomTable data={customers} columns={customerColumn} />
         <Pagination

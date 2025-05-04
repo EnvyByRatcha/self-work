@@ -1,41 +1,37 @@
-import { Alert, Snackbar } from "@mui/material";
 import TitleBox from "../../components/common/TitleBox";
+import ContentBox from "../../components/common/ContentBox";
 import ProductForm from "../../components/form/ProductForm";
 import useProduct from "../../hook/product.hook";
 import type { ProductFormData } from "../../interface/IProduct";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+
+import { Notyf } from "notyf";
+
+const notyf = new Notyf();
 
 const ProductCreatePage = () => {
   const { createProduct } = useProduct();
 
-  const [openSnackbar, setOpenSnackbar] = useState(false);
   const navigate = useNavigate();
 
-  const handleProductFormSubmit = (productFormData: ProductFormData) => {
-    createProduct(productFormData).then((data) => {
-      if (data?.message == "success") {
-        setOpenSnackbar(true);
-        setTimeout(() => {
-          navigate("/product");
-        }, 2000);
-      }
-    });
+  const handleProductFormSubmit = async (productFormData: ProductFormData) => {
+    const data = await createProduct(productFormData);
+    if (data?.success) {
+      notyf.success(data.message);
+      setTimeout(() => {
+        navigate("/product");
+      }, 2000);
+      return;
+    }
+    notyf.error(data?.message);
   };
 
   return (
     <>
       <TitleBox title="Add product" />
-      <ProductForm onSubmit={handleProductFormSubmit} />
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={3000} // แสดงข้อความ 3 วินาที
-        onClose={() => setOpenSnackbar(false)} // ปิด Snackbar
-      >
-        <Alert onClose={() => setOpenSnackbar(false)} severity="success">
-          Product added successfully!
-        </Alert>
-      </Snackbar>
+      <ContentBox padding>
+        <ProductForm onSubmit={handleProductFormSubmit} />
+      </ContentBox>
     </>
   );
 };

@@ -20,7 +20,7 @@ const UserListPage = () => {
   return (
     <>
       <TitleBox title={"User list"} />
-      <ContentBox>
+      <ContentBox padding>
         <LinkButton title="Add user" to="/user/create" />
         <CustomTable
           data={users}

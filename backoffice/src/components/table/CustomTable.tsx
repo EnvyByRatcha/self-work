@@ -12,6 +12,7 @@ import DoDisturbAltOutlinedIcon from "@mui/icons-material/DoDisturbAltOutlined";
 import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
 import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
 import { useLocation } from "react-router-dom";
+import dayjs from "dayjs";
 
 interface TableProps<T> {
   data: T[];
@@ -49,11 +50,14 @@ function CustomTable<T extends { _id: string }>({
         }}
       >
         {columns.map((col) => {
-          return (
-            <TableCell key={col.key as string}>
-              {item[col.key] as string}
-            </TableCell>
-          );
+          const value = item[col.key];
+          let displayValue = value as string;
+
+          if (col.key === "updatedAt") {
+            displayValue = dayjs(value as string).format("DD/MM/YYYY");
+          }
+
+          return <TableCell key={col.key as string}>{displayValue}</TableCell>;
         })}
         <TableCell align="center" sx={{ width: "240px" }}>
           {isLinkButton && (
@@ -78,7 +82,7 @@ function CustomTable<T extends { _id: string }>({
     <TableContainer
       component={Paper}
       elevation={0}
-      sx={{ marginTop: "40px", borderRadius: "12px 12px 0px 0px" }}
+      sx={{ marginTop: "20px", borderRadius: "12px 12px 0px 0px" }}
     >
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead sx={{ bgcolor: "table.color" }}>

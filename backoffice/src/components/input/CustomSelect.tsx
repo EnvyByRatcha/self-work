@@ -44,6 +44,7 @@ const CustomSelect = ({
         onChange={onChange}
         fullWidth
         MenuProps={MenuProps}
+        size="small"
       >
         {options.map((option) => (
           <MenuItem key={option.value} value={option.value}>

@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const Users = require("../models/userModel");
 const encrypt = require("../utils/encrypt");
 const errorHandler = require("../utils/error");
@@ -33,8 +34,18 @@ exports.getAllUsers = async (req, res, next) => {
 
 exports.getUserById = async (req, res, next) => {
   try {
-    const userId = req.params.id;
-    const user = await Users.findById({ _id: userId }).select("-password -__v");
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+
+    const user = await Users.findById(id).select("-password -__v");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
     res.status(200).json({ message: "success", user: user });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
@@ -45,8 +56,12 @@ exports.createUser = async (req, res, next) => {
   try {
     const { firstName, lastName, email, password, level } = req.body;
 
-    const existingEmail = await Users.findOne({ email });
-    if (existingEmail) {
+    if (!firstName || !lastName || !email || !password || !level) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    const existingUser = await Users.findOne({ email });
+    if (existingUser) {
       return res.status(409).json({ message: "Email already exists" });
     }
 
@@ -67,14 +82,18 @@ exports.createUser = async (req, res, next) => {
   }
 };
 
-exports.updateUser = async (req, res, next) => {
+exports.updateUserById = async (req, res, next) => {
   try {
-    const userId = req.params.id;
+    const { id } = req.params;
 
-    const restrictedFields = ["_id", "role", "createAt"];
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+
+    const restrictedFields = ["_id", "email", "role", "createAt"];
     restrictedFields.forEach((field) => delete req.body[field]);
 
-    const updatedUser = await Users.findByIdAndUpdate(userId, req.body, {
+    const updatedUser = await Users.findByIdAndUpdate(id, req.body, {
       new: true,
       runValidators: true,
     });
@@ -89,9 +108,14 @@ exports.updateUser = async (req, res, next) => {
   }
 };
 
-exports.removeUser = async (req, res, next) => {
+exports.removeUserById = async (req, res, next) => {
   try {
-    const userId = req.params.id;
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+    
     const user = await Users.findById(userId);
 
     if (!user) {

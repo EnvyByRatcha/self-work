@@ -1,4 +1,4 @@
-import { Box, Grid, SelectChangeEvent, Typography } from "@mui/material";
+import { Box, Grid, SelectChangeEvent, Stack, Typography } from "@mui/material";
 import { useState } from "react";
 import CustomTextField from "../input/CustomTextField";
 import CustomSelect from "../input/CustomSelect";
@@ -7,12 +7,11 @@ import CustomButton from "../button/CustomButton";
 import { SparePartFormData } from "../../interface/ISparePart";
 import useProduct from "../../hook/product.hook";
 
+import InfoIcon from "@mui/icons-material/Info";
+
 const SparePartForm = ({ onSubmit }: any) => {
   const [formData, setFormData] = useState<SparePartFormData>({
     name: "",
-    cost: 0,
-    price: 0,
-    qty: 0,
     productId: "",
     photo: "",
   });
@@ -59,21 +58,19 @@ const SparePartForm = ({ onSubmit }: any) => {
   };
 
   return (
-    <>
+    <Box sx={{ width: "100%", marginX: "auto" }}>
       <form
         onSubmit={handleSubmit}
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: "12px",
-          borderBottom: "1px solid rgb(195, 211, 219)",
         }}
       >
-        <Grid container spacing={2}>
+        <Grid container>
           <Grid
-            size={4}
+            size={{ xs: 12, md: 4 }}
             padding={"40px"}
-            sx={{ borderRight: "1px solid rgb(195, 211, 219)" }}
+            sx={{ outline: "solid 1px", outlineColor: "outline.color" }}
           >
             <CustomFile
               handleImageChange={handleImageChange}
@@ -96,48 +93,42 @@ const SparePartForm = ({ onSubmit }: any) => {
               </Box>
             )}
           </Grid>
-          <Grid size={8} padding={"40px"}>
-            <Typography fontSize={"1rem"} fontWeight={700} mb={"20px"}>
-              Sparepart detail
-            </Typography>
-            <CustomTextField
-              label="Sparepart name"
-              name="name"
-              type="text"
-              required
-              value={formData.name}
-              onChange={handleChange}
-            />
-            <CustomTextField
-              label="Cost."
-              name="cost"
-              type="number"
-              required
-              value={formData.cost}
-              onChange={handleChange}
-            />
-            <CustomTextField
-              label="Price."
-              name="price"
-              type="number"
-              required
-              value={formData.price}
-              onChange={handleChange}
-            />
-            <CustomSelect
-              label="Product"
-              name="productId"
-              options={products.map((product) => {
-                return { label: product.name, value: product._id };
-              })}
-              value={formData.productId}
-              onChange={handleSelectChange}
-            />
-            <CustomButton title="Add sparepart" type="submit" />
+          <Grid size={{ xs: 12, md: 8 }} paddingX={{ xs: "40px" }}>
+            <Stack direction={"row"} gap={2}>
+              <InfoIcon sx={{ color: "custom.linkButton" }} />
+              <Typography
+                fontSize={"1rem"}
+                fontWeight={700}
+                mb={"20px"}
+                color="text.primary"
+              >
+                Sparepart details
+              </Typography>
+            </Stack>
+            <Grid container rowSpacing={2} spacing={2}>
+              <CustomTextField
+                label="Sparepart name"
+                name="name"
+                type="text"
+                required
+                value={formData.name}
+                onChange={handleChange}
+              />
+              <CustomSelect
+                label="Product"
+                name="productId"
+                options={products.map((product) => {
+                  return { label: product.name, value: product._id };
+                })}
+                value={formData.productId}
+                onChange={handleSelectChange}
+              />
+              <CustomButton title="Proceed" type="submit" />
+            </Grid>
           </Grid>
         </Grid>
       </form>
-    </>
+    </Box>
   );
 };
 

@@ -8,7 +8,6 @@ type ProductColumn = {
 
 export const productColumn: ProductColumn[] = [
   { key: "name", label: "Product Name" },
-  { key: "cost", label: "Cost" },
-  { key: "price", label: "Price" },
   { key: "qty", label: "QTY" },
+  { key: "updatedAt", label: "Last update" },
 ];

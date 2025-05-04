@@ -6,7 +6,7 @@ function NotFoundPage() {
   return (
     <>
       <TitleBox title={"Page not found"} />
-      <ContentBox>
+      <ContentBox padding>
         <Typography>
           No worries! Let’s take you back while our bear is searching everywhere
         </Typography>

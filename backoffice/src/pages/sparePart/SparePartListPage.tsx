@@ -12,7 +12,7 @@ const SparePartListPage = () => {
   return (
     <>
       <TitleBox title={"Sparepart list"} />
-      <ContentBox>
+      <ContentBox padding>
         <LinkButton title="Add Sparepart" to="/sparePart/create" />
         <CustomTable data={spareParts} columns={sparePartColumn} isLinkButton />
         <Pagination

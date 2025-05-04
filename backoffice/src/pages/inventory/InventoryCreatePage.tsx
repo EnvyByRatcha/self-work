@@ -1,3 +1,4 @@
+import ContentBox from "../../components/common/ContentBox";
 import TitleBox from "../../components/common/TitleBox";
 import InventoryForm from "../../components/form/InventoryForm";
 import useInventoryTransition from "../../hook/inventoryTransition.hook";
@@ -24,7 +25,9 @@ const InventoryCreatePage = () => {
   return (
     <>
       <TitleBox title="Add transition" />
-      <InventoryForm onSubmit={handleTranstionFormSubmit} />
+      <ContentBox padding>
+        <InventoryForm onSubmit={handleTranstionFormSubmit} />
+      </ContentBox>
     </>
   );
 };

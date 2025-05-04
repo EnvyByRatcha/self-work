@@ -7,8 +7,7 @@ type SparePartColumn = {
 };
 
 export const sparePartColumn: SparePartColumn[] = [
-  { key: "name", label: "Spare part Name" },
-  { key: "cost", label: "Cost" },
-  { key: "price", label: "Price" },
+  { key: "name", label: "Product Name" },
   { key: "qty", label: "QTY" },
+  { key: "updatedAt", label: "Last update" },
 ];

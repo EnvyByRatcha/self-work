@@ -1,4 +1,4 @@
-import { Grid, SelectChangeEvent, Stack, Typography } from "@mui/material";
+import { Box, Grid, SelectChangeEvent, Stack, Typography } from "@mui/material";
 import { useState } from "react";
 import CustomSelect from "../input/CustomSelect";
 import CustomButton from "../button/CustomButton";
@@ -9,11 +9,22 @@ import type {
 import useProduct from "../../hook/product.hook";
 import useSparePart from "../../hook/sparePart.hook";
 import CustomTextField from "../input/CustomTextField";
+import InfoIcon from "@mui/icons-material/Info";
+import PostAddOutlinedIcon from "@mui/icons-material/PostAddOutlined";
+import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
 
 const transitionTypes = [
   {
     label: "stock-in",
     value: "stock-in",
+  },
+  {
+    label: "stock-out",
+    value: "stock-out",
+  },
+  {
+    label: "return-stock",
+    value: "return-stock",
   },
 ];
 
@@ -48,11 +59,6 @@ const InventoryForm = ({ onSubmit }: any) => {
 
   const { products } = useProduct();
   const { spareParts } = useSparePart();
-
-  // const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   const { name, value } = event.target as HTMLInputElement;
-  //   setFormData((prevData) => ({ ...prevData, [name]: value }));
-  // };
 
   const handleSelectChange = (event: SelectChangeEvent<string>) => {
     const { name, value } = event.target;
@@ -168,8 +174,9 @@ const InventoryForm = ({ onSubmit }: any) => {
           onChange={(e) => handleInputChangeInArr(e, index)}
         />
         <CustomButton
-          title="Remove"
-          backgroundColor="secondary.main"
+          icon={<ClearOutlinedIcon />}
+          color="text.secondary"
+          backgroundColor="custom.dangerButton"
           handleClick={() => handleRemoveItem(index)}
         />
       </Stack>
@@ -177,27 +184,35 @@ const InventoryForm = ({ onSubmit }: any) => {
   });
 
   return (
-    <>
+    <Box sx={{ width: "100%", marginX: "auto" }}>
       <form
         onSubmit={handleSubmit}
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: "12px",
-          borderBottom: "1px solid rgb(195, 211, 219)",
+          gap: "40px",
         }}
       >
         <Grid container spacing={2}>
           <Grid
             size={12}
-            padding={"40px"}
-            sx={{
-              borderBottom: "1px solid rgb(195, 211, 219)",
-            }}
+            sx={(theme) => ({
+              paddingBottom: "40px",
+              borderBottom: "1px solid",
+              borderColor: theme.palette.custom.borderColor,
+            })}
           >
-            <Typography fontSize={"1rem"} fontWeight={700} mb={"20px"}>
-              Transition details
-            </Typography>
+            <Stack direction={"row"} gap={2}>
+              <InfoIcon sx={{ color: "custom.linkButton" }} />
+              <Typography
+                fontSize={"1rem"}
+                fontWeight={700}
+                mb={"20px"}
+                color="text.primary"
+              >
+                Transition info
+              </Typography>
+            </Stack>
             <CustomSelect
               label="Transition type  "
               name="transitionType"
@@ -208,14 +223,27 @@ const InventoryForm = ({ onSubmit }: any) => {
               onChange={handleSelectChange}
             />
           </Grid>
-          <Grid size={12} paddingX={"40px"} paddingBottom={2}>
+          <Grid size={12} mt={"20px"}>
+            <Stack direction={"row"} gap={2}>
+              <PostAddOutlinedIcon sx={{ color: "custom.linkButton" }} />
+              <Typography
+                fontSize={"1rem"}
+                fontWeight={700}
+                mb={"20px"}
+                color="text.primary"
+              >
+                Transition detai
+              </Typography>
+            </Stack>
             {renderForm}
-            <CustomButton title="add more" handleClick={handleAddMoreItem} />
-            <CustomButton title="confirm" type="submit" />
           </Grid>
         </Grid>
+        <Stack direction={"row"} gap={2}>
+          <CustomButton title="add more" handleClick={handleAddMoreItem} />
+          <CustomButton title="Proceed" type="submit" />
+        </Stack>
       </form>
-    </>
+    </Box>
   );
 };
 

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { GENERAL_STATUS } = require("../utils/enum");
 
 const UserSchema = new mongoose.Schema(
   {
@@ -7,11 +8,15 @@ const UserSchema = new mongoose.Schema(
     email: { type: String, required: true },
     password: { type: String, required: true },
     level: { type: String, default: "employee" },
-    status: { type: String, default: "used" },
+    status: {
+      type: String,
+      enum: GENERAL_STATUS,
+      default: "active",
+    },
   },
   { timestamps: true }
 );
 
-const Users = mongoose.model("Users", UserSchema);
+const Users = mongoose.model("User", UserSchema);
 
 module.exports = Users;

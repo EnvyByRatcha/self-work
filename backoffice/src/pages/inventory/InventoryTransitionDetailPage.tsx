@@ -46,7 +46,7 @@ function InventoryTransitionDetailPage() {
   return (
     <>
       <TitleBox title={"Transition Detail"} />
-      <ContentBox>
+      <ContentBox padding>
         <Stack gap={2}>
           {transition && !loading && (
             <Paper>

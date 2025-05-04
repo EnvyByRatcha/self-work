@@ -1,4 +1,4 @@
-export interface InventoryTransitions {
+export interface InventoryTransition {
   _id: string;
   transitionType: string;
   userId: string;

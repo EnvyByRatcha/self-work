@@ -2,14 +2,15 @@ import { Box } from "@mui/material";
 
 interface ContentBoxProps {
   children: React.ReactNode;
+  padding?: boolean;
 }
 
-function ContentBox({ children }: ContentBoxProps) {
+function ContentBox({ children, padding }: ContentBoxProps) {
   return (
     <Box
       sx={{
         backgroundColor: "background.default",
-        padding: "40px",
+        padding: padding ? "40px" : "unset",
         minHeight: "calc(100vh - 308px)",
       }}
     >

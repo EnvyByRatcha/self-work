@@ -9,7 +9,7 @@ categoryRouter
   .post(categoryController.createCategory);
 categoryRouter
   .route("/:id")
-  .delete(categoryController.removeCategory)
-  .put(categoryController.updateCategory);
+  .delete(categoryController.removeCategoryById)
+  .put(categoryController.updateCategoryById);
 
 module.exports = categoryRouter;

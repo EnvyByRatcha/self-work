@@ -10,7 +10,7 @@ sparePartRouter
 sparePartRouter
   .route("/:id")
   .get(sparePartController.getSparePartById)
-  .delete(sparePartController.removeSparePart)
+  .delete(sparePartController.deactivateSparePart)
   .put(sparePartController.updateSparePart);
 
 module.exports = sparePartRouter;

@@ -1,8 +1,9 @@
-import { Box, Grid, SelectChangeEvent, Stack } from "@mui/material";
+import { Box, Grid, SelectChangeEvent, Stack, Typography } from "@mui/material";
 import { useState } from "react";
 import CustomTextField from "../input/CustomTextField";
 import CustomSelect from "../input/CustomSelect";
 import CustomButton from "../button/CustomButton";
+import InfoIcon from "@mui/icons-material/Info";
 
 interface userFormData {
   firstName: string;
@@ -56,6 +57,18 @@ const UserForm = ({ onSubmit }: any) => {
         }}
       >
         <Grid container rowSpacing={2} spacing={2}>
+          <Stack direction={"row"} gap={2}>
+            <InfoIcon sx={{ color: "custom.linkButton" }} />
+            <Typography
+              fontSize={"1rem"}
+              fontWeight={700}
+              mb={"8px"}
+              color="text.primary"
+            >
+              User details
+            </Typography>
+          </Stack>
+
           <Grid size={{ xs: 12 }}>
             <CustomTextField
               label="Email address"
@@ -66,7 +79,6 @@ const UserForm = ({ onSubmit }: any) => {
               onChange={handleChange}
             />
           </Grid>
-
           <Grid size={{ xs: 12 }}>
             <CustomTextField
               label="First name"

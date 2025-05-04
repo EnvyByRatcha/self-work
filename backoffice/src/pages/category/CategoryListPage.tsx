@@ -9,10 +9,19 @@ import CustomTable from "../../components/table/CustomTable";
 import { categoryColumn } from "../../constants/categoryColumn";
 import CustomButton from "../../components/button/CustomButton";
 import type { CategoryFormData } from "../../interface/ICategory";
+import { Notyf } from "notyf";
+
+const notyf = new Notyf();
 
 const CategoryListPage = () => {
-  const { categories, createCustomer, totalPage, setCurrentPage } =
-    useCategory();
+  const {
+    categories,
+    createCategory,
+    totalPage,
+    setCurrentPage,
+    loading,
+    error,
+  } = useCategory();
 
   const [formData, setFormData] = useState<CategoryFormData>({
     name: "",
@@ -20,21 +29,24 @@ const CategoryListPage = () => {
 
   const [openModal, setOpenModal] = useState<boolean>(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    createCustomer(formData).then((data) => {
-      if (data?.message == "success") {
-        setFormData({ name: "" });
-        setOpenModal(false);
-        categories.unshift(data.category!);
-      }
-    });
+
+    const data = await createCategory(formData);
+    if (data?.success) {
+      setFormData({ name: "" });
+      setOpenModal(false);
+      notyf.success(data.message);
+      return;
+    }
+
+    notyf.error(data.message);
   };
 
   return (
     <>
       <TitleBox title={"Category list"} />
-      <ContentBox>
+      <ContentBox padding>
         <CustomModal
           title="Add category"
           open={openModal}
@@ -45,7 +57,7 @@ const CategoryListPage = () => {
             style={{
               display: "flex",
               flexDirection: "column",
-              gap: 2,
+              gap: "12px",
               marginTop: "12px",
             }}
           >
@@ -59,7 +71,7 @@ const CategoryListPage = () => {
                 setFormData({ ...formData, name: e.target.value })
               }
             />
-            <CustomButton type="submit" title="Add category" />
+            <CustomButton type="submit" title="Proceed" />
           </form>
         </CustomModal>
         <CustomTable data={categories} columns={categoryColumn} />

@@ -1,9 +1,9 @@
-import { Button, Stack, Typography } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import { ReactNode } from "react";
 
 interface CustomerButtonProps {
   type?: string;
-  title: string;
+  title?: string;
   backgroundColor?: string;
   color?: string;
   fullWidth?: boolean;
@@ -46,10 +46,21 @@ const CustomButton = ({
       variant="text"
       onClick={handleClick}
     >
-      {icon && <Stack>{icon}</Stack>}
-      <Typography fontWeight={600} fontSize={"14px"}>
-        {title}
-      </Typography>
+      {icon && (
+        <span
+          style={{
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          {icon}
+        </span>
+      )}
+      {title && (
+        <Typography fontWeight={600} fontSize={"14px"}>
+          {title}
+        </Typography>
+      )}
     </Button>
   );
 };

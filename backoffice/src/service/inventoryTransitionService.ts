@@ -2,9 +2,11 @@ import axios from "axios";
 import config from "../config";
 import type {
   InventoryTransitionDetail,
-  InventoryTransitions,
+  InventoryTransition,
   TransitionFormData,
 } from "../interface/IInventory";
+import type { ErrorResponse } from "../interface/IError";
+import { handleAxiosError } from "../utils/handleAxiosError";
 
 const baseUrl = `${config.apiPath}/inventoryTransition`;
 const headers = config.headers();
@@ -12,49 +14,87 @@ const headers = config.headers();
 const inventoryTransitionService = {
   getAllInventoryTransitions: async (
     page: number,
-    limit: number
-  ): Promise<GetResponseInventoryTransitions> => {
-    const response = await axios.get(`${baseUrl}?page=${page}&limit=${limit}`);
-    return response.data;
+    limit: number,
+    sort?: string,
+    order?: "asc" | "desc",
+    status?: string
+  ): Promise<GetTransitionsResponse | ErrorResponse> => {
+    try {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+      });
+
+      if (sort) params.append("sort", sort);
+      if (order) params.append("order", order);
+      if (status) params.append("status", status);
+
+      const response = await axios.get(`${baseUrl}?${params.toString()}`);
+      return response.data;
+    } catch (error) {
+      return handleAxiosError(error, "fetching the transitions");
+    }
   },
   getInventoryTransitionById: async (
     id: string
-  ): Promise<GetResponseInventoryTransition> => {
-    const response = await axios.get(`${baseUrl}/${id}`);
-    return response.data;
+  ): Promise<InventoryTransitionDetailResponse | ErrorResponse> => {
+    try {
+      const response = await axios.get(`${baseUrl}/${id}`);
+      return response.data;
+    } catch (error) {
+      return handleAxiosError(error, "fetching the transition");
+    }
   },
   createInventoryTransition: async (
     payload: TransitionFormData
-  ): Promise<InventoryTransitionResponse> => {
-    const response = await axios.post(baseUrl, payload, { headers });
-    return response.data;
+  ): Promise<TransitionResponse | ErrorResponse> => {
+    try {
+      const response = await axios.post(baseUrl, payload, { headers });
+      return response.data;
+    } catch (error) {
+      return handleAxiosError(error, "creating the transition");
+    }
   },
   approveTransition: async (
     id: string
-  ): Promise<InventoryTransitionResponse> => {
-    const response = await axios.put(`${baseUrl}/approve/${id}`);
-    return response.data;
+  ): Promise<TransitionResponse | ErrorResponse> => {
+    try {
+      const response = await axios.put(`${baseUrl}/approve/${id}`);
+      return response.data;
+    } catch (error) {
+      return handleAxiosError(error, "approve the transition");
+    }
   },
 };
 
 export default inventoryTransitionService;
 
-interface GetResponseInventoryTransitions {
+interface GetTransitionsResponse {
+  success: boolean;
   message: string;
-  page: {
-    totalPage: number;
-    currentPage: number;
+  data: {
+    inventoryTransitions: InventoryTransition[];
+    pagination: {
+      totalPage: number;
+      currentPage: number;
+      totalItems: number;
+    };
   };
-  inventoryTransitions: InventoryTransitions[];
 }
 
-interface GetResponseInventoryTransition {
+interface TransitionResponse {
+  success: boolean;
   message: string;
-  inventoryTransition: InventoryTransitions;
-  inventoryTransitionDetail: InventoryTransitionDetail[];
+  data: {
+    inventoryTransition: InventoryTransition;
+  };
 }
 
-interface InventoryTransitionResponse {
+interface InventoryTransitionDetailResponse {
+  success: boolean;
   message: string;
-  inventoryTransition?: InventoryTransitions;
+  data: {
+    inventoryTransition: InventoryTransition;
+    inventoryTransitionDetail: InventoryTransitionDetail[];
+  };
 }

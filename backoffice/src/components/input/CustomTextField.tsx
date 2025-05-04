@@ -30,6 +30,11 @@ const CustomTextField = ({
         onChange={onChange}
         fullWidth
         size="small"
+        sx={{
+          "& .MuiFormLabel-asterisk": {
+            display: "none",
+          },
+        }}
       />
     </FormControl>
   );

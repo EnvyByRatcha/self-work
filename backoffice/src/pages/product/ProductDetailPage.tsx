@@ -8,7 +8,7 @@ import {
   ProductUnit,
   ProductUnitFormData,
 } from "../../interface/IProduct";
-import { Box, Paper, Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import CustomModal from "../../components/Modal/CustomModal";
 import CustomTextField from "../../components/input/CustomTextField";
 import CustomButton from "../../components/button/CustomButton";
@@ -16,6 +16,7 @@ import CustomSelect from "../../components/input/CustomSelect";
 import { ProductBash } from "../../interface/IProductBash";
 import useProductBash from "../../hook/productBash.hook";
 import useProductUnit from "../../hook/productUnit.hook";
+import dayjs from "dayjs";
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -83,35 +84,35 @@ const ProductDetailPage = () => {
   return (
     <>
       <TitleBox title={product?.name || "Product name"} />
-      <ContentBox>
-        <Stack direction={"row"}>
-          {product && !loading && (
-            <>
-              <Paper>
-                <Box style={{ marginTop: "20px" }}>
-                  <img
-                    src={product.photoUrl}
-                    alt="Product Preview"
-                    style={{
-                      width: "100%",
-                      maxWidth: "160px",
-                      marginTop: "10px",
-                      objectFit: "contain",
-                      border: "1px solid rgb(195, 211, 219)",
-                      borderRadius: "8px",
-                    }}
-                  />
-                </Box>
-              </Paper>
-              <Paper>
-                <Typography>{product.name}</Typography>
-                <Typography>{product.status}</Typography>
-                <Typography>{product.createdAt}</Typography>
-                <Typography>{product.updatedAt}</Typography>
-              </Paper>
-            </>
-          )}
-        </Stack>
+      <ContentBox padding>
+        {product && !loading && (
+          <Stack direction={"row"} gap={2}>
+            <Box>
+              <img
+                src={product.photoUrl}
+                alt="Product Preview"
+                style={{
+                  width: "100%",
+                  maxWidth: "160px",
+                  objectFit: "contain",
+                  border: "1px solid rgb(195, 211, 219)",
+                  borderRadius: "8px",
+                }}
+              />
+            </Box>
+            <Box>
+              <Typography color="textPrimary">{product.name}</Typography>
+              <Typography color="textPrimary">{product.status}</Typography>
+              <Typography color="textPrimary">
+                {`Create: ${dayjs(product.createdAt).format("DD/MM/YYYY")}`}
+              </Typography>
+              <Typography color="textPrimary">
+                {`Update: ${dayjs(product.updatedAt).format("DD/MM/YYYY")}`}
+              </Typography>
+            </Box>
+          </Stack>
+        )}
+
         <CustomModal
           title={"Register product"}
           open={openModal}
@@ -122,7 +123,7 @@ const ProductDetailPage = () => {
             style={{
               display: "flex",
               flexDirection: "column",
-              gap: 2,
+              gap: "12px",
               marginTop: "12px",
             }}
           >
@@ -148,12 +149,14 @@ const ProductDetailPage = () => {
                 setFormData({ ...formData, serialNumber: e.target.value })
               }
             />
-            <CustomButton type="submit" title="register product" />
+            <CustomButton type="submit" title="Proceed" />
           </form>
         </CustomModal>
         {productUnits.map((item, index) => {
           return (
-            <Typography>{`${index + 1} / ${item.serialNumber}`}</Typography>
+            <Typography key={index} color="textPrimary" mt={2}>{`${
+              index + 1
+            }. ${item.serialNumber}`}</Typography>
           );
         })}
       </ContentBox>

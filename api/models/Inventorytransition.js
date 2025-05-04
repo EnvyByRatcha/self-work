@@ -5,7 +5,7 @@ const inventoryTransitionSchema = new mongoose.Schema(
     transitionType: { type: String, required: true },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Users",
+      ref: "User",
       required: true,
     },
     cost: { type: Number },
@@ -18,26 +18,34 @@ const inventoryTransitionDetail = new mongoose.Schema(
   {
     transitionId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "InventoryTransitions",
+      ref: "InventoryTransition",
       required: true,
+    },
+    productBatchId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ProductBatch",
     },
     productId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Products",
+      ref: "Product",
+    },
+    sparePartBatchId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SparePartBatch",
     },
     sparePartId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "SpareParts",
+      ref: "SparePart",
     },
-    cost: { type: Number, required: true },
+    cost: { type: Number, default: 0 },
     qty: { type: Number, default: 1 },
     status: { type: String, default: "pending" },
   },
   { timestamps: true }
 );
 
-const InventoryTransitions = mongoose.model(
-  "InventoryTransitions",
+const InventoryTransition = mongoose.model(
+  "InventoryTransition",
   inventoryTransitionSchema
 );
 const InventoryTransitionDetail = mongoose.model(
@@ -46,6 +54,6 @@ const InventoryTransitionDetail = mongoose.model(
 );
 
 module.exports = {
-  InventoryTransitions,
+  InventoryTransition,
   InventoryTransitionDetail,
 };

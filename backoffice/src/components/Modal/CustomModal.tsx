@@ -18,7 +18,8 @@ const style = {
   transform: "translate(-50%, -50%)",
   width: 400,
   bgcolor: "background.paper",
-  border: "2px solid rgb(195, 211, 219)",
+  outline: "solid 2px",
+  outlineColor: "outline.color",
   borderRadius: "8px",
   boxShadow: 24,
   p: 4,
@@ -48,7 +49,14 @@ const CustomModal = ({ title, open, setOpen, children }: ContentBoxProps) => {
       </Button>
       <Modal open={open} onClose={handleClose}>
         <Box sx={style}>
-          <Typography fontWeight={700}>{title}</Typography>
+          <Typography
+            fontWeight={700}
+            fontSize={"14px"}
+            color="text.primary"
+            mb={2}
+          >
+            {title}
+          </Typography>
           {children}
         </Box>
       </Modal>

@@ -19,8 +19,8 @@ const CustomerCreatePage = () => {
 
   return (
     <>
-      <TitleBox title="Add user" />
-      <ContentBox>
+      <TitleBox title="Add customer" />
+      <ContentBox padding>
         <CustomerForm onSubmit={handleCustomerFormSubmit} />
       </ContentBox>
     </>

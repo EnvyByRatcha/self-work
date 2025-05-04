@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { GENERAL_STATUS } = require("../utils/enum");
 
 const sparePartSchema = new mongoose.Schema(
   {
@@ -6,26 +7,34 @@ const sparePartSchema = new mongoose.Schema(
     qty: { type: Number, default: 0 },
     productId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Products",
+      ref: "Product",
       required: true,
     },
     photoUrl: { type: String, require: true },
-    status: { type: String, default: "used" },
+    status: {
+      type: String,
+      enum: GENERAL_STATUS,
+      default: "active",
+    },
   },
   { timestamps: true }
 );
 
-const sparePartBashSchema = new mongoose.Schema(
+const sparePartBatchSchema = new mongoose.Schema(
   {
     sparePartId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "SpareParts",
+      ref: "SparePart",
       required: true,
     },
     cost: { type: Number, default: 0 },
     price: { type: Number, default: 0 },
     qty: { type: Number, default: 0 },
-    status: { type: String, default: "used" },
+    status: {
+      type: String,
+      enum: GENERAL_STATUS,
+      default: "active",
+    },
   },
   { timestamps: true }
 );
@@ -33,23 +42,27 @@ const sparePartBashSchema = new mongoose.Schema(
 const sparePartUnitSchema = new mongoose.Schema(
   {
     serialNumber: { type: String, unique: true, required: true },
-    producBashtId: {
+    sparePartBatchId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "ProductBash",
+      ref: "SparePartBatch",
       required: true,
     },
-    customerId: {
+    userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Customers",
+      ref: "User",
       default: null,
     },
-    status: { type: String, default: "used" },
+    status: {
+      type: String,
+      enum: GENERAL_STATUS,
+      default: "active",
+    },
   },
   { timestamps: true }
 );
 
-const SpareParts = mongoose.model("SpareParts", sparePartSchema);
-const SparePartBashes = mongoose.model("SparePartBashes", sparePartBashSchema);
+const SparePart = mongoose.model("SparePart", sparePartSchema);
+const SparePartBatch = mongoose.model("SparePartBatch", sparePartBatchSchema);
 const SpartPartUnit = mongoose.model("SparePartUnit", sparePartUnitSchema);
 
-module.exports = { SpareParts, SparePartBashes, SpartPartUnit };
+module.exports = { SparePart, SparePartBatch, SpartPartUnit };

@@ -26,6 +26,8 @@ export const getTheme = (mode: "light" | "dark") => {
               linkButtonHover: "#2B71CD",
               customButton: "#EBF2F5",
               customButtonHover: "#DBE6EB",
+              borderColor: "rgb(195, 211, 219",
+              dangerButton: "rgb(225, 114, 134)",
             },
             sidebar: {
               color: "#FFFFFF",
@@ -57,6 +59,8 @@ export const getTheme = (mode: "light" | "dark") => {
               linkButtonHover: "#7DB1F5",
               customButton: "#1b2124",
               customButtonHover: "#262D30",
+              borderColor: "rgb(38, 45, 48)",
+              dangerButton: "rgb(225, 114, 134)",
             },
             sidebar: {
               color: "rgb(17, 20, 23)",
@@ -72,6 +76,13 @@ export const getTheme = (mode: "light" | "dark") => {
       fontFamily: "Plus Jakarta Sans, sans-serif",
     },
     components: {
+      MuiInputLabel: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            color: theme.palette.text.primary,
+          }),
+        },
+      },
       MuiTextField: {
         styleOverrides: {
           root: ({ theme }) => ({
@@ -125,6 +136,8 @@ declare module "@mui/material/styles" {
       linkButtonHover: string;
       customButton: string;
       customButtonHover: string;
+      borderColor: string;
+      dangerButton: string;
     };
   }
 
@@ -137,6 +150,8 @@ declare module "@mui/material/styles" {
       linkButtonHover: string;
       customButton: string;
       customButtonHover: string;
+      borderColor: string;
+      dangerButton: string;
     };
   }
 }
