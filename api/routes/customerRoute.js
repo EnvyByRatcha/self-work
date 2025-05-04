@@ -10,6 +10,6 @@ customerRouter
 customerRouter
   .route("/:id")
   .put(customerController.updateCustomer)
-  .delete(customerController.removeCustomer);
+  .delete(customerController.deactivateCustomer);
 
 module.exports = customerRouter;

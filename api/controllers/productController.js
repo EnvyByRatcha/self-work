@@ -188,6 +188,13 @@ exports.updateProduct = async (req, res, next) => {
       }
     });
 
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No valid fields to update",
+      });
+    }
+
     const updatedProduct = await Product.findByIdAndUpdate(id, updates, {
       new: true,
       runValidators: true,
