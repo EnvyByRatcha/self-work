@@ -1,31 +1,86 @@
-const { default: mongoose } = require("mongoose");
 const User = require("../models/userModel");
 const encrypt = require("../utils/encrypt");
 const errorHandler = require("../utils/error");
 const dotenv = require("dotenv");
+const { isValidObjectId } = require("../utils/validators");
+const {
+  createUserSchema,
+  updateUserSchema,
+} = require("../validators/user.validator");
 dotenv.config();
+
+const MAX_LIMIT = 50;
 
 exports.getAllUsers = async (req, res, next) => {
   try {
-    let { page, limit } = req.query;
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || 10;
-    const skip = (page - 1) * limit;
+    let {
+      page = 1,
+      limit = 10,
+      sort = "createdAt",
+      order = "desc",
+      status,
+    } = req.query;
+    page = parseInt(page);
+    limit = parseInt(limit);
 
-    const users = await User.find({ status: "used" })
-      .select("-password -__v")
-      .skip(skip)
-      .limit(limit);
-    const totalUser = await User.countDocuments({ status: "used" });
+    if (
+      isNaN(page) ||
+      isNaN(limit) ||
+      page < 1 ||
+      limit < 1 ||
+      limit > MAX_LIMIT
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid pagination parameters (limit must be between 1 and ${MAX_LIMIT})`,
+        errors: {
+          page: "Must be greater than 0",
+          limit: `Must be between 1 and ${MAX_LIMIT}`,
+        },
+      });
+    }
+
+    const filter = {};
+    if (status) {
+      filter.status = status;
+    }
+
+    const totalUser = await User.countDocuments(filter);
     const totalPages = Math.ceil(totalUser / limit);
 
+    if (page > totalPages && totalPages !== 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Page number exceeds total pages`,
+        errors: { page: `Max available page is ${totalPages}` },
+      });
+    }
+
+    const skip = (page - 1) * limit;
+    const sortableFields = ["createdAt"];
+    const sortOption = {};
+    if (sortableFields.includes(sort)) {
+      sortOption[sort] = order === "desc" ? -1 : 1;
+    }
+
+    const users = await User.find(filter)
+      .select("-password -__v")
+      .sort(sortOption)
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
     res.status(200).json({
-      message: "success",
-      page: {
-        totalPage: totalPages,
-        currentPage: page,
+      success: true,
+      message: "Users retrieved successfully",
+      data: {
+        users,
+        pagination: {
+          totalPages,
+          currentPage: page,
+          totalItems: totalUser,
+        },
       },
-      users: users,
     });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
@@ -36,17 +91,27 @@ exports.getUserById = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid user ID" });
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user ID",
+        errors: { id: "Not a valid ObjectId" },
+      });
     }
 
     const user = await User.findById(id).select("-password -__v");
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
-    res.status(200).json({ message: "success", user: user });
+    res.status(200).json({
+      success: true,
+      message: "User retrieved successfully",
+      data: { user },
+    });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
   }
@@ -54,15 +119,24 @@ exports.getUserById = async (req, res, next) => {
 
 exports.createUser = async (req, res, next) => {
   try {
-    const { firstName, lastName, email, password, level } = req.body;
-
-    if (!firstName || !lastName || !email || !password || !level) {
-      return res.status(400).json({ message: "Missing required fields" });
+    const { error, value } = createUserSchema.validate(req.body, {
+      abortEarly: false,
+    });
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation error",
+        errors: error.details.map((err) => err.message),
+      });
     }
+
+    const { firstName, lastName, email, password, level } = value;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(409).json({ message: "Email already exists" });
+      return res
+        .status(409)
+        .json({ success: false, message: "Email already exists" });
     }
 
     const hasPassword = await encrypt.hashPassword(password);
@@ -76,7 +150,20 @@ exports.createUser = async (req, res, next) => {
     });
     await newUser.save();
 
-    res.status(201).json({ message: "success" });
+    const userSafeData = {
+      _id: newUser._id,
+      firstName: newUser.firstName,
+      lastName: newUser.lastName,
+      email: newUser.email,
+      level: newUser.level,
+      status: newUser.status,
+    };
+
+    res.status(201).json({
+      success: true,
+      message: "User created successfully",
+      data: { user: userSafeData },
+    });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
   }
@@ -86,46 +173,81 @@ exports.updateUserById = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid user ID" });
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user ID",
+        errors: { id: "Not a valid ObjectId" },
+      });
     }
 
-    const restrictedFields = ["_id", "email", "role", "createAt"];
-    restrictedFields.forEach((field) => delete req.body[field]);
+    const { error, value } = updateUserSchema.validate(req.body, {
+      abortEarly: false,
+    });
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation error",
+        errors: error.details.map((err) => err.message),
+      });
+    }
 
-    const updatedUser = await User.findByIdAndUpdate(id, req.body, {
-      new: true,
-      runValidators: true,
+    const allowedFields = ["firstName", "lastName", "status"];
+    const payload = {};
+    allowedFields.forEach((field) => {
+      if (value[field] !== undefined) {
+        payload[field] = value[field];
+      }
     });
 
+    const updatedUser = await User.findByIdAndUpdate(id, payload, {
+      new: true,
+      runValidators: true,
+    }).select("-password -__v");
+
     if (!updatedUser) {
-      return res.status(404).json({ message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
-    res.status(200).json({ message: "success" });
+    res.status(200).json({
+      success: true,
+      message: "User updated successfully",
+      data: { user: updatedUser },
+    });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
   }
 };
 
-exports.removeUserById = async (req, res, next) => {
+exports.inactiveUserById = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid user ID" });
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user ID",
+        errors: { id: "Not a valid ObjectId" },
+      });
     }
-    
-    const user = await User.findById(userId);
 
+    const user = await User.findById(id);
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
-    user.status = "unused";
+    user.status = "inactive";
     await user.save();
 
-    res.status(200).json({ message: "success" });
+    res.status(200).json({
+      success: true,
+      message: "User marked as inactive",
+      data: { user: user },
+    });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
   }

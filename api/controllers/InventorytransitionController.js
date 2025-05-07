@@ -61,7 +61,7 @@ exports.getAllInventoryTransitions = async (req, res, next) => {
     const filter = {};
 
     const totalInventoryTransitions =
-      await InventoryTransition.countDocuments();
+      await InventoryTransition.countDocuments(filter);
     const totalPages = Math.ceil(totalInventoryTransitions / limit);
 
     if (page > totalPages && totalPages !== 0) {

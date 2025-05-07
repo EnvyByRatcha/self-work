@@ -19,6 +19,6 @@ const TechnicianSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Technicians = mongoose.model("Technician", TechnicianSchema);
+const Technician = mongoose.model("Technician", TechnicianSchema);
 
-module.exports = Technicians;
+module.exports = Technician;

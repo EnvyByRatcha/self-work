@@ -14,8 +14,9 @@ interface userFormData {
 }
 
 const optionLevel = [
-  { label: "employee", value: "employee" },
   { label: "admin", value: "admin" },
+  { label: "manager", value: "manager" },
+  { label: "user", value: "user" },
 ];
 
 const UserForm = ({ onSubmit }: any) => {
@@ -24,7 +25,7 @@ const UserForm = ({ onSubmit }: any) => {
     lastName: "",
     email: "",
     password: "",
-    level: "employee",
+    level: "user",
   });
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {

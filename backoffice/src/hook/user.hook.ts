@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import userService from "../service/userService";
-
 import type { User } from "../interface/IUser";
 import type { UserFormData } from "../interface/IUser";
+import { unwrapOrError } from "../utils/upwrapOrError";
 
 const useUser = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -10,20 +10,27 @@ const useUser = () => {
   const [totalPage, setTotalPage] = useState(1);
   const [limit, setLimit] = useState(5);
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     fetchUser(currentPage, limit);
   }, [currentPage]);
 
   const fetchUser = async (page: number, limit: number) => {
+    setLoading(true);
+    setError(null);
     try {
       const data = await userService.getAllUsers(page, limit);
-
-      if (data.users) {
-        setTotalPage(data.page.totalPage);
-        setUsers(data.users);
-      }
+      const result = unwrapOrError(data);
+      console.log(result.data.users);
+      
+      setUsers(result.data.users);
+      setTotalPage(result.data.pagination.currentPage);
     } catch (error) {
-      console.log(error);
+      setError("fail to fetching users");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -33,7 +40,7 @@ const useUser = () => {
   };
 
   const removeUser = async (id: string) => {
-    const data = await userService.removeUser(id);
+    const data = await userService.deActiveUser(id);
     fetchUser(currentPage, totalPage);
     return data;
   };
@@ -48,6 +55,8 @@ const useUser = () => {
     createUser,
     fetchUser,
     removeUser,
+    loading,
+    error,
   };
 };
 

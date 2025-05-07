@@ -75,3 +75,11 @@ exports.getAllAssignment = async (req, res, next) => {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
   }
 };
+
+exports.getAssignmentByTechnicianId=async(req,res,next)=>{
+  try {
+    
+  } catch (error) {
+    
+  }
+}

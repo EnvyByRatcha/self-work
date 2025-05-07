@@ -7,26 +7,14 @@ import CustomTable from "../../components/table/CustomTable";
 import { userColumn } from "../../constants/userColumn";
 
 const UserListPage = () => {
-  const { users, totalPage, setCurrentPage, removeUser } = useUser();
-
-  const handleRemoveUser = (id: string) => {
-    removeUser(id).then((data) => {
-      if (data.message == "success") {
-        alert("success");
-      }
-    });
-  };
+  const { users, totalPage, setCurrentPage } = useUser();
 
   return (
     <>
       <TitleBox title={"User list"} />
       <ContentBox padding>
         <LinkButton title="Add user" to="/user/create" />
-        <CustomTable
-          data={users}
-          columns={userColumn}
-          onRemove={handleRemoveUser}
-        />
+        <CustomTable data={users} columns={userColumn} isLinkButton />
         <Pagination
           count={totalPage}
           sx={{

@@ -12,6 +12,6 @@ userRouter
   .route("/:id")
   .get(auth.verifyToken, userController.getUserById)
   .put(auth.verifyToken, userController.updateUserById)
-  .delete(auth.verifyToken, userController.removeUserById);
+  .delete(auth.verifyToken, userController.inactiveUserById);
 
 module.exports = userRouter;
