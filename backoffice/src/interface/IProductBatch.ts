@@ -1,4 +1,4 @@
-export interface ProductBash {
+export interface ProductBatch {
   _id: string;
   productId: string;
   cost: number;

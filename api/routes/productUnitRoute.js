@@ -9,5 +9,8 @@ productUnitRouter
   .get(productUnitController.getProductUnitByProductId)
   .delete(productUnitController.removePProductUnit)
   .put(productUnitController.updateProductUnit);
+productUnitRouter
+  .route("/customer/:id")
+  .get(productUnitController.getProductUnitByCustomerId);
 
 module.exports = productUnitRouter;

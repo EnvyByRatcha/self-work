@@ -16,14 +16,16 @@ export interface ProductFormData {
 }
 
 export interface ProductUnit {
+  _id: string;
   serialNumber: string;
-  productBashId: string;
+  productBatchId: string;
   customerId: string;
   status: string;
+  updatedAt: string;
 }
 
 export interface ProductUnitFormData {
   serialNumber: string;
   productId: string;
-  productBashId: string;
+  productBatchId: string;
 }

@@ -69,7 +69,6 @@ exports.getAllCategory = async (req, res, next) => {
       .sort(sortOption)
       .skip(skip)
       .limit(limit)
-      .learn();
 
     res.status(200).json({
       success: true,

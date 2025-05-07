@@ -3,6 +3,8 @@ const errorHandler = require("../utils/error");
 const Joi = require("joi");
 const { isValidObjectId } = require("../utils/validators");
 
+const MAX_LIMIT = 50;
+
 exports.createCustomerSchema = Joi.object({
   name: Joi.string().trim().min(2).max(100).required(),
   customerCode: Joi.string().trim().max(20).optional(),
@@ -34,22 +36,101 @@ exports.updateCustomerSchema = Joi.object({
 
 exports.getAllCustomers = async (req, res, next) => {
   try {
-    let { page, limit } = req.body;
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || 10;
-    const skip = (page - 1) * limit;
+    let {
+      page = 1,
+      limit = 10,
+      search = "",
+      sort = "createdAt",
+      order = "asc",
+      status,
+    } = req.query;
+    page = parseInt(page);
+    limit = parseInt(limit);
 
-    const customers = await Customer.find().skip(skip).limit(limit);
-    const totalCustomers = await Customer.countDocuments();
+    if (
+      isNaN(page) ||
+      isNaN(limit) ||
+      page < 1 ||
+      limit < 1 ||
+      limit > MAX_LIMIT
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid pagination parameters (limit must be between 1 and ${MAX_LIMIT})`,
+        errors: {
+          page: "Must be greater than 0",
+          limit: `Must be between 1 and ${MAX_LIMIT}`,
+        },
+      });
+    }
+
+    const filter = {};
+    if (search) {
+      filter.name = { $regex: search.trim(), $options: "i" };
+    }
+    const totalCustomers = await Customer.countDocuments(filter);
     const totalPages = Math.ceil(totalCustomers / limit);
 
+    if (page > totalPages && totalPages !== 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Page number exceeds total pages`,
+        errors: { page: `Max available page is ${totalPages}` },
+      });
+    }
+
+    const skip = (page - 1) * limit;
+    const sortOption = {};
+    if (["name", "createdAt", "price"].includes(sort)) {
+      sortOption[sort] = order === "desc" ? -1 : 1;
+    }
+
+    const customers = await Customer.find(filter)
+      .sort(sortOption)
+      .skip(skip)
+      .limit(limit);
+
     res.status(200).json({
-      message: "success",
-      page: {
-        totalPage: totalPages,
-        currentPage: page,
+      success: true,
+      message: "Customers retrieved successfully",
+      data: {
+        customers,
+        pagination: {
+          totalPages,
+          currentPage: page,
+          totalItems: totalCustomers,
+        },
       },
-      customers: customers,
+    });
+  } catch (error) {
+    errorHandler.mapError(error, 500, "Internal Server Error", next);
+  }
+};
+
+exports.getCustomerById = async (req, res, next) => {
+  try {
+    let { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid category ID",
+        errors: { id: "Not a valid ObjectId" },
+      });
+    }
+
+    const customer = await Customer.findById(id);
+
+    if (!customer) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Customer not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Customer retrieved",
+      data: { customer },
     });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);

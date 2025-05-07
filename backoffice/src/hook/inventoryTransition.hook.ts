@@ -1,7 +1,6 @@
 import inventoryTransitionService from "../service/inventoryTransitionService";
 import type {
   InventoryTransition,
-  InventoryTransitionDetail,
   TransitionFormData,
 } from "../interface/IInventory";
 import { useEffect, useState } from "react";
@@ -10,11 +9,6 @@ import { unwrapOrError } from "../utils/upwrapOrError";
 const useInventoryTransition = () => {
   const [inventoryTransitions, setInventoryTransitions] = useState<
     InventoryTransition[]
-  >([]);
-  const [inventoryTransition, setInventoryTransition] =
-    useState<InventoryTransition>();
-  const [inventoryTransitionDetail, setInventoryTransitionDetail] = useState<
-    InventoryTransitionDetail[]
   >([]);
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -42,13 +36,13 @@ const useInventoryTransition = () => {
         setTotalPage(result.data.pagination.totalPage);
       }
     } catch (error) {
-      setError("fail to fetching transition");
+      setError("fail to fetching transitions");
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchInventoryTransitionDetail = async (id: string) => {
+  const getInventoryTransitionDetailById = async (id: string) => {
     setLoading(true);
     setError(null);
     try {
@@ -57,8 +51,7 @@ const useInventoryTransition = () => {
       );
       const result = unwrapOrError(data);
       if (result.success) {
-        setInventoryTransition(result.data.inventoryTransition);
-        setInventoryTransitionDetail(result.data.inventoryTransitionDetail);
+        return result;
       }
     } catch (error) {
       setError("fail to fetching transition");
@@ -71,23 +64,17 @@ const useInventoryTransition = () => {
     const data = await inventoryTransitionService.createInventoryTransition(
       payload
     );
-    if (data) {
-      return data;
-    }
+    return data;
   };
 
   const approveTransition = async (id: string) => {
     const data = await inventoryTransitionService.approveTransition(id);
-    if (data) {
-      return data;
-    }
+    return data;
   };
 
   return {
     inventoryTransitions,
-    inventoryTransition,
-    inventoryTransitionDetail,
-    fetchInventoryTransitionDetail,
+    getInventoryTransitionDetailById,
     createInventoryTransition,
     approveTransition,
     totalPage,

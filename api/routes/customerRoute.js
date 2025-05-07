@@ -9,6 +9,7 @@ customerRouter
   .post(customerController.createCustomer);
 customerRouter
   .route("/:id")
+  .get(customerController.getCustomerById)
   .put(customerController.updateCustomer)
   .delete(customerController.deactivateCustomer);
 

@@ -42,6 +42,7 @@ const productBatchSchema = new mongoose.Schema(
     cost: { type: Number, default: 0 },
     price: { type: Number, default: 0 },
     qty: { type: Number, default: 0 },
+    registered: { type: Number, default: 0 },
     status: {
       type: String,
       enum: GENERAL_STATUS,
@@ -59,7 +60,7 @@ const productUnitSchema = new mongoose.Schema(
       ref: "Product",
       required: true,
     },
-    productBatchesId: {
+    productBatchId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "ProductBatch",
       required: true,

@@ -29,7 +29,6 @@ const UserListPage = () => {
         />
         <Pagination
           count={totalPage}
-          color="primary"
           sx={{
             marginTop: "12px",
             width: "100%",
@@ -37,6 +36,8 @@ const UserListPage = () => {
             justifyContent: "center",
           }}
           onChange={(_, page) => setCurrentPage(page)}
+          shape="rounded"
+          size="small"
         />
       </ContentBox>
     </>

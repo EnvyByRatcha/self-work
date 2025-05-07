@@ -42,8 +42,6 @@ const itemTypes = [
 const InventoryForm = ({ onSubmit }: any) => {
   const [formData, setFormData] = useState<InventoryTransitionFormData>({
     transitionType: "stock-in",
-    from: "",
-    to: "",
   });
   const [formDataDetail, setFormDataDetail] = useState<
     InventoryTransitionDetailFormData[]
@@ -113,7 +111,23 @@ const InventoryForm = ({ onSubmit }: any) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData, formDataDetail);
+
+    const cleanedDetails = formDataDetail.map((item) => {
+      const cleanedItem = { ...item };
+
+      if (cleanedItem.type === "product") {
+        delete cleanedItem.sparePartId;
+      } else {
+        delete cleanedItem.productId;
+      }
+
+      cleanedItem.qty = Number(cleanedItem.qty);
+      cleanedItem.cost = Number(cleanedItem.cost);
+
+      return cleanedItem;
+    });
+
+    onSubmit(formData, cleanedDetails);
   };
 
   const renderForm = formDataDetail.map((detail, index) => {
@@ -142,7 +156,7 @@ const InventoryForm = ({ onSubmit }: any) => {
             options={products.map((product) => {
               return { label: product.name, value: product._id };
             })}
-            value={detail.productId}
+            value={detail.productId || ""}
             onChange={(e) => handleSelectChangeInArr(e, index)}
           />
         ) : (
@@ -153,7 +167,7 @@ const InventoryForm = ({ onSubmit }: any) => {
             options={spareParts.map((sparePart) => {
               return { label: sparePart.name, value: sparePart._id };
             })}
-            value={detail.sparePartId}
+            value={detail.sparePartId || ""}
             onChange={(e) => handleSelectChangeInArr(e, index)}
           />
         )}
@@ -184,7 +198,7 @@ const InventoryForm = ({ onSubmit }: any) => {
   });
 
   return (
-    <Box sx={{ width: "100%", marginX: "auto" }}>
+    <Box sx={{ maxWidth: "900px", marginX: "auto" }}>
       <form
         onSubmit={handleSubmit}
         style={{
@@ -193,7 +207,7 @@ const InventoryForm = ({ onSubmit }: any) => {
           gap: "40px",
         }}
       >
-        <Grid container spacing={2}>
+        <Grid container rowSpacing={2} spacing={2}>
           <Grid
             size={12}
             sx={(theme) => ({

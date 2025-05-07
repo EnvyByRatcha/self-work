@@ -18,6 +18,7 @@ import InventoryTransitionDetailPage from "../pages/inventory/InventoryTransitio
 import ProductDetailPage from "../pages/product/ProductDetailPage";
 import SparePartDetailPage from "../pages/sparePart/SparePartDetailPage";
 import NotFoundPage from "../pages/notFound/NotFoundPage";
+import CustomerDetailPage from "../pages/customer/CustomerDetailPage";
 
 const router = createBrowserRouter([
   {
@@ -83,6 +84,10 @@ const router = createBrowserRouter([
       {
         path: "customer/create",
         element: <CustomerCreatePage />,
+      },
+      {
+        path: "customer/:id",
+        element: <CustomerDetailPage />,
       },
       {
         path: "inventory",

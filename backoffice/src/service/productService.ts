@@ -34,7 +34,7 @@ const productService = {
   },
   getProductById: async (
     id: string
-  ): Promise<ProductsResponse | ErrorResponse> => {
+  ): Promise<ProductResponse | ErrorResponse> => {
     try {
       const response = await axios.get(`${baseUrl}/${id}`);
       return response.data;
@@ -44,7 +44,7 @@ const productService = {
   },
   createProduct: async (
     payload: ProductFormData
-  ): Promise<ProductsResponse | ErrorResponse> => {
+  ): Promise<ProductResponse | ErrorResponse> => {
     try {
       const response = await axios.post(baseUrl, payload);
       return response.data;
@@ -55,7 +55,7 @@ const productService = {
   updateProduct: async (
     id: string,
     payload: ProductFormData
-  ): Promise<ProductsResponse | ErrorResponse> => {
+  ): Promise<ProductResponse | ErrorResponse> => {
     try {
       const response = await axios.put(`${baseUrl}/${id}`, payload);
       return response.data;
@@ -65,7 +65,7 @@ const productService = {
   },
   deactiveProduct: async (
     id: string
-  ): Promise<ProductsResponse | ErrorResponse> => {
+  ): Promise<ProductResponse | ErrorResponse> => {
     try {
       const response = await axios.delete(`${baseUrl}/${id}`);
       return response.data;
@@ -90,7 +90,7 @@ interface GetProductsResponse {
   };
 }
 
-interface ProductsResponse {
+interface ProductResponse {
   success: boolean;
   message: string;
   data: {

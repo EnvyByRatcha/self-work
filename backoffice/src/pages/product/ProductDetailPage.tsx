@@ -13,28 +13,41 @@ import CustomModal from "../../components/Modal/CustomModal";
 import CustomTextField from "../../components/input/CustomTextField";
 import CustomButton from "../../components/button/CustomButton";
 import CustomSelect from "../../components/input/CustomSelect";
-import { ProductBash } from "../../interface/IProductBash";
-import useProductBash from "../../hook/productBash.hook";
+import type { ProductBatch } from "../../interface/IProductBatch";
+import useProductBash from "../../hook/productBatch.hook";
 import useProductUnit from "../../hook/productUnit.hook";
 import dayjs from "dayjs";
+import { Notyf } from "notyf";
+import CustomTable from "../../components/table/CustomTable";
+import { productUnitColumn } from "../../constants/productUnitColumn";
+import CustomModalV2 from "../../components/Modal/CustomModalV2";
+import useCustomer from "../../hook/customer.hook";
+
+const notyf = new Notyf();
 
 const ProductDetailPage = () => {
   const { id } = useParams();
+
   const { getProductById } = useProduct();
   const { getBashByProductId } = useProductBash();
-  const { getProductUnitByProductId, createProductUnit } = useProductUnit();
+  const { getProductUnitByProductId, createProductUnit, updateProductUnit } =
+    useProductUnit();
+  const { customers } = useCustomer();
 
   const [product, setProduct] = useState<Product>();
   const [productUnits, setProductUnits] = useState<ProductUnit[]>([]);
-  const [productBashes, setProductBashes] = useState<ProductBash[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [productBatch, setProductBatch] = useState<ProductBatch[]>([]);
+
+  const [selectedProductUnit, setSelectedProductUnit] =
+    useState<ProductUnit | null>(null);
 
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   const [formData, setFormData] = useState<ProductUnitFormData>({
     productId: id!,
     serialNumber: "",
-    productBashId: "",
+    productBatchId: "",
   });
 
   useEffect(() => {
@@ -45,47 +58,76 @@ const ProductDetailPage = () => {
 
   const fetchData = (id: string) => {
     fetchProduct(id);
-    fetchProductBash(id);
+    fetchProductBatch(id);
     fetchProductUnit(id);
-    setLoading(false);
   };
 
-  const fetchProduct = (id: string) => {
-    getProductById(id).then((result) => {
-      if (result) {
-        setProduct(result.product);
-      }
-    });
+  const fetchProduct = async (id: string) => {
+    const data = await getProductById(id);
+    if (data?.success) {
+      setProduct(data.data.product);
+    }
   };
 
-  const fetchProductBash = (id: string) => {
-    getBashByProductId(id).then((result) => {
-      if (result) {
-        setProductBashes(result.productBashes);
-      }
-    });
+  const fetchProductBatch = async (id: string) => {
+    const data = await getBashByProductId(id);
+    if (data?.success) {
+      setProductBatch(data.data.productBatches);
+    }
   };
 
-  const fetchProductUnit = (id: string) => {
-    getProductUnitByProductId(id).then((result) => {
-      if (result) {
-        setProductUnits(result?.productUnits);
-      }
-    });
+  const fetchProductUnit = async (id: string) => {
+    const data = await getProductUnitByProductId(id);
+    if (data?.success) {
+      setProductUnits(data.data.productUnits);
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleEdit = (item: ProductUnit) => {
+    setSelectedProductUnit(item);
+    setEditModalOpen(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    createProductUnit(formData).then((result) => {
-      console.log(result);
-    });
+    const data = await createProductUnit(formData);
+    if (data.success) {
+      notyf.success(data.message);
+      setFormData({
+        productId: id!,
+        serialNumber: "",
+        productBatchId: "",
+      });
+      setOpenModal(false);
+      return;
+    }
+    notyf.error(data?.message);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (selectedProductUnit) {
+      const data = await updateProductUnit(
+        selectedProductUnit._id,
+        selectedProductUnit
+      );
+      if (data.success) {
+        notyf.success(data.message);
+        setSelectedProductUnit(null);
+        setEditModalOpen(false);
+        return;
+      }
+      notyf.error(data?.message);
+      return;
+    }
+    notyf.error("Id && Product-unit is invalid");
   };
 
   return (
     <>
       <TitleBox title={product?.name || "Product name"} />
       <ContentBox padding>
-        {product && !loading && (
+        {product && (
           <Stack direction={"row"} gap={2}>
             <Box>
               <img
@@ -112,7 +154,6 @@ const ProductDetailPage = () => {
             </Box>
           </Stack>
         )}
-
         <CustomModal
           title={"Register product"}
           open={openModal}
@@ -128,14 +169,20 @@ const ProductDetailPage = () => {
             }}
           >
             <CustomSelect
-              label="Bash-Id"
-              name="productBashId"
-              options={productBashes.map((bash) => {
-                return { label: bash._id, value: bash._id };
-              })}
-              value={formData.productBashId}
+              label="Batch-Id"
+              name="productBatchId"
+              required
+              options={
+                Array.isArray(productBatch)
+                  ? productBatch.map((batch) => ({
+                      label: batch._id,
+                      value: batch._id,
+                    }))
+                  : []
+              }
+              value={formData.productBatchId}
               onChange={(e) =>
-                setFormData({ ...formData, productBashId: e.target.value })
+                setFormData({ ...formData, productBatchId: e.target.value })
               }
             />
 
@@ -152,13 +199,78 @@ const ProductDetailPage = () => {
             <CustomButton type="submit" title="Proceed" />
           </form>
         </CustomModal>
-        {productUnits.map((item, index) => {
-          return (
-            <Typography key={index} color="textPrimary" mt={2}>{`${
-              index + 1
-            }. ${item.serialNumber}`}</Typography>
-          );
-        })}
+
+        <CustomModalV2
+          title="Edit Product Unit"
+          open={editModalOpen}
+          setOpen={setEditModalOpen}
+        >
+          {selectedProductUnit && (
+            <form
+              onSubmit={handleEditSubmit}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "12px",
+                marginTop: "12px",
+              }}
+            >
+              <CustomSelect
+                label="Batch-Id"
+                name="productBatchId"
+                required
+                options={productBatch.map((batch) => ({
+                  label: batch._id,
+                  value: batch._id,
+                }))}
+                value={selectedProductUnit.productBatchId}
+                onChange={(e) =>
+                  setSelectedProductUnit({
+                    ...selectedProductUnit,
+                    productBatchId: e.target.value,
+                  })
+                }
+              />
+              <CustomTextField
+                label="Serial number"
+                name="serialNumber"
+                type="text"
+                required
+                value={selectedProductUnit.serialNumber}
+                onChange={(e) =>
+                  setSelectedProductUnit({
+                    ...selectedProductUnit,
+                    serialNumber: e.target.value,
+                  })
+                }
+              />
+              <CustomSelect
+                label="Customer"
+                name="customerId"
+                options={customers.map((customer) => ({
+                  label: customer.name,
+                  value: customer._id,
+                }))}
+                value={selectedProductUnit.customerId || ""}
+                onChange={(e) =>
+                  setSelectedProductUnit({
+                    ...selectedProductUnit,
+                    customerId: e.target.value,
+                  })
+                }
+              />
+              <CustomButton type="submit" title="Save changes" />
+            </form>
+          )}
+        </CustomModalV2>
+
+        {productUnits.length > 0 && (
+          <CustomTable
+            data={productUnits}
+            columns={productUnitColumn}
+            onEdit={handleEdit}
+          />
+        )}
       </ContentBox>
     </>
   );

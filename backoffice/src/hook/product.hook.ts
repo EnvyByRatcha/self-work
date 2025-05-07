@@ -5,6 +5,7 @@ import { unwrapOrError } from "../utils/upwrapOrError";
 
 const useProduct = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
   const [limit, setLimit] = useState(5);
@@ -25,15 +26,26 @@ const useProduct = () => {
       setProducts(result.data.products);
       setTotalPage(result.data.pagination.totalPage);
     } catch (error) {
-      setError("fail to fetching product");
+      setError("fail to fetching products");
     } finally {
       setLoading(false);
     }
   };
 
   const getProductById = async (id: string) => {
-    const data = await productService.getProductById(id);
-    return data;
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await productService.getProductById(id);
+      const result = unwrapOrError(data);
+      if (result.success) {
+        return result;
+      }
+    } catch (error) {
+      setError("fail to fetching product");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const createProduct = async (payload: ProductFormData) => {

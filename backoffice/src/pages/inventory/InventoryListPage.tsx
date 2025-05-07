@@ -8,9 +8,6 @@ import CustomTable from "../../components/table/CustomTable";
 const InventoryListPage = () => {
   const { inventoryTransitions } = useInventoryTransition();
 
-  console.log(inventoryTransitions);
-  
-
   return (
     <>
       <TitleBox title={"Inventory management"} />

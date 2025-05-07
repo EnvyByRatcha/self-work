@@ -1,10 +1,10 @@
 const express = require("express");
-const productBashController = require("../controllers/productBashController");
+const productBatchController = require("../controllers/productBatchController");
 
 const productBashRouter = express.Router();
 
 productBashRouter
   .route("/product/:id")
-  .get(productBashController.getProductBashByProductId);
+  .get(productBatchController.getProductBashByProductId);
 
 module.exports = productBashRouter;

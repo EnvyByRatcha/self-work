@@ -14,7 +14,7 @@ const CustomerListPage = () => {
       <TitleBox title={"Customer list"} />
       <ContentBox padding>
         <LinkButton title="Add customer" to="/customer/create" />
-        <CustomTable data={customers} columns={customerColumn} />
+        <CustomTable data={customers} columns={customerColumn} isLinkButton/>
         <Pagination
           count={totalPage}
           color="primary"

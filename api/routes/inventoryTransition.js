@@ -13,7 +13,7 @@ inventoryTransitionRouter
 
 inventoryTransitionRouter
   .route("/:id")
-  .get(inventoryTransitionController.getInventoryTransitionDetail);
+  .get(inventoryTransitionController.getInventoryTransitionById);
 
 inventoryTransitionRouter
   .route("/approve/:id")

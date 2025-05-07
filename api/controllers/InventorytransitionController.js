@@ -6,13 +6,14 @@ const {
 const { ProductBatch } = require("../models/productModel");
 const { SparePartBatch } = require("../models/sparePartModel");
 const errorHandler = require("../utils/error");
+const { isValidObjectId } = require("../utils/validators");
 const Joi = require("joi");
 
 const MAX_LIMIT = 50;
 
 const transitionSchema = Joi.object({
   transition: Joi.object({
-    transitionType: Joi.string().valid("stock-in", "stock-out").required(), // ตรวจสอบชนิดของ transition
+    transitionType: Joi.string().valid("stock-in", "stock-out").required(),
   }).required(),
   details: Joi.array()
     .items(
@@ -21,6 +22,7 @@ const transitionSchema = Joi.object({
         sparePartId: Joi.string().optional(),
         cost: Joi.number().greater(0).required(),
         qty: Joi.number().greater(0).required(),
+        type: Joi.string().valid("product", "sparepart"),
       }).xor("productId", "sparePartId")
     )
     .min(1)
@@ -100,7 +102,7 @@ exports.getAllInventoryTransitions = async (req, res, next) => {
   }
 };
 
-exports.getInventoryTransitionDetail = async (req, res, next) => {
+exports.getInventoryTransitionById = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -112,7 +114,7 @@ exports.getInventoryTransitionDetail = async (req, res, next) => {
       });
     }
 
-    const inventoryTransition = await InventoryTransitions.findById(id).lean();
+    const inventoryTransition = await InventoryTransition.findById(id).lean();
     if (!inventoryTransition) {
       return res
         .status(404)
@@ -146,14 +148,9 @@ exports.getInventoryTransitionDetail = async (req, res, next) => {
 };
 
 exports.createInventoryTransition = async (req, res, next) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
   try {
     const { error } = transitionSchema.validate(req.body);
     if (error) {
-      await session.abortTransaction();
-      session.endSession();
-
       return res.status(400).json({
         success: false,
         message: "Invalid input data",
@@ -170,14 +167,11 @@ exports.createInventoryTransition = async (req, res, next) => {
       0
     );
 
-    const inventoryTransition = await InventoryTransitions.create(
-      {
-        transitionType: transition.transitionType,
-        cost: totalCost,
-        userId,
-      },
-      { session }
-    );
+    const inventoryTransition = await InventoryTransition.create({
+      transitionType: transition.transitionType,
+      cost: totalCost,
+      userId: userId,
+    });
 
     const transitionDetailArr = details.map((item) => ({
       transitionId: inventoryTransition._id,
@@ -187,11 +181,7 @@ exports.createInventoryTransition = async (req, res, next) => {
       qty: item.qty,
     }));
 
-    await InventoryTransitionDetail.insertMany(transitionDetailArr, {
-      session,
-    });
-
-    await session.commitTransaction();
+    await InventoryTransitionDetail.insertMany(transitionDetailArr);
 
     res.status(200).json({
       success: true,
@@ -199,32 +189,22 @@ exports.createInventoryTransition = async (req, res, next) => {
       data: { inventoryTransition: inventoryTransition },
     });
   } catch (error) {
-    await session.abortTransaction();
     errorHandler.mapError(error, 500, "Internal Server Error", next);
-  } finally {
-    session.endSession();
   }
 };
 
 exports.approveTransition = async (req, res, next) => {
-  const { id } = req.params;
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid product ID",
-      errors: { id: "Not a valid ObjectId" },
-    });
-  }
-
-  const session = await mongoose.startSession();
-
   try {
-    session.startTransaction();
+    const { id } = req.params;
 
-    const existingTransition = await InventoryTransition.findById(id).session(
-      session
-    );
-
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid category ID",
+        errors: { id: "Not a valid ObjectId" },
+      });
+    }
+    const existingTransition = await InventoryTransition.findById(id);
     if (!existingTransition) {
       await session.abortTransaction();
       return res.status(404).json({
@@ -244,10 +224,10 @@ exports.approveTransition = async (req, res, next) => {
     const updatedTransition = await InventoryTransition.findByIdAndUpdate(
       id,
       { status: "approve" },
-      { new: true, session }
+      { new: true }
     );
 
-    if (!inventoryTransition) {
+    if (!updatedTransition) {
       await session.abortTransaction();
       return res.status(404).json({
         success: false,
@@ -263,25 +243,21 @@ exports.approveTransition = async (req, res, next) => {
       const { productId, sparePartId, cost, qty } = detail;
 
       if (productId) {
-        const [createdBatch] = await ProductBatch.create(
-          [{ productId: productId.toString(), cost, qty }],
-          { session }
-        );
+        const [createdBatch] = await ProductBatch.create([
+          { productId: productId.toString(), cost, qty },
+        ]);
         detail.productBatchId = createdBatch._id;
       }
 
       if (sparePartId) {
-        const [createdBatch] = await SparePartBatch.create(
-          [{ sparePartId: sparePartId.toString(), cost, qty }],
-          { session }
-        );
+        const [createdBatch] = await SparePartBatch.create([
+          { sparePartId: sparePartId.toString(), cost, qty },
+        ]);
         detail.sparePartBatchId = createdBatch._id;
       }
 
-      await detail.save({ session });
+      await detail.save();
     }
-
-    await session.commitTransaction();
 
     res.status(200).json({
       success: true,
@@ -289,9 +265,6 @@ exports.approveTransition = async (req, res, next) => {
       data: { inventoryTransition: updatedTransition },
     });
   } catch (error) {
-    await session.abortTransaction();
     errorHandler.mapError(error, 500, "Internal Server Error", next);
-  } finally {
-    session.endSession();
   }
 };

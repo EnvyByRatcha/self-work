@@ -6,6 +6,7 @@ import SupportAgentOutlinedIcon from "@mui/icons-material/SupportAgentOutlined";
 import PrecisionManufacturingOutlinedIcon from "@mui/icons-material/PrecisionManufacturingOutlined";
 import ProductionQuantityLimitsOutlinedIcon from "@mui/icons-material/ProductionQuantityLimitsOutlined";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
+import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 
 interface MenuItem {
   title: string;
@@ -46,11 +47,16 @@ const menuService: MenuItem[] = [
   },
 ];
 
-const menuInventory: MenuItem[] = [
+const menuManagement: MenuItem[] = [
   {
     title: "Inventory",
     to: "/inventory",
     icon: WarehouseIcon,
+  },
+  {
+    title: "Assignment",
+    to: "/assignment",
+    icon: AssignmentOutlinedIcon,
   },
 ];
 
@@ -111,7 +117,7 @@ function Sidebar() {
           Management
         </Typography>
 
-        {menuInventory.map((item, index) => {
+        {menuManagement.map((item, index) => {
           return <NavButton key={index} {...item} />;
         })}
       </Stack>

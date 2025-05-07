@@ -12,8 +12,6 @@ export interface InventoryTransition {
 
 export interface InventoryTransitionFormData {
   transitionType: string;
-  from: string;
-  to: string;
 }
 
 export interface InventoryTransitionDetail {
@@ -33,8 +31,8 @@ export interface InventoryTransitionDetail {
 
 export interface InventoryTransitionDetailFormData {
   type: "product" | "sparepart";
-  productId: string;
-  sparePartId: string;
+  productId?: string;
+  sparePartId?: string;
   qty: number;
   cost: number;
 }

@@ -23,6 +23,7 @@ interface TableProps<T> {
   }[];
   onRemove?: (id: string) => void;
   isLinkButton?: boolean;
+  onEdit?: (item: T) => void;
 }
 
 function CustomTable<T extends { _id: string }>({
@@ -30,6 +31,7 @@ function CustomTable<T extends { _id: string }>({
   columns,
   onRemove,
   isLinkButton,
+  onEdit,
 }: TableProps<T>) {
   const location = useLocation();
 
@@ -65,7 +67,7 @@ function CustomTable<T extends { _id: string }>({
               <ArticleOutlinedIcon />
             </Button>
           )}
-          <Button>
+          <Button onClick={() => onEdit?.(item)}>
             <BorderColorOutlinedIcon />
           </Button>
           {onRemove && (

@@ -1,25 +1,30 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import TitleBox from "../../components/common/TitleBox";
 import ContentBox from "../../components/common/ContentBox";
 import useInventoryTransition from "../../hook/inventoryTransition.hook";
 import { useEffect, useState } from "react";
 import {
   InventoryTransitionDetail,
-  InventoryTransitions,
+  InventoryTransition,
 } from "../../interface/IInventory";
 import { Paper, Stack, Typography } from "@mui/material";
 import CustomButton from "../../components/button/CustomButton";
+import InfoIcon from "@mui/icons-material/Info";
+import { Notyf } from "notyf";
+
+const notyf = new Notyf();
 
 function InventoryTransitionDetailPage() {
   const { id } = useParams();
-  const { fetchInventoryTransitionDetail, approveTransition } =
+  const navigate = useNavigate();
+
+  const { getInventoryTransitionDetailById, approveTransition, loading } =
     useInventoryTransition();
 
-  const [transition, setTransition] = useState<InventoryTransitions>();
+  const [transition, setTransition] = useState<InventoryTransition>();
   const [transitionDetail, setTransitionDetail] = useState<
     InventoryTransitionDetail[]
   >([]);
-  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     if (id) {
@@ -27,33 +32,61 @@ function InventoryTransitionDetailPage() {
     }
   }, [id]);
 
-  const fetchData = (id: string) => {
-    fetchInventoryTransitionDetail(id).then((result) => {
-      if (result) {
-        setTransition(result.inventoryTransition);
-        setTransitionDetail(result.inventoryTransitionDetail);
-      }
-      setLoading(false);
-    });
+  const fetchData = async (id: string) => {
+    const data = await getInventoryTransitionDetailById(id);
+    if (data?.success) {
+      setTransition(data.data.inventoryTransition);
+      setTransitionDetail(data.data.inventoryTransitionDetail);
+    }
   };
 
-  const handleConfirm = (id: string) => {
-    approveTransition(id).then((result) => {
-      console.log("success");
-    });
+  const handleApprove = async (id: string) => {
+    const data = await approveTransition(id);
+    if (data.success) {
+      notyf.success(data.message);
+      setTimeout(() => {
+        navigate("/inventory");
+      }, 2000);
+      return;
+    }
+    notyf.error(data?.message);
   };
 
   return (
     <>
       <TitleBox title={"Transition Detail"} />
       <ContentBox padding>
-        <Stack gap={2}>
+        <Stack sx={{ maxWidth: "900px", margin: "auto" }}>
+          <Stack direction={"row"} gap={2}>
+            <InfoIcon sx={{ color: "custom.linkButton" }} />
+            <Typography
+              fontSize={"1rem"}
+              fontWeight={700}
+              mb={"20px"}
+              color="text.primary"
+            >
+              Transition info
+            </Typography>
+          </Stack>
           {transition && !loading && (
-            <Paper>
-              <Typography>{transition.transitionType}</Typography>
-              <Typography>{transition.cost.toLocaleString("th-TH")}</Typography>
-              <Typography>{transition.createdAt}</Typography>
-              <Typography>{transition.status}</Typography>
+            <Paper
+              elevation={0}
+              sx={{
+                paddingX: "24px",
+                paddingY: "16px",
+                backgroundColor: "custom.customButton",
+              }}
+            >
+              <Stack>
+                <Stack direction={"row"} gap={2}>
+                  <Typography fontSize={"0.9rem"} fontWeight={700}>
+                    Transition-Type
+                  </Typography>
+                  <Typography fontSize={"0.9rem"}>
+                    {transition.transitionType}
+                  </Typography>
+                </Stack>
+              </Stack>
             </Paper>
           )}
 
@@ -61,7 +94,7 @@ function InventoryTransitionDetailPage() {
             <Paper>
               {transitionDetail.map((item) => {
                 return (
-                  <Typography>
+                  <Typography key={item._id}>
                     {`${
                       item.productId
                         ? item.productId.name
@@ -74,11 +107,14 @@ function InventoryTransitionDetailPage() {
               })}
             </Paper>
           )}
+          <Stack direction={"row"}>
+            <CustomButton
+              title="Approve"
+              type="submit"
+              handleClick={() => handleApprove(transition!._id)}
+            />
+          </Stack>
         </Stack>
-        <CustomButton
-          title="confirm"
-          handleClick={() => handleConfirm(transition!._id)}
-        />
       </ContentBox>
     </>
   );

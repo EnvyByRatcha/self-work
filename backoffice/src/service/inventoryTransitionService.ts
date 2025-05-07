@@ -37,7 +37,7 @@ const inventoryTransitionService = {
   },
   getInventoryTransitionById: async (
     id: string
-  ): Promise<InventoryTransitionDetailResponse | ErrorResponse> => {
+  ): Promise<InventoryTransitionWithDetailResponse | ErrorResponse> => {
     try {
       const response = await axios.get(`${baseUrl}/${id}`);
       return response.data;
@@ -90,7 +90,7 @@ interface TransitionResponse {
   };
 }
 
-interface InventoryTransitionDetailResponse {
+interface InventoryTransitionWithDetailResponse {
   success: boolean;
   message: string;
   data: {
