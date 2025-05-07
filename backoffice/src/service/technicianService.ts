@@ -4,14 +4,14 @@ import type { User, UserFormData } from "../interface/IUser";
 import type { ErrorResponse } from "../interface/IError";
 import { handleAxiosError } from "../utils/handleAxiosError";
 
-const baseUrl = `${config.apiPath}/users`;
+const baseUrl = `${config.apiPath}/technicians`;
 const headers = config.headers();
 
-const userService = {
-  getAllUsers: async (
+const technicianService = {
+  getAllTechnician: async (
     page: number,
     limit: number
-  ): Promise<GetUsersResponse | ErrorResponse> => {
+  ): Promise<GetTechniciansResponse | ErrorResponse> => {
     try {
       const response = await axios.get(
         `${baseUrl}?page=${page}&limit=${limit}`,
@@ -24,9 +24,9 @@ const userService = {
       return handleAxiosError(error, "fetching the users");
     }
   },
-  getUserById: async (
+  getTechnicianById: async (
     id: string
-  ): Promise<UserResponse | ErrorResponse> => {
+  ): Promise<TechnicianResponse | ErrorResponse> => {
     try {
       const response = await axios.get(`${baseUrl}/${id}`, { headers });
       return response.data;
@@ -34,9 +34,9 @@ const userService = {
       return handleAxiosError(error, "fetching the user");
     }
   },
-  createUser: async (
+  createTechnician: async (
     payload: UserFormData
-  ): Promise<UserResponse | ErrorResponse> => {
+  ): Promise<TechnicianResponse | ErrorResponse> => {
     try {
       const response = await axios.post(`${baseUrl}`, payload, { headers });
       return response.data;
@@ -44,10 +44,10 @@ const userService = {
       return handleAxiosError(error, "creating the user");
     }
   },
-  updateUser: async (
+  updateTechnician: async (
     id: string,
     payload: UserFormData
-  ): Promise<UserResponse | ErrorResponse> => {
+  ): Promise<TechnicianResponse | ErrorResponse> => {
     try {
       const response = await axios.put(`${baseUrl}/${id}`, payload, {
         headers,
@@ -57,9 +57,9 @@ const userService = {
       return handleAxiosError(error, "updating the user");
     }
   },
-  deActiveUser: async (
+  deActiveTechnician: async (
     id: string
-  ): Promise<UserResponse | ErrorResponse> => {
+  ): Promise<TechnicianResponse | ErrorResponse> => {
     try {
       const response = await axios.delete(`${baseUrl}/${id}`, { headers });
       return response.data;
@@ -69,13 +69,13 @@ const userService = {
   },
 };
 
-export default userService;
+export default technicianService;
 
-interface GetUsersResponse {
+interface GetTechniciansResponse {
   success: boolean;
   message: string;
   data: {
-    users: User[];
+    technicians: User[];
     pagination: {
       totalPage: number;
       currentPage: number;
@@ -84,10 +84,10 @@ interface GetUsersResponse {
   };
 }
 
-interface UserResponse {
+interface TechnicianResponse {
   success: boolean;
   message: string;
   data: {
-    user: User;
+    technician: User;
   };
 }

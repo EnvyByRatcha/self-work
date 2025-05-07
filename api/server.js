@@ -13,6 +13,7 @@ const categoryRouter = require("./routes/categoryRoute");
 const productUnitRoute = require("./routes/productUnitRoute");
 const inventoryTransitionRouter = require("./routes/inventoryTransition");
 const assignmentRouter = require("./routes/assignmentRoute");
+const technicianRouter = require("./routes/technicianRoute");
 
 const authRouter = require("./routes/authRoute");
 
@@ -31,6 +32,7 @@ mongoose
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/technicians", technicianRouter);
 app.use("/api/v1/products", productRouter);
 app.use("/api/v1/productBatches", productBatchRouter);
 app.use("/api/v1/productUnits", productUnitRoute);

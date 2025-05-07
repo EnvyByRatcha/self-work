@@ -99,7 +99,7 @@ exports.getUserById = async (req, res, next) => {
       });
     }
 
-    const user = await User.findById(id).select("-password -__v");
+    const user = await User.findById(id).select("-password -__v").lean();
 
     if (!user) {
       return res

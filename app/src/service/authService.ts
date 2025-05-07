@@ -1,7 +1,7 @@
 import axios from "axios";
 import config from "../config";
 
-const baseUrl = `${config.apiPath}/auth`;
+const baseUrl = `${config.apiPath}/auth/technician`;
 
 const authService = {
   login: async (email: string, password: string): Promise<AuthResponse> => {

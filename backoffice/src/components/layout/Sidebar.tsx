@@ -7,6 +7,7 @@ import PrecisionManufacturingOutlinedIcon from "@mui/icons-material/PrecisionMan
 import ProductionQuantityLimitsOutlinedIcon from "@mui/icons-material/ProductionQuantityLimitsOutlined";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
+import EngineeringOutlinedIcon from "@mui/icons-material/EngineeringOutlined";
 
 interface MenuItem {
   title: string;
@@ -24,6 +25,11 @@ const menuService: MenuItem[] = [
     title: "HRM",
     to: "/user",
     icon: ManageAccountsOutlinedIcon,
+  },
+  {
+    title: "Technician",
+    to: "/technician",
+    icon: EngineeringOutlinedIcon,
   },
   {
     title: "Customer",
