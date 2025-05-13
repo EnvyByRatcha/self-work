@@ -23,7 +23,7 @@ const assignmentSchema = new mongoose.Schema(
 const assignmentDetailSchema = new mongoose.Schema(
   {
     assignmentId: { type: ObjectId, ref: "Assignment", required: true },
-    sparePartId: { type: ObjectId, ref: "SpareParts", required: true },
+    sparePartId: { type: ObjectId, ref: "SparePart", required: true },
     qty: { type: Number, required: true },
     cost: { type: Number, required: true },
     status: {

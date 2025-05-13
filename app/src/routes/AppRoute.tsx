@@ -4,6 +4,7 @@ import Layout from "../components/layout/Layout";
 import ProtectRoute from "./ProtectRoute";
 import Dashboard from "../pages/dashboard/Dashboard";
 import NotFoundPage from "../pages/notFound/NotFoundPage";
+import AssignmentCreatePage from "../pages/assignment/AssignmentCreatePage";
 
 const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
@@ -19,6 +20,7 @@ const router = createBrowserRouter([
         index: true,
         element: <Dashboard />,
       },
+      { path: "/asignment/create", element: <AssignmentCreatePage /> },
       { path: "*", element: <NotFoundPage /> },
     ],
   },

@@ -47,11 +47,7 @@ const sparePartUnitSchema = new mongoose.Schema(
       ref: "SparePartBatch",
       required: true,
     },
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      default: null,
-    },
+    technicianId: { type: mongoose.Schema.Types.ObjectId, ref: "Technician" },
     status: {
       type: String,
       enum: GENERAL_STATUS,

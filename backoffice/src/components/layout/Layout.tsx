@@ -11,7 +11,9 @@ function Layout() {
       <Stack width={"100%"} height="100vh">
         <Box flex={1} overflow="auto">
           <Navbar />
+
           <Outlet />
+
           <Footer />
         </Box>
       </Stack>

@@ -2,7 +2,7 @@ import { Box, Button, Stack, Typography } from "@mui/material";
 import { useTheme } from "../../theme/ThemeContext";
 import { useEffect, useState } from "react";
 import { getEmail } from "../../utils/jwt";
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function Navbar() {
   const navigate = useNavigate();
