@@ -185,7 +185,7 @@ exports.createProductUnit = async (req, res, next) => {
       return res.status(409).json({
         success: false,
         message: "Cannot register more units than batch quantity",
-        errors: { productBatchId: "Product batch is already full" },
+        errors: { productBatch: "Product batch is already full" },
       });
     }
 

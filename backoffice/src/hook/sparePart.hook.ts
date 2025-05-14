@@ -5,6 +5,7 @@ import { unwrapOrError } from "../utils/upwrapOrError";
 
 const useSparePart = () => {
   const [spareParts, setSpareParts] = useState<SparePart[]>([]);
+
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
   const [limit, setLimit] = useState(5);
@@ -32,8 +33,19 @@ const useSparePart = () => {
   };
 
   const getSparePartById = async (id: string) => {
-    const data = await sparePartService.getSparePartById(id);
-    return data;
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await sparePartService.getSparePartById(id);
+      const result = unwrapOrError(data);
+      if (result.success) {
+        return result;
+      }
+    } catch (error) {
+      setError("fail to fetching sparePart");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const createSparePart = async (payload: SparePartFormData) => {

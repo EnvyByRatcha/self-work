@@ -1,8 +1,8 @@
-const { ProductBatch } = require("../models/productModel");
+const { SparePartBatch } = require("../models/sparePartModel");
 const errorHandler = require("../utils/error");
 const { isValidObjectId } = require("../utils/validators");
 
-exports.getProductBashByProductId = async (req, res, next) => {
+exports.getSparePartBatchByProductId = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -14,21 +14,21 @@ exports.getProductBashByProductId = async (req, res, next) => {
       });
     }
 
-    const productBatches = await ProductBatch.find({
-      productId: id,
+    const sparePartBatches = await SparePartBatch.find({
+      sparePartId: id,
       $expr: { $lt: ["$registered", "$qty"] },
     });
 
-    if (!productBatches) {
+    if (!sparePartBatches) {
       return res
         .status(404)
-        .json({ success: false, message: "ProductBatch not found" });
+        .json({ success: false, message: "SparePartBatch not found" });
     }
 
     res.status(200).json({
       success: true,
-      message: "ProductBatch retrieved",
-      data: { productBatches },
+      message: "SparePartBatch retrieved",
+      data: { sparePartBatches },
     });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);

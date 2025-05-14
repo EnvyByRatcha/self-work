@@ -5,6 +5,7 @@ import useProduct from "../../hook/product.hook";
 import React, { useEffect, useState } from "react";
 import {
   Product,
+  ProductBatch,
   ProductUnit,
   ProductUnitFormData,
 } from "../../interface/IProduct";
@@ -13,7 +14,6 @@ import CustomModal from "../../components/Modal/CustomModal";
 import CustomTextField from "../../components/input/CustomTextField";
 import CustomButton from "../../components/button/CustomButton";
 import CustomSelect from "../../components/input/CustomSelect";
-import type { ProductBatch } from "../../interface/IProductBatch";
 import useProductBash from "../../hook/productBatch.hook";
 import useProductUnit from "../../hook/productUnit.hook";
 import dayjs from "dayjs";
@@ -99,6 +99,7 @@ const ProductDetailPage = () => {
         productBatchId: "",
       });
       setOpenModal(false);
+      fetchProductBatch(id!);
       return;
     }
     notyf.error(data?.message);

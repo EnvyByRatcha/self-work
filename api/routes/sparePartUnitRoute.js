@@ -9,6 +9,10 @@ sparePartUnitRouter
   .post(sparePartUnitController.createSpartPartUnit);
 
 sparePartUnitRouter
+  .route("/sparePart/:id")
+  .get(sparePartUnitController.getSparePartUnitBySparePartId);
+
+sparePartUnitRouter
   .route("/technician")
   .get(auth.verifyToken, sparePartUnitController.getSparePartByTechnicianId);
 

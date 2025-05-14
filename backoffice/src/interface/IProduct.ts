@@ -15,6 +15,15 @@ export interface ProductFormData {
   photo: string;
 }
 
+export interface ProductBatch {
+  _id: string;
+  productId: string;
+  cost: number;
+  price: number;
+  qty: number;
+}
+
+
 export interface ProductUnit {
   _id: string;
   serialNumber: string;

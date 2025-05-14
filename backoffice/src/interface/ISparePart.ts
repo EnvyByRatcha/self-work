@@ -14,3 +14,26 @@ export interface SparePartFormData {
   productId: string;
   photo: string;
 }
+
+export interface SparePartBatch {
+  _id: string;
+  sparePartId: string;
+  cost: number;
+  price: number;
+  qty: number;
+}
+
+export interface SparePartUnit {
+  _id: string;
+  serialNumber: string;
+  sparePartBatchId: string;
+  technicianId: string;
+  status: string;
+  updatedAt: string;
+}
+
+export interface SparePartUnitFormData {
+  serialNumber: string;
+  sparePartId: string;
+  sparePartBatchId: string;
+}

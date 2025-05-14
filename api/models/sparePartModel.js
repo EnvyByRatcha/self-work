@@ -30,6 +30,7 @@ const sparePartBatchSchema = new mongoose.Schema(
     cost: { type: Number, default: 0 },
     price: { type: Number, default: 0 },
     qty: { type: Number, default: 0 },
+    registered: { type: Number, default: 0 },
     status: {
       type: String,
       enum: GENERAL_STATUS,
@@ -42,6 +43,11 @@ const sparePartBatchSchema = new mongoose.Schema(
 const sparePartUnitSchema = new mongoose.Schema(
   {
     serialNumber: { type: String, unique: true, required: true },
+    sparePartId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SparePart",
+      required: true,
+    },
     sparePartBatchId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "SparePartBatch",

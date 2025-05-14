@@ -1,8 +1,8 @@
 import axios from "axios";
 import config from "../config";
-import type { ProductBatch } from "../interface/IProductBatch";
 import type { ErrorResponse } from "../interface/IError";
 import { handleAxiosError } from "../utils/handleAxiosError";
+import { ProductBatch } from "../interface/IProduct";
 
 const baseUrl = `${config.apiPath}/productBatches`;
 

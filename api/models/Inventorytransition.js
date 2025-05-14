@@ -2,14 +2,31 @@ const mongoose = require("mongoose");
 
 const inventoryTransitionSchema = new mongoose.Schema(
   {
-    transitionType: { type: String, required: true },
+    transitionType: {
+      type: String,
+      enum: [
+        "stock-in",
+        "stock-out",
+        "rented-out",
+        "returned",
+        "issued",
+        "consumed",
+      ],
+      required: true,
+    },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
+    customerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Customer",
+    },
+    targetUserId: { type: mongoose.Schema.Types.ObjectId, ref: "Technician" },
     cost: { type: Number },
     status: { type: String, default: "pending" },
+    note: { type: String },
   },
   { timestamps: true }
 );
@@ -39,7 +56,6 @@ const inventoryTransitionDetail = new mongoose.Schema(
     },
     cost: { type: Number, default: 0 },
     qty: { type: Number, default: 1 },
-    status: { type: String, default: "pending" },
   },
   { timestamps: true }
 );

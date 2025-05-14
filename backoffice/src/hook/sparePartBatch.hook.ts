@@ -1,19 +1,21 @@
 import { useState } from "react";
-import productBatchService from "../service/productBatchService";
 import { unwrapOrError } from "../utils/upwrapOrError";
-import { ProductBatch } from "../interface/IProduct";
+import { SparePartBatch } from "../interface/ISparePart";
+import sparePartBatchService from "../service/sparePartBatchService";
 
-const useProductBash = () => {
-  const [productBashes, setProductBashes] = useState<ProductBatch[]>([]);
+const useSparePartBatch = () => {
+  const [sparePartBatches, setSparePartBatches] = useState<SparePartBatch[]>(
+    []
+  );
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getBashByProductId = async (id: string) => {
+  const getBatchBySparePartId = async (id: string) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await productBatchService.getBatchByProductId(id);
+      const data = await sparePartBatchService.getBatchBySparePartId(id);
       const result = unwrapOrError(data);
       if (result.success) {
         return result;
@@ -25,7 +27,7 @@ const useProductBash = () => {
     }
   };
 
-  return { getBashByProductId, loading, error };
+  return { getBatchBySparePartId, loading, error };
 };
 
-export default useProductBash;
+export default useSparePartBatch;
