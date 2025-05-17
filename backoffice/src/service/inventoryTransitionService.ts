@@ -55,6 +55,20 @@ const inventoryTransitionService = {
       return handleAxiosError(error, "creating the transition");
     }
   },
+  createTechnicianIssued: async (
+    payload: TransitionFormData
+  ): Promise<TransitionResponse | ErrorResponse> => {
+    try {
+      const response = await axios.post(
+        `${baseUrl}/technicianIssued`,
+        payload,
+        { headers }
+      );
+      return response.data;
+    } catch (error) {
+      return handleAxiosError(error, "creating the transition");
+    }
+  },
   approveTransition: async (
     id: string
   ): Promise<TransitionResponse | ErrorResponse> => {

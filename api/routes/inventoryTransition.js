@@ -19,4 +19,8 @@ inventoryTransitionRouter
   .route("/approve/:id")
   .put(inventoryTransitionController.approveTransition);
 
+inventoryTransitionRouter
+  .route("/technicianIssued")
+  .post(auth.verifyToken, inventoryTransitionController.createTechnicianIssued);
+
 module.exports = inventoryTransitionRouter;

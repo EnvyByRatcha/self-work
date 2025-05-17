@@ -45,17 +45,55 @@ exports.getSparePartUnitBySparePartId = async (req, res, next) => {
       });
     }
 
-    let { page, limit } = req.body;
+    let { page, limit, search = "", status } = req.body;
     page = parseInt(page) || 1;
     limit = parseInt(limit) || 10;
+
+    if (
+      isNaN(page) ||
+      isNaN(limit) ||
+      page < 1 ||
+      limit < 1 ||
+      limit > MAX_LIMIT
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid pagination parameters (limit must be between 1 and ${MAX_LIMIT})`,
+        errors: {
+          page: "Must be greater than 0",
+          limit: `Must be between 1 and ${MAX_LIMIT}`,
+        },
+      });
+    }
+
+    const filter = { sparePartId: id };
+    if (search) {
+      filter.serialNumber  = { $regex: search.trim(), $options: "i" };
+    }
+    if (status && GENERAL_STATUS.includes(status)) {
+      filter.status = status;
+    } else {
+      filter.status = "active";
+    }
+
+    const totalSparePartUnits = await SpartPartUnit.countDocuments(filter);
+    const totalPages = Math.ceil(totalSparePartUnits / limit);
+
+    if (page > totalPages && totalPages !== 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Page number exceeds total pages (${totalPages})`,
+        errors: {
+          page: `Max available page is ${totalPages}`,
+        },
+      });
+    }
+
     const skip = (page - 1) * limit;
 
-    const sparePartUnits = await SpartPartUnit.find({ sparePartId: id })
+    const sparePartUnits = await SpartPartUnit.find(filter)
       .skip(skip)
       .limit(limit);
-    const totalSparePartUnits = await SpartPartUnit.countDocuments();
-
-    const totalPages = Math.ceil(totalSparePartUnits / limit);
 
     res.status(200).json({
       success: true,

@@ -4,7 +4,7 @@ const {
   InventoryTransitionDetail,
 } = require("../models/Inventorytransition");
 const { ProductBatch } = require("../models/productModel");
-const { SparePartBatch } = require("../models/sparePartModel");
+const { SparePartBatch, SpartPartUnit } = require("../models/sparePartModel");
 const errorHandler = require("../utils/error");
 const { isValidObjectId } = require("../utils/validators");
 const Joi = require("joi");
@@ -13,14 +13,19 @@ const MAX_LIMIT = 50;
 
 const transitionSchema = Joi.object({
   transition: Joi.object({
-    transitionType: Joi.string().valid("stock-in", "stock-out").required(),
+    transitionType: Joi.string()
+      .valid("stock-in", "stock-out", "technician-issued")
+      .required(),
+    technicianId: Joi.string(),
   }).required(),
   details: Joi.array()
     .items(
       Joi.object({
         productId: Joi.string().optional(),
         sparePartId: Joi.string().optional(),
-        cost: Joi.number().greater(0).required(),
+        sparePartUnitId: Joi.string(),
+        serialNumber: Joi.string(),
+        cost: Joi.number().required(),
         qty: Joi.number().greater(0).required(),
         type: Joi.string().valid("product", "sparepart"),
       }).xor("productId", "sparePartId")
@@ -60,8 +65,9 @@ exports.getAllInventoryTransitions = async (req, res, next) => {
 
     const filter = {};
 
-    const totalInventoryTransitions =
-      await InventoryTransition.countDocuments(filter);
+    const totalInventoryTransitions = await InventoryTransition.countDocuments(
+      filter
+    );
     const totalPages = Math.ceil(totalInventoryTransitions / limit);
 
     if (page > totalPages && totalPages !== 0) {
@@ -187,6 +193,74 @@ exports.createInventoryTransition = async (req, res, next) => {
       success: true,
       message: "Inventory transition created successfully",
       data: { inventoryTransition: inventoryTransition },
+    });
+  } catch (error) {
+    errorHandler.mapError(error, 500, "Internal Server Error", next);
+  }
+};
+
+exports.createTechnicianIssued = async (req, res, next) => {
+  try {
+    const { error } = transitionSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid input data",
+        error: { input: error.details },
+      });
+    }
+
+    const { transition, details } = req.body;
+    const userId = req.user.userId;
+
+    let totalCost = 0;
+    for (const detail of details) {
+      const sparePartUnit = await SpartPartUnit.findOne({
+        _id: detail.sparePartUnitId,
+        sparePartId: detail.sparePartId,
+      }).populate("sparePartBatchId");
+
+      if (!sparePartUnit || sparePartUnit.status !== "active") {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid or unavailable spare part unit ${detail.serialNumber}`,
+          errors: {
+            sparePartUnitId: detail.serialNumber,
+          },
+        });
+      }
+
+      const cost = sparePartUnit.sparePartBatchId.cost || 0;
+      detail.cost = cost;
+      totalCost += cost;
+
+      sparePartUnit.status = "issued";
+      await sparePartUnit.save();
+    }
+
+    const inventoryTransition = await InventoryTransition.create({
+      transitionType: transition.transitionType,
+      technicianId: transition.technicianId,
+      cost: totalCost,
+      userId: userId,
+      status: "pending",
+    });
+
+    const transitionId = inventoryTransition._id;
+
+    const detailDocs = details.map((detail) => ({
+      ...detail,
+      transitionId,
+    }));
+
+    await InventoryTransitionDetail.insertMany(detailDocs);
+
+    res.status(200).json({
+      success: true,
+      message: "Technician issued created successfully",
+      data: {
+        inventoryTransition: inventoryTransition,
+      },
     });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);

@@ -13,6 +13,7 @@ const InventoryListPage = () => {
       <TitleBox title={"Inventory management"} />
       <ContentBox padding>
         <LinkButton title="Add Transition" to="/inventory/create" />
+        <LinkButton title="Technician issued" to="/inventory/create/technician-issued" />
         <CustomTable
           data={inventoryTransitions}
           columns={inventoryTransitionColumn}

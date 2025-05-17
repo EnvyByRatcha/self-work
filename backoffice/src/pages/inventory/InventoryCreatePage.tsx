@@ -13,9 +13,8 @@ import { Notyf } from "notyf";
 const notyf = new Notyf();
 
 const InventoryCreatePage = () => {
-  const { createInventoryTransition } = useInventoryTransition();
-
   const navigate = useNavigate();
+  const { createInventoryTransition } = useInventoryTransition();
 
   const handleTranstionFormSubmit = async (
     formData: InventoryTransitionFormData,

@@ -5,6 +5,7 @@ import type {
 } from "../interface/IInventory";
 import { useEffect, useState } from "react";
 import { unwrapOrError } from "../utils/upwrapOrError";
+import { TechnicianIssuedFormData } from "../interface/ITechnicianUssued";
 
 const useInventoryTransition = () => {
   const [inventoryTransitions, setInventoryTransitions] = useState<
@@ -67,6 +68,13 @@ const useInventoryTransition = () => {
     return data;
   };
 
+  const createTechnicianIssued = async (payload: TransitionFormData) => {
+    const data = await inventoryTransitionService.createTechnicianIssued(
+      payload
+    );
+    return data;
+  };
+
   const approveTransition = async (id: string) => {
     const data = await inventoryTransitionService.approveTransition(id);
     return data;
@@ -76,6 +84,7 @@ const useInventoryTransition = () => {
     inventoryTransitions,
     getInventoryTransitionDetailById,
     createInventoryTransition,
+    createTechnicianIssued,
     approveTransition,
     totalPage,
     setCurrentPage,
