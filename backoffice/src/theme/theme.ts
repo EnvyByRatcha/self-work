@@ -16,7 +16,7 @@ export const getTheme = (mode: "light" | "dark") => {
             },
             text: {
               primary: "#1B2124",
-              secondary: "#fff",
+              secondary: "rgb(38, 45, 48)",
             },
             custom: {
               inputBg: "#EBF2F5",
@@ -49,7 +49,7 @@ export const getTheme = (mode: "light" | "dark") => {
             },
             text: {
               primary: "#EBF2F5",
-              secondary: "#1B2124",
+              secondary: "rgb(38, 45, 48)",
             },
             custom: {
               inputBg: "#1b2124",

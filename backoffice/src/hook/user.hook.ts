@@ -23,7 +23,6 @@ const useUser = () => {
     try {
       const data = await userService.getAllUsers(page, limit);
       const result = unwrapOrError(data);
-      console.log(result.data.users);
       
       setUsers(result.data.users);
       setTotalPage(result.data.pagination.currentPage);

@@ -21,6 +21,7 @@ import NotFoundPage from "../pages/notFound/NotFoundPage";
 import CustomerDetailPage from "../pages/customer/CustomerDetailPage";
 import TechnicianListPage from "../pages/technician/TechnicianListPage";
 import TechnicianCreatePage from "../pages/technician/TechnicianCreatePage";
+import TechnicianIssuedPage from "../pages/inventory/form/TechnicianIssuedPage";
 
 const router = createBrowserRouter([
   {
@@ -110,6 +111,10 @@ const router = createBrowserRouter([
       {
         path: "inventory/:id",
         element: <InventoryTransitionDetailPage />,
+      },
+      {
+        path: "inventory/create/technician-issued",
+        element: <TechnicianIssuedPage />,
       },
       { path: "*", element: <NotFoundPage /> },
     ],
