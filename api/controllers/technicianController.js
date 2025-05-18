@@ -5,7 +5,7 @@ const dotenv = require("dotenv");
 const { isValidObjectId } = require("../utils/validators");
 const {
   createTechnicianSchema,
-  updateUserSchema,
+  updateTechnicianSchema,
 } = require("../validators/user.validator");
 dotenv.config();
 
@@ -99,7 +99,9 @@ exports.getTechnicianById = async (req, res, next) => {
       });
     }
 
-    const technician = await Technician.findById(id).select("-password -__v").lean();
+    const technician = await Technician.findById(id)
+      .select("-password -__v")
+      .lean();
 
     if (!technician) {
       return res
@@ -132,7 +134,9 @@ exports.createTechnician = async (req, res, next) => {
 
     const { firstName, lastName, email, password, level } = value;
 
-    const existingTechnician = await Technician.findOne({ email: email.toLowerCase().trim() });
+    const existingTechnician = await Technician.findOne({
+      email: email.toLowerCase().trim(),
+    });
     if (existingTechnician) {
       return res
         .status(409)
@@ -182,7 +186,7 @@ exports.updateTechnicianById = async (req, res, next) => {
       });
     }
 
-    const { error, value } = updateUserSchema.validate(req.body, {
+    const { error, value } = updateTechnicianSchema.validate(req.body, {
       abortEarly: false,
     });
     if (error) {
@@ -193,8 +197,8 @@ exports.updateTechnicianById = async (req, res, next) => {
       });
     }
 
-    const allowedFields = ["firstName", "lastName", "status"];
     const payload = {};
+    const allowedFields = ["firstName", "lastName", "status"];
     allowedFields.forEach((field) => {
       if (value[field] !== undefined) {
         payload[field] = value[field];
@@ -247,7 +251,15 @@ exports.inactiveTechnicianById = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Technician marked as inactive",
-      data: { technician },
+      data: {
+        technician: {
+          _id: technician._id,
+          firstName: technician.firstName,
+          lastName: technician.lastName,
+          email: technician.email,
+          status: technician.status,
+        },
+      },
     });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
