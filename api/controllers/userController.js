@@ -2,7 +2,7 @@ const User = require("../models/userModel");
 const encrypt = require("../utils/encrypt");
 const errorHandler = require("../utils/error");
 const dotenv = require("dotenv");
-const { isValidObjectId } = require("../utils/validators");
+const { isValidObjectId, mapJoiErrors } = require("../utils/validators");
 const {
   createUserSchema,
   updateUserSchema,
@@ -100,7 +100,6 @@ exports.getUserById = async (req, res, next) => {
     }
 
     const user = await User.findById(id).select("-password -__v").lean();
-
     if (!user) {
       return res
         .status(404)
@@ -126,7 +125,7 @@ exports.createUser = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: "Validation error",
-        errors: error.details.map((err) => err.message),
+        errors: mapJoiErrors(error),
       });
     }
 
@@ -188,7 +187,7 @@ exports.updateUserById = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: "Validation error",
-        errors: error.details.map((err) => err.message),
+        errors: mapJoiErrors(error),
       });
     }
 
@@ -246,7 +245,15 @@ exports.inactiveUserById = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "User marked as inactive",
-      data: { user: user },
+      data: {
+        user: {
+          _id: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          status: user.status,
+        },
+      },
     });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
