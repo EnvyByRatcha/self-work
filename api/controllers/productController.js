@@ -2,6 +2,9 @@ const mongoose = require("mongoose");
 const { Product, Category } = require("../models/productModel");
 const errorHandler = require("../utils/error");
 const { uploadImage } = require("../service/cloudinaryService");
+const { GENERAL_STATUS } = require("../utils/enum");
+const validateObjectId = require("../helpers/validateObjectId");
+const validatePagination = require("../helpers/paginationValidator");
 
 const MAX_LIMIT = 50;
 
@@ -148,7 +151,7 @@ exports.createProduct = async (req, res, next) => {
       });
     }
 
-    const photoUrl = await uploadImage(photo,"products");
+    const photoUrl = await uploadImage(photo, "products");
 
     const newProduct = new Product({
       name,
