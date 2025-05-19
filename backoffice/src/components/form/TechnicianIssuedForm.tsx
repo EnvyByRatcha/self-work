@@ -114,7 +114,7 @@ function TechnicianIssuedForm({ onSubmit }: any) {
     );
 
     if (filteredSpareParts.length === 0) {
-      notyf.error('Please add more Spare-part');
+      notyf.error("Please add more Spare-part");
       return;
     }
 
@@ -124,6 +124,7 @@ function TechnicianIssuedForm({ onSubmit }: any) {
         sparePartId: sparePart._id,
         sparePartUnitId: unit._id,
         serialNumber: unit.serialNumber,
+        sparePartBatchId: unit.sparePartBatchId,
         qty: 1,
         cost: 0,
       }))

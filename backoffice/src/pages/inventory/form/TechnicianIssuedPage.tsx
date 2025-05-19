@@ -13,8 +13,6 @@ function TechnicianIssuedPage() {
   const { createTechnicianIssued } = useInventoryTransition();
 
   const handleSubmitAddSparePart = async (formData: TransitionFormData) => {
-    console.log(formData);
-
     const data = await createTechnicianIssued(formData);
     if (data?.success) {
       notyf.success(data.message);
