@@ -4,9 +4,10 @@ const {
   InventoryTransitionDetail,
 } = require("../models/Inventorytransition");
 const { ProductBatch } = require("../models/productModel");
-const { SparePartBatch, SpartPartUnit } = require("../models/sparePartModel");
+const { SparePartBatch, SparePartUnit } = require("../models/sparePartModel");
 const errorHandler = require("../utils/error");
-const { isValidObjectId } = require("../utils/validators");
+const validateObjectId = require("../helpers/validateObjectId");
+const validatePagination = require("../helpers/paginationValidator");
 const Joi = require("joi");
 
 const MAX_LIMIT = 50;
@@ -23,6 +24,7 @@ const transitionSchema = Joi.object({
       Joi.object({
         productId: Joi.string().optional(),
         sparePartId: Joi.string().optional(),
+        sparePartBatchId: Joi.string(),
         sparePartUnitId: Joi.string(),
         serialNumber: Joi.string(),
         cost: Joi.number().required(),
@@ -215,7 +217,7 @@ exports.createTechnicianIssued = async (req, res, next) => {
 
     let totalCost = 0;
     for (const detail of details) {
-      const sparePartUnit = await SpartPartUnit.findOne({
+      const sparePartUnit = await SparePartUnit.findOne({
         _id: detail.sparePartUnitId,
         sparePartId: detail.sparePartId,
       }).populate("sparePartBatchId");
@@ -234,7 +236,7 @@ exports.createTechnicianIssued = async (req, res, next) => {
       detail.cost = cost;
       totalCost += cost;
 
-      sparePartUnit.status = "issued";
+      sparePartUnit.status = "pending_approval";
       await sparePartUnit.save();
     }
 
@@ -267,71 +269,244 @@ exports.createTechnicianIssued = async (req, res, next) => {
   }
 };
 
+// exports.approveTransition = async (req, res, next) => {
+//   try {
+//     const { id } = req.params;
+//     if (!validateObjectId(id, res)) return;
+
+//     const existingTransition = await InventoryTransition.findById(id);
+//     if (!existingTransition) {
+//       await session.abortTransaction();
+//       return res.status(404).json({
+//         success: false,
+//         message: "Inventory transition not found",
+//       });
+//     }
+
+//     if (existingTransition.status === "approve") {
+//       await session.abortTransaction();
+//       return res.status(400).json({
+//         success: false,
+//         message: "Inventory transition has already been approved",
+//       });
+//     }
+
+//     const updatedTransition = await InventoryTransition.findByIdAndUpdate(
+//       id,
+//       { status: "approve" },
+//       { new: true }
+//     );
+
+//     if (!updatedTransition) {
+//       await session.abortTransaction();
+//       return res.status(404).json({
+//         success: false,
+//         message: "Inventory transition not found",
+//       });
+//     }
+
+//     const transitionDetails = await InventoryTransitionDetail.find({
+//       transitionId: id,
+//     });
+
+//     for (const detail of transitionDetails) {
+//       const { productId, sparePartId, cost, qty } = detail;
+
+//       if (productId) {
+//         const [createdBatch] = await ProductBatch.create([
+//           { productId: productId.toString(), cost, qty },
+//         ]);
+//         detail.productBatchId = createdBatch._id;
+//       }
+
+//       if (sparePartId) {
+//         const [createdBatch] = await SparePartBatch.create([
+//           { sparePartId: sparePartId.toString(), cost, qty },
+//         ]);
+//         detail.sparePartBatchId = createdBatch._id;
+//       }
+
+//       await detail.save();
+//     }
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Inventory transition approved successfully",
+//       data: { inventoryTransition: updatedTransition },
+//     });
+//   } catch (error) {
+//     errorHandler.mapError(error, 500, "Internal Server Error", next);
+//   }
+// };
+
+// exports.approveTchnicianIssued = async (req, res, next) => {
+//   const session = await mongoose.startSession();
+//   session.startTransaction();
+//   try {
+//     const { id } = req.params;
+//     if (!validateObjectId(id, res)) {
+//       await session.abortTransaction();
+//       session.endSession();
+//       return;
+//     }
+
+//     const existingTransition = await InventoryTransition.findById(id).session(
+//       session
+//     );
+//     if (!existingTransition) {
+//       await session.abortTransaction();
+//       session.endSession();
+//       return res.status(404).json({
+//         success: false,
+//         message: "Inventory transition not found",
+//       });
+//     }
+
+//     const updatedTransition = await InventoryTransition.findByIdAndUpdate(
+//       id,
+//       { status: "approve" },
+//       { new: true, session }
+//     );
+
+//     if (!updatedTransition) {
+//       await session.abortTransaction();
+//       session.endSession();
+//       return res.status(404).json({
+//         success: false,
+//         message: "Inventory transition not found",
+//       });
+//     }
+
+//     const transitionDetails = await InventoryTransitionDetail.find({
+//       transitionId: id,
+//     }).session(session);
+
+//     for (const detail of transitionDetails) {
+//       const { serialNumber } = detail;
+
+//       const sparePartUnit = await SparePartUnit.findOne({
+//         serialNumber,
+//       }).session(session);
+
+//       if (!sparePartUnit) {
+//         await session.abortTransaction();
+//         session.endSession();
+//         return res.status(404).json({
+//           success: false,
+//           message: `Spare part unit with serial ${serialNumber} not found`,
+//         });
+//       }
+//       sparePartUnit.status = "issued";
+//       sparePartUnit.technicianId = updatedTransition.technicianId;
+//       await sparePartUnit.save({ session });
+//     }
+
+//     await session.commitTransaction();
+//     session.endSession();
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Inventory transition approved successfully",
+//       data: { inventoryTransition: updatedTransition },
+//     });
+//   } catch (error) {
+//     await session.abortTransaction();
+//     session.endSession();
+//     errorHandler.mapError(error, 500, "Internal Server Error", next);
+//   }
+// };
+
 exports.approveTransition = async (req, res, next) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
     const { id } = req.params;
-
-    if (!isValidObjectId(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid category ID",
-        errors: { id: "Not a valid ObjectId" },
-      });
+    if (!validateObjectId(id, res)) {
+      await session.abortTransaction();
+      session.endSession();
+      return;
     }
-    const existingTransition = await InventoryTransition.findById(id);
+
+    const existingTransition = await InventoryTransition.findById(id).session(session);
     if (!existingTransition) {
       await session.abortTransaction();
-      return res.status(404).json({
-        success: false,
-        message: "Inventory transition not found",
-      });
+      session.endSession();
+      return res.status(404).json({ success: false, message: "Inventory transition not found" });
     }
 
     if (existingTransition.status === "approve") {
       await session.abortTransaction();
-      return res.status(400).json({
-        success: false,
-        message: "Inventory transition has already been approved",
-      });
+      session.endSession();
+      return res.status(400).json({ success: false, message: "Already approved" });
+    }
+
+    const transitionDetails = await InventoryTransitionDetail.find({
+      transitionId: id,
+    }).session(session);
+
+    switch (existingTransition.transitionType) {
+      case "stock-in":
+        for (const detail of transitionDetails) {
+          const { productId, sparePartId, cost, qty } = detail;
+
+          if (productId) {
+            const [createdBatch] = await ProductBatch.create(
+              [{ productId: productId.toString(), cost, qty }],
+              { session }
+            );
+            detail.productBatchId = createdBatch._id;
+          }
+
+          if (sparePartId) {
+            const [createdBatch] = await SparePartBatch.create(
+              [{ sparePartId: sparePartId.toString(), cost, qty }],
+              { session }
+            );
+            detail.sparePartBatchId = createdBatch._id;
+          }
+
+          await detail.save({ session });
+        }
+        break;
+
+      case "technician-issued":
+        for (const detail of transitionDetails) {
+          const { serialNumber } = detail;
+
+          const sparePartUnit = await SparePartUnit.findOne({ serialNumber }).session(session);
+          if (!sparePartUnit) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(404).json({
+              success: false,
+              message: `Spare part unit with serial ${serialNumber} not found`,
+            });
+          }
+
+          sparePartUnit.status = "issued";
+          sparePartUnit.technicianId = existingTransition.technicianId;
+          await sparePartUnit.save({ session });
+        }
+        break;
+
+      default:
+        await session.abortTransaction();
+        session.endSession();
+        return res.status(400).json({
+          success: false,
+          message: `Unsupported transition type: ${existingTransition.transitionType}`,
+        });
     }
 
     const updatedTransition = await InventoryTransition.findByIdAndUpdate(
       id,
       { status: "approve" },
-      { new: true }
+      { new: true, session }
     );
 
-    if (!updatedTransition) {
-      await session.abortTransaction();
-      return res.status(404).json({
-        success: false,
-        message: "Inventory transition not found",
-      });
-    }
-
-    const transitionDetails = await InventoryTransitionDetail.find({
-      transitionId: id,
-    });
-
-    for (const detail of transitionDetails) {
-      const { productId, sparePartId, cost, qty } = detail;
-
-      if (productId) {
-        const [createdBatch] = await ProductBatch.create([
-          { productId: productId.toString(), cost, qty },
-        ]);
-        detail.productBatchId = createdBatch._id;
-      }
-
-      if (sparePartId) {
-        const [createdBatch] = await SparePartBatch.create([
-          { sparePartId: sparePartId.toString(), cost, qty },
-        ]);
-        detail.sparePartBatchId = createdBatch._id;
-      }
-
-      await detail.save();
-    }
+    await session.commitTransaction();
+    session.endSession();
 
     res.status(200).json({
       success: true,
@@ -339,6 +514,9 @@ exports.approveTransition = async (req, res, next) => {
       data: { inventoryTransition: updatedTransition },
     });
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
     errorHandler.mapError(error, 500, "Internal Server Error", next);
   }
 };
+
