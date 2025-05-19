@@ -148,7 +148,7 @@ exports.createProduct = async (req, res, next) => {
       });
     }
 
-    const photoUrl = await uploadImage(photo);
+    const photoUrl = await uploadImage(photo,"products");
 
     const newProduct = new Product({
       name,

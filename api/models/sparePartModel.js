@@ -65,6 +65,6 @@ const sparePartUnitSchema = new mongoose.Schema(
 
 const SparePart = mongoose.model("SparePart", sparePartSchema);
 const SparePartBatch = mongoose.model("SparePartBatch", sparePartBatchSchema);
-const SpartPartUnit = mongoose.model("SparePartUnit", sparePartUnitSchema);
+const SparePartUnit = mongoose.model("SparePartUnit", sparePartUnitSchema);
 
-module.exports = { SparePart, SparePartBatch, SpartPartUnit };
+module.exports = { SparePart, SparePartBatch, SparePartUnit };

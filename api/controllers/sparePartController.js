@@ -156,7 +156,7 @@ exports.createSparePart = async (req, res, next) => {
       });
     }
 
-    const photoUrl = await uploadImage(photo);
+    const photoUrl = await uploadImage(photo,"spareParts");
 
     const newSparePart = new SparePart({
       name,

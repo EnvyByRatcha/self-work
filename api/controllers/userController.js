@@ -2,7 +2,10 @@ const User = require("../models/userModel");
 const encrypt = require("../utils/encrypt");
 const errorHandler = require("../utils/error");
 const dotenv = require("dotenv");
-const { isValidObjectId, mapJoiErrors } = require("../utils/validators");
+const { mapJoiErrors } = require("../utils/validators");
+const { GENERAL_STATUS } = require("../utils/enum");
+const validateObjectId = require("../helpers/validateObjectId");
+const validatePagination = require("../helpers/paginationValidator");
 const {
   createUserSchema,
   updateUserSchema,
@@ -23,26 +26,20 @@ exports.getAllUsers = async (req, res, next) => {
     page = parseInt(page);
     limit = parseInt(limit);
 
-    if (
-      isNaN(page) ||
-      isNaN(limit) ||
-      page < 1 ||
-      limit < 1 ||
-      limit > MAX_LIMIT
-    ) {
+    const paginationErrors = validatePagination(page, limit);
+    if (paginationErrors) {
       return res.status(400).json({
         success: false,
-        message: `Invalid pagination parameters (limit must be between 1 and ${MAX_LIMIT})`,
-        errors: {
-          page: "Must be greater than 0",
-          limit: `Must be between 1 and ${MAX_LIMIT}`,
-        },
+        message: `Invalid pagination parameters`,
+        errors: paginationErrors,
       });
     }
 
     const filter = {};
-    if (status) {
+    if (status && GENERAL_STATUS.includes(status)) {
       filter.status = status;
+    } else {
+      filter.status = "active";
     }
 
     const totalUser = await User.countDocuments(filter);
@@ -90,16 +87,10 @@ exports.getAllUsers = async (req, res, next) => {
 exports.getUserById = async (req, res, next) => {
   try {
     const { id } = req.params;
-
-    if (!isValidObjectId(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid user ID",
-        errors: { id: "Not a valid ObjectId" },
-      });
-    }
+    if (!validateObjectId(id, res)) return;
 
     const user = await User.findById(id).select("-password -__v").lean();
+
     if (!user) {
       return res
         .status(404)
@@ -171,14 +162,7 @@ exports.createUser = async (req, res, next) => {
 exports.updateUserById = async (req, res, next) => {
   try {
     const { id } = req.params;
-
-    if (!isValidObjectId(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid user ID",
-        errors: { id: "Not a valid ObjectId" },
-      });
-    }
+    if (!validateObjectId(id, res)) return;
 
     const { error, value } = updateUserSchema.validate(req.body, {
       abortEarly: false,
@@ -192,12 +176,10 @@ exports.updateUserById = async (req, res, next) => {
     }
 
     const allowedFields = ["firstName", "lastName", "status"];
-    const payload = {};
-    allowedFields.forEach((field) => {
-      if (value[field] !== undefined) {
-        payload[field] = value[field];
-      }
-    });
+    const payload = allowedFields.reduce((acc, field) => {
+      if (value[field] !== undefined) acc[field] = value[field];
+      return acc;
+    }, {});
 
     const updatedUser = await User.findByIdAndUpdate(id, payload, {
       new: true,
@@ -223,14 +205,7 @@ exports.updateUserById = async (req, res, next) => {
 exports.inactiveUserById = async (req, res, next) => {
   try {
     const { id } = req.params;
-
-    if (!isValidObjectId(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid user ID",
-        errors: { id: "Not a valid ObjectId" },
-      });
-    }
+    if (!validateObjectId(id, res)) return;
 
     const user = await User.findById(id);
     if (!user) {

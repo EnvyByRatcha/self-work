@@ -1,5 +1,5 @@
 const {
-  SpartPartUnit,
+  SparePartUnit,
   SparePart,
   SparePartBatch,
 } = require("../models/sparePartModel");
@@ -8,15 +8,15 @@ const { isValidObjectId } = require("../utils/validators");
 
 const MAX_LIMIT = 50;
 
-exports.getAllSpartPartUnit = async (req, res, next) => {
+exports.getAllSparePartUnit = async (req, res, next) => {
   try {
     let { page, limit } = req.body;
     page = parseInt(page) || 1;
     limit = parseInt(limit) || 10;
     const skip = (page - 1) * limit;
 
-    const sparePartUnits = await SpartPartUnit.find().skip(skip).limit(limit);
-    const totalSparePartUnits = await SpartPartUnit.countDocuments();
+    const sparePartUnits = await SparePartUnit.find().skip(skip).limit(limit);
+    const totalSparePartUnits = await SparePartUnit.countDocuments();
 
     const totalPages = Math.ceil(totalSparePartUnits / limit);
 
@@ -76,7 +76,7 @@ exports.getSparePartUnitBySparePartId = async (req, res, next) => {
       filter.status = "active";
     }
 
-    const totalSparePartUnits = await SpartPartUnit.countDocuments(filter);
+    const totalSparePartUnits = await SparePartUnit.countDocuments(filter);
     const totalPages = Math.ceil(totalSparePartUnits / limit);
 
     if (page > totalPages && totalPages !== 0) {
@@ -91,7 +91,7 @@ exports.getSparePartUnitBySparePartId = async (req, res, next) => {
 
     const skip = (page - 1) * limit;
 
-    const sparePartUnits = await SpartPartUnit.find(filter)
+    const sparePartUnits = await SparePartUnit.find(filter)
       .skip(skip)
       .limit(limit);
 
@@ -171,7 +171,7 @@ exports.getSparePartByTechnicianId = async (req, res, next) => {
       },
     ];
 
-    const result = await SpartPartUnit.aggregate(aggregationPipeline);
+    const result = await SparePartUnit.aggregate(aggregationPipeline);
     const sparePartUnits = result[0]?.paginatedResults || [];
     const totalItems = result[0]?.totalCount?.[0]?.count || 0;
     const totalPages = Math.ceil(totalItems / limit);
@@ -193,11 +193,11 @@ exports.getSparePartByTechnicianId = async (req, res, next) => {
   }
 };
 
-exports.createSpartPartUnit = async (req, res, next) => {
+exports.createSparePartUnit = async (req, res, next) => {
   try {
     const { serialNumber, sparePartId, sparePartBatchId } = req.body;
 
-    const existingSparePartUnit = await SpartPartUnit.findOne({ serialNumber });
+    const existingSparePartUnit = await SparePartUnit.findOne({ serialNumber });
     if (existingSparePartUnit) {
       return res.status(409).json({ message: "Serial number already exits" });
     }
@@ -227,7 +227,7 @@ exports.createSpartPartUnit = async (req, res, next) => {
       });
     }
 
-    const totalSparePartUnits = await SpartPartUnit.countDocuments({
+    const totalSparePartUnits = await SparePartUnit.countDocuments({
       sparePartBatchId,
     });
 
@@ -243,7 +243,7 @@ exports.createSpartPartUnit = async (req, res, next) => {
       $inc: { registered: 1 },
     });
 
-    const newSparePartUnit = new SpartPartUnit({
+    const newSparePartUnit = new SparePartUnit({
       serialNumber,
       sparePartId,
       sparePartBatchId,
@@ -261,11 +261,11 @@ exports.createSpartPartUnit = async (req, res, next) => {
   }
 };
 
-exports.updateSpartPartUnit = async (req, res, next) => {
+exports.updateSparePartUnit = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const updateSparePartUnit = await SpartPartUnit.findByIdAndUpdate(
+    const updateSparePartUnit = await SparePartUnit.findByIdAndUpdate(
       id,
       req.body,
       {
@@ -286,10 +286,10 @@ exports.updateSpartPartUnit = async (req, res, next) => {
   }
 };
 
-exports.removeSpartPartUnit = async (req, res, next) => {
+exports.removeSparePartUnit = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const sparePartUnit = await SpartPartUnit.findById(id);
+    const sparePartUnit = await SparePartUnit.findById(id);
 
     if (!sparePartUnit) {
       return res.status(404).json({ message: "Spare part not found" });

@@ -55,6 +55,10 @@ const inventoryTransitionDetail = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "SparePart",
     },
+    serialNumber: {
+      type: String,
+      default: null,
+    },
     cost: { type: Number, default: 0 },
     qty: { type: Number, default: 1 },
   },

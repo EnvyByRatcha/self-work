@@ -1,7 +1,8 @@
 const { Category } = require("../models/productModel");
 const errorHandler = require("../utils/error");
 const { GENERAL_STATUS } = require("../utils/enum");
-const { isValidObjectId } = require("../utils/validators");
+const validateObjectId = require("../helpers/validateObjectId");
+const validatePagination = require("../helpers/paginationValidator");
 
 const MAX_LIMIT = 50;
 
@@ -18,20 +19,12 @@ exports.getAllCategory = async (req, res, next) => {
     page = parseInt(page);
     limit = parseInt(limit);
 
-    if (
-      isNaN(page) ||
-      isNaN(limit) ||
-      page < 1 ||
-      limit < 1 ||
-      limit > MAX_LIMIT
-    ) {
+    const paginationErrors = validatePagination(page, limit);
+    if (paginationErrors) {
       return res.status(400).json({
         success: false,
-        message: `Invalid pagination parameters (limit must be between 1 and ${MAX_LIMIT})`,
-        errors: {
-          page: "Must be greater than 0",
-          limit: `Must be between 1 and ${MAX_LIMIT}`,
-        },
+        message: `Invalid pagination parameters`,
+        errors: paginationErrors,
       });
     }
 
@@ -39,7 +32,6 @@ exports.getAllCategory = async (req, res, next) => {
     if (search.trim()) {
       filter.name = { $regex: search.trim(), $options: "i" };
     }
-
     if (status && GENERAL_STATUS.includes(status)) {
       filter.status = status;
     } else {
@@ -69,6 +61,7 @@ exports.getAllCategory = async (req, res, next) => {
       .sort(sortOption)
       .skip(skip)
       .limit(limit)
+      .lean();
 
     res.status(200).json({
       success: true,
@@ -81,6 +74,28 @@ exports.getAllCategory = async (req, res, next) => {
           totalItems: totalCategories,
         },
       },
+    });
+  } catch (error) {
+    errorHandler.mapError(error, 500, "Internal Server Error", next);
+  }
+};
+
+exports.getCategoryById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!validateObjectId(id, res)) return;
+
+    const category = await Category.findById(id).lean();
+    if (!category) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Category not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Category retrieved successfully",
+      data: { category },
     });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
@@ -128,25 +143,16 @@ exports.createCategory = async (req, res, next) => {
 exports.updateCategoryById = async (req, res, next) => {
   try {
     const { id } = req.params;
+    if (!validateObjectId(id, res)) return;
 
-    if (!isValidObjectId(categoryId)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid category ID",
-        errors: { id: "Not a valid ObjectId" },
-      });
-    }
+    const allowedFields = ["name"];
+    const payload = allowedFields.reduce((acc, field) => {
+      if (req.body[field] !== undefined) acc[field] = req.body[field];
+      return acc;
+    }, {});
 
-    const allowedUpdates = ["name"];
-    const updates = {};
-    allowedUpdates.forEach((field) => {
-      if (req.body[field] !== undefined) {
-        updates[field] = req.body[field];
-      }
-    });
-
-    if (updates.name) {
-      if (typeof updates.name !== "string" || updates.name.trim() === "") {
+    if (payload.name) {
+      if (typeof payload.name !== "string" || payload.name.trim() === "") {
         return res.status(400).json({
           success: false,
           message: "Invalid category name",
@@ -154,8 +160,8 @@ exports.updateCategoryById = async (req, res, next) => {
         });
       }
 
-      updates.name = updates.name.trim().toLowerCase();
-      const duplicate = await Category.findOne({ name: updates.name });
+      payload.name = payload.name.trim().toLowerCase();
+      const duplicate = await Category.findOne({ name: payload.name });
       if (duplicate && duplicate._id.toString() !== id) {
         return res.status(409).json({
           success: false,
@@ -165,7 +171,7 @@ exports.updateCategoryById = async (req, res, next) => {
       }
     }
 
-    const updatedCategory = await Category.findByIdAndUpdate(id, updates, {
+    const updatedCategory = await Category.findByIdAndUpdate(id, payload, {
       new: true,
       runValidators: true,
     });
@@ -191,17 +197,9 @@ exports.updateCategoryById = async (req, res, next) => {
 exports.inactiveCategoryById = async (req, res, next) => {
   try {
     const { id } = req.params;
-
-    if (!isValidObjectId(categoryId)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid category ID",
-        errors: { id: "Not a valid ObjectId" },
-      });
-    }
+    if (!validateObjectId(id, res)) return;
 
     const category = await Category.findById(id);
-
     if (!category) {
       return res.status(404).json({
         success: false,
@@ -215,7 +213,7 @@ exports.inactiveCategoryById = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: "Category removed",
+      message: "Category marked as inactive",
       data: { category },
     });
   } catch (error) {

@@ -2,14 +2,15 @@ const Technician = require("../models/TechnicianModel");
 const encrypt = require("../utils/encrypt");
 const errorHandler = require("../utils/error");
 const dotenv = require("dotenv");
-const { isValidObjectId } = require("../utils/validators");
+const validateObjectId = require("../helpers/validateObjectId");
+const validatePagination = require("../helpers/paginationValidator");
 const {
   createTechnicianSchema,
   updateTechnicianSchema,
 } = require("../validators/user.validator");
-dotenv.config();
+const GENERAL_STATUS = require("../utils/enum");
 
-const MAX_LIMIT = 50;
+dotenv.config();
 
 exports.getAllTechnicians = async (req, res, next) => {
   try {
@@ -19,29 +20,22 @@ exports.getAllTechnicians = async (req, res, next) => {
       sort = "createdAt",
       order = "desc",
       status,
+      search = "",
     } = req.query;
     page = parseInt(page);
     limit = parseInt(limit);
 
-    if (
-      isNaN(page) ||
-      isNaN(limit) ||
-      page < 1 ||
-      limit < 1 ||
-      limit > MAX_LIMIT
-    ) {
+    const paginationErrors = validatePagination(page, limit);
+    if (paginationErrors) {
       return res.status(400).json({
         success: false,
-        message: `Invalid pagination parameters (limit must be between 1 and ${MAX_LIMIT})`,
-        errors: {
-          page: "Must be greater than 0",
-          limit: `Must be between 1 and ${MAX_LIMIT}`,
-        },
+        message: `Invalid pagination parameters`,
+        errors: paginationErrors,
       });
     }
 
     const filter = {};
-    if (status) {
+    if (status && STATUS_ENUM.includes(status)) {
       filter.status = status;
     }
 
@@ -90,14 +84,7 @@ exports.getAllTechnicians = async (req, res, next) => {
 exports.getTechnicianById = async (req, res, next) => {
   try {
     const { id } = req.params;
-
-    if (!isValidObjectId(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid technician ID",
-        errors: { id: "Not a valid ObjectId" },
-      });
-    }
+    if (!validateObjectId(id, res)) return;
 
     const technician = await Technician.findById(id)
       .select("-password -__v")
@@ -128,14 +115,13 @@ exports.createTechnician = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: "Validation error",
-        errors: error.details.map((err) => err.message),
+        errors: mapJoiErrors(error),
       });
     }
-
     const { firstName, lastName, email, password, level } = value;
 
     const existingTechnician = await Technician.findOne({
-      email: email.toLowerCase().trim(),
+      email,
     });
     if (existingTechnician) {
       return res
@@ -148,7 +134,7 @@ exports.createTechnician = async (req, res, next) => {
     const newTechnician = new Technician({
       firstName,
       lastName,
-      email: email.toLowerCase().trim(),
+      email,
       password: hashedPassword,
       level,
     });
@@ -178,13 +164,7 @@ exports.updateTechnicianById = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    if (!isValidObjectId(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid technician ID",
-        errors: { id: "Not a valid ObjectId" },
-      });
-    }
+    if (!validateObjectId(id, res)) return;
 
     const { error, value } = updateTechnicianSchema.validate(req.body, {
       abortEarly: false,
@@ -193,17 +173,15 @@ exports.updateTechnicianById = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: "Validation error",
-        errors: error.details.map((err) => err.message),
+        errors: mapJoiErrors(error),
       });
     }
 
-    const payload = {};
     const allowedFields = ["firstName", "lastName", "status"];
-    allowedFields.forEach((field) => {
-      if (value[field] !== undefined) {
-        payload[field] = value[field];
-      }
-    });
+    const payload = allowedFields.reduce((acc, field) => {
+      if (value[field] !== undefined) acc[field] = value[field];
+      return acc;
+    }, {});
 
     const updatedTechnician = await Technician.findByIdAndUpdate(id, payload, {
       new: true,
@@ -229,14 +207,7 @@ exports.updateTechnicianById = async (req, res, next) => {
 exports.inactiveTechnicianById = async (req, res, next) => {
   try {
     const { id } = req.params;
-
-    if (!isValidObjectId(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid technician ID",
-        errors: { id: "Not a valid ObjectId" },
-      });
-    }
+    if (!validateObjectId(id, res)) return;
 
     const technician = await Technician.findById(id);
     if (!technician) {

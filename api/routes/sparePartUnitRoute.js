@@ -6,7 +6,7 @@ const sparePartUnitRouter = express.Router();
 
 sparePartUnitRouter
   .route("/")
-  .post(sparePartUnitController.createSpartPartUnit);
+  .post(sparePartUnitController.createSparePartUnit);
 
 sparePartUnitRouter
   .route("/sparePart/:id")
