@@ -16,7 +16,7 @@ export const getTheme = (mode: "light" | "dark") => {
             },
             text: {
               primary: "#1B2124",
-              secondary: "rgb(38, 45, 48)",
+              secondary: "#EBF2F5",
             },
             custom: {
               inputBg: "#EBF2F5",
@@ -86,20 +86,18 @@ export const getTheme = (mode: "light" | "dark") => {
       MuiTextField: {
         styleOverrides: {
           root: ({ theme }) => ({
-            "& .MuiFilledInput-root": {
-              backgroundColor: theme.palette.custom.inputBg,
-              borderRadius: "8px",
-              boxShadow: "none",
-              "&:hover": {
-                backgroundColor: theme.palette.custom.inputHover,
-              },
-              "&.Mui-focused": {
-                backgroundColor: theme.palette.custom.inputFocus,
-                outline: `1px solid ${theme.palette.primary.main}`,
-              },
-              "&:before, &:after": {
-                display: "none",
-              },
+            backgroundColor: theme.palette.custom.inputBg,
+            borderRadius: "8px",
+            boxShadow: "none",
+            "&:hover": {
+              backgroundColor: theme.palette.custom.inputHover,
+            },
+            "&.Mui-focused": {
+              backgroundColor: theme.palette.custom.inputFocus,
+              outline: `1px solid ${theme.palette.primary.main}`,
+            },
+            "&:before, &:after": {
+              display: "none",
             },
           }),
         },
