@@ -1,4 +1,10 @@
-const GENERAL_STATUS = ["active", "inactive", "issued"];
+const GENERAL_STATUS = [
+  "active",
+  "inactive",
+  "issued",
+  "pending_approval",
+  "technician-issued",
+];
 const TRANSITION_TYPES = ["stock-in", "stock-out"];
 const WORKFLOW_STATUS = ["pending", "in_progress", "completed", "cancelled"];
 const PART_USAGE_STATUS = ["pending", "used", "returned"];

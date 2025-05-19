@@ -3,7 +3,7 @@ const Joi = require("joi");
 const createUserSchema = Joi.object({
   firstName: Joi.string().trim().min(2).max(50).required(),
   lastName: Joi.string().trim().min(2).max(50).required(),
-  email: Joi.string().email().trim().lowercase().required(),
+  email: Joi.string().trim().lowercase().email().required(),
   password: Joi.string().min(6).required(),
   level: Joi.string().valid("admin", "user", "manager").required(),
 });
@@ -11,7 +11,7 @@ const createUserSchema = Joi.object({
 const createTechnicianSchema = Joi.object({
   firstName: Joi.string().trim().min(2).max(50).required(),
   lastName: Joi.string().trim().min(2).max(50).required(),
-  email: Joi.string().email().trim().lowercase().required(),
+  email: Joi.string().trim().lowercase().email().required(),
   password: Joi.string().min(6).required(),
   level: Joi.string().valid("technician", "Lead-technician").required(),
 });
