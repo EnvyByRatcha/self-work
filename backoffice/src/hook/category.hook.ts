@@ -5,6 +5,10 @@ import { unwrapOrError } from "../utils/upwrapOrError";
 
 const useCategory = () => {
   const [categories, setCategories] = useState<Category[]>([]);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
   const [limit, setLimit] = useState(5);
@@ -13,31 +17,27 @@ const useCategory = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchCategory(currentPage, limit);
-  }, [currentPage, limit]);
+    fetchCategory(currentPage, limit, searchTerm, statusFilter);
+  }, [currentPage, limit, searchTerm, statusFilter]);
 
   const fetchCategory = async (
     page: number,
     limit: number,
     search?: string,
-    sort?: string,
-    order?: "asc" | "desc",
     status?: string
   ) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await categoryService.getAllCategory(
+      const response = await categoryService.getAllCategory(
         page,
         limit,
         search,
-        sort,
-        order,
         status
       );
-      const result = unwrapOrError(data);
+      const result = unwrapOrError(response);
       setCategories(result.data.categories);
-      setTotalPage(result.data.pagination.totalPage)
+      setTotalPage(result.data.pagination.totalPage);
     } catch (error) {
       setError("fail to fetching category");
     } finally {
@@ -46,13 +46,36 @@ const useCategory = () => {
   };
 
   const createCategory = async (payload: CategoryFormData) => {
-    const data = await categoryService.createCategory(payload);
-    return data;
+    const response = await categoryService.createCategory(payload);
+    if (response.success) {
+      fetchCategory(currentPage, limit);
+    }
+    return response;
+  };
+
+  const updateCategoryById = async (id: string, payload: CategoryFormData) => {
+    const response = await categoryService.updateCategory(id, payload);
+    if (response.success) {
+      fetchCategory(currentPage, limit);
+    }
+    return response;
+  };
+
+  const inactiveCategory = async (id: string) => {
+    const response = await categoryService.inactiveCategory(id);
+    if (response.success) {
+      fetchCategory(currentPage, limit);
+    }
+    return response;
   };
 
   return {
     categories,
+    setSearchTerm,
+    setStatusFilter,
     createCategory,
+    updateCategoryById,
+    inactiveCategory,
     totalPage,
     setCurrentPage,
     setLimit,

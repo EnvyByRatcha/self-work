@@ -11,8 +11,6 @@ const categoryService = {
     page: number,
     limit: number,
     search?: string,
-    sort?: string,
-    order?: "asc" | "desc",
     status?: string
   ): Promise<GetCategoriesResponse | ErrorResponse> => {
     try {
@@ -22,8 +20,6 @@ const categoryService = {
       });
 
       if (search) params.append("search", search);
-      if (sort) params.append("sort", sort);
-      if (order) params.append("order", order);
       if (status) params.append("status", status);
 
       const response = await axios.get(`${baseUrl}?${params.toString()}`);
@@ -44,7 +40,7 @@ const categoryService = {
   },
   updateCategory: async (
     id: string,
-    payload: Category
+    payload: CategoryFormData
   ): Promise<CategoryResponse | ErrorResponse> => {
     try {
       const response = await axios.put(`${baseUrl}/${id}`, payload);
@@ -53,7 +49,7 @@ const categoryService = {
       return handleAxiosError(error, "updating the category");
     }
   },
-  removeCategory: async (
+  inactiveCategory: async (
     id: string
   ): Promise<CategoryResponse | ErrorResponse> => {
     try {

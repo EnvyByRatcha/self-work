@@ -12,8 +12,8 @@ exports.getAllCategory = async (req, res, next) => {
       page = 1,
       limit = 10,
       search = "",
-      sort = "createdAt",
-      order = "asc",
+      sort = "updatedAt",
+      order = "desc",
       status,
     } = req.query;
     page = parseInt(page);
@@ -32,10 +32,8 @@ exports.getAllCategory = async (req, res, next) => {
     if (search.trim()) {
       filter.name = { $regex: search.trim(), $options: "i" };
     }
-    if (status && GENERAL_STATUS.includes(status)) {
+    if (status && status !== "all" && GENERAL_STATUS.includes(status)) {
       filter.status = status;
-    } else {
-      filter.status = "active";
     }
 
     const totalCategories = await Category.countDocuments(filter);
@@ -53,7 +51,7 @@ exports.getAllCategory = async (req, res, next) => {
 
     const skip = (page - 1) * limit;
     const sortOption = {};
-    if (["name", "createdAt"].includes(sort)) {
+    if (["name", "updatedAt"].includes(sort)) {
       sortOption[sort] = order === "desc" ? -1 : 1;
     }
 
