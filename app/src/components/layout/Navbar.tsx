@@ -25,6 +25,10 @@ function Navbar() {
     navigate("/login");
   };
 
+  const handleNavigate = (path: string) => {
+    navigate(path);
+  };
+
   return (
     <Box
       sx={{
@@ -45,9 +49,32 @@ function Navbar() {
         spacing={2}
         alignItems={"center"}
       >
-        <Typography fontSize={"1.5rem"} fontWeight={600} color="textPrimary">
-          Navbar
-        </Typography>
+        <Stack direction="row" spacing={4} alignItems="center">
+          <Typography fontSize={"1.2rem"} fontWeight={600} color="textPrimary">
+            {`Selfwork`}
+          </Typography>
+          <Button onClick={() => handleNavigate("/assignment")} color="inherit">
+            <Typography
+              fontSize={"14px"}
+              fontWeight={400}
+              color="textPrimary"
+              textTransform={"capitalize"}
+            >
+              Assignment
+            </Typography>
+          </Button>
+          <Button onClick={() => handleNavigate("/inventory")} color="inherit">
+            <Typography
+              fontSize={"14px"}
+              fontWeight={400}
+              color="textPrimary"
+              textTransform={"capitalize"}
+            >
+              Inventory
+            </Typography>
+          </Button>
+        </Stack>
+
         <Stack direction={"row"} gap={2} alignItems={"center"}>
           <Button onClick={toggleTheme}>
             <Typography>Theme</Typography>
