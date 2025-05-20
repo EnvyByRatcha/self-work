@@ -26,7 +26,7 @@ const assignmentService = {
     payload: formData
   ): Promise<AssignmentResponse | ErrorResponse> => {
     try {
-      const response = await axios.post(`${baseUrl}`,payload, { headers });
+      const response = await axios.post(`${baseUrl}`, payload, { headers });
       return response.data;
     } catch (error) {
       return handleAxiosError(error, "fetching the assignments");
@@ -40,7 +40,7 @@ interface GetAssignmentsResponse {
   success: boolean;
   message: string;
   data: {
-    customers: Assignment[];
+    assignments: Assignment[];
     pagination: {
       totalPage: number;
       currentPage: number;
@@ -53,6 +53,6 @@ interface AssignmentResponse {
   success: boolean;
   message: string;
   data: {
-    customer: Assignment;
+    assignment: Assignment;
   };
 }
