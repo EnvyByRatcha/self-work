@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import sparePartService from "../service/sparePartService";
-import type { SparePart, SparePartFormData } from "../interface/ISparePart";
+import type { SparePart, SparePartFormData, SparePartUnit } from "../interface/ISparePart";
 import { unwrapOrError } from "../utils/upwrapOrError";
 
 const useSparePart = () => {
@@ -26,7 +26,7 @@ const useSparePart = () => {
       setSpareParts(result.data.spareParts);
       setTotalPage(result.data.pagination.totalPage);
     } catch (error) {
-      setError("fail to fetching product");
+      setError("fail to fetching sparePart");
     } finally {
       setLoading(false);
     }
@@ -42,7 +42,7 @@ const useSparePart = () => {
         return result;
       }
     } catch (error) {
-      setError("fail to fetching sparePart");
+      setError("fail to fetching sparePart with ID");
     } finally {
       setLoading(false);
     }

@@ -37,7 +37,7 @@ const sparePartUnitService = {
   // },
   createSparePartUnit: async (
     payload: SparePartUnitFormData
-  ): Promise<SparePartUnitResponse | ErrorResponse> => {
+  ): Promise<SparePartUnitsResponse | ErrorResponse> => {
     try {
       const response = await axios.post(baseUrl, payload);
       return response.data;
@@ -48,11 +48,11 @@ const sparePartUnitService = {
   updateSparePartUnit: async (
     id: string,
     payload: SparePartUnit
-  ): Promise<SparePartUnitResponse> => {
+  ): Promise<SparePartUnitsResponse> => {
     const response = await axios.put(`${baseUrl}/${id}`, payload);
     return response.data;
   },
-  deactiveSparePartUnit: async (id: string): Promise<SparePartUnitResponse> => {
+  deactiveSparePartUnit: async (id: string): Promise<SparePartUnitsResponse> => {
     const response = await axios.delete(`${baseUrl}/${id}`);
     return response.data;
   },
@@ -60,7 +60,7 @@ const sparePartUnitService = {
 
 export default sparePartUnitService;
 
-interface SparePartUnitResponse {
+interface SparePartUnitsResponse {
   success: boolean;
   message: string;
   data: {

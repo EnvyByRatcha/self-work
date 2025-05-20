@@ -68,7 +68,7 @@ exports.getSparePartUnitBySparePartId = async (req, res, next) => {
 
     const filter = { sparePartId: id };
     if (search) {
-      filter.serialNumber  = { $regex: search.trim(), $options: "i" };
+      filter.serialNumber = { $regex: search.trim(), $options: "i" };
     }
     if (status && GENERAL_STATUS.includes(status)) {
       filter.status = status;
@@ -149,32 +149,30 @@ exports.getSparePartByTechnicianId = async (req, res, next) => {
       filter.name = { $regex: search.trim(), $options: "i" };
     }
 
-    const sortOrder = order === "desc" ? -1 : 1;
+    const totalSparePartUnits = await SparePartUnit.countDocuments(filter);
+    const totalPages = Math.ceil(totalSparePartUnits / limit);
 
-    const aggregationPipeline = [
-      { $match: filter },
-      {
-        $group: {
-          _id: "$sparePartBatchId",
-          parts: { $push: "$$ROOT" },
-          createdAt: { $first: "$createdAt" },
+    if (page > totalPages && totalPages !== 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Page number exceeds total pages (${totalPages})`,
+        errors: {
+          page: `Max available page is ${totalPages}`,
         },
-      },
-      {
-        $sort: { [sort]: sortOrder },
-      },
-      {
-        $facet: {
-          paginatedResults: [{ $skip: (page - 1) * limit }, { $limit: limit }],
-          totalCount: [{ $count: "count" }],
-        },
-      },
-    ];
+      });
+    }
 
-    const result = await SparePartUnit.aggregate(aggregationPipeline);
-    const sparePartUnits = result[0]?.paginatedResults || [];
-    const totalItems = result[0]?.totalCount?.[0]?.count || 0;
-    const totalPages = Math.ceil(totalItems / limit);
+    const skip = (page - 1) * limit;
+    const sortOption = {};
+    if (["name", "createdAt"].includes(sort)) {
+      sortOption[sort] = order === "desc" ? -1 : 1;
+    }
+
+    const sparePartUnits = await SparePartUnit.find(filter)
+      .sort(sortOption)
+      .skip(skip)
+      .limit(limit)
+      .lean();
 
     res.status(200).json({
       success: true,
@@ -184,7 +182,7 @@ exports.getSparePartByTechnicianId = async (req, res, next) => {
         pagination: {
           totalPages,
           currentPage: page,
-          totalItems,
+          totalItems:totalSparePartUnits,
         },
       },
     });
