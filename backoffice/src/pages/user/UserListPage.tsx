@@ -17,6 +17,7 @@ const UserListPage = () => {
         <CustomTable data={users} columns={userColumn} isLinkButton />
         <Pagination
           count={totalPage}
+          color="primary"
           sx={{
             marginTop: "12px",
             width: "100%",

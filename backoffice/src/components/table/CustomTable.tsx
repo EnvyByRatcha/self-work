@@ -72,7 +72,7 @@ function CustomTable<T extends { _id: string }>({
           </Button>
           {onRemove && (
             <Button onClick={() => onRemove(item._id)}>
-              <DoDisturbAltOutlinedIcon />
+              <DoDisturbAltOutlinedIcon color="error" />
             </Button>
           )}
         </TableCell>

@@ -102,6 +102,24 @@ export const getTheme = (mode: "light" | "dark") => {
           }),
         },
       },
+      MuiFilledInput: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            borderRadius: "8px",
+            backgroundColor: theme.palette.custom.inputBg,
+            "&:hover": {
+              backgroundColor: theme.palette.custom.inputHover,
+            },
+            "&.Mui-focused": {
+              backgroundColor: theme.palette.custom.inputFocus,
+              outline: `1px solid ${theme.palette.primary.main}`,
+            },
+            "&:before, &:after": {
+              display: "none",
+            },
+          }),
+        },
+      },
       MuiSelect: {
         styleOverrides: {
           root: ({ theme }) => ({
