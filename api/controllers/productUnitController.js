@@ -4,33 +4,69 @@ const {
   Product,
 } = require("../models/productModel");
 const errorHandler = require("../utils/error");
-const { isValidObjectId } = require("../utils/validators");
-
-const MAX_LIMIT = 50;
+const { mapJoiErrors } = require("../utils/validators");
+const validateObjectId = require("../helpers/validateObjectId");
+const {
+  createProductUnitSchema,
+  updateProductUnitSchema,
+} = require("../validators/productUnit.validator");
 
 exports.getProductUnitByProductId = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { id: productId } = req.params;
+    if (!validateObjectId(productId, res)) return;
 
-    if (!isValidObjectId(id)) {
+    let {
+      page = 1,
+      limit = 10,
+      search = "",
+      sort = "updatedAt",
+      order = "desc",
+      status,
+    } = req.query;
+    page = parseInt(page);
+    limit = parseInt(limit);
+
+    const paginationErrors = validatePagination(page, limit);
+    if (paginationErrors) {
       return res.status(400).json({
         success: false,
-        message: "Invalid category ID",
-        errors: { id: "Not a valid ObjectId" },
+        message: `Invalid pagination parameters`,
+        errors: paginationErrors,
       });
     }
 
-    let { page, limit } = req.body;
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || 10;
+    const filter = { productId };
+    if (search.trim()) {
+      filter.serialNumber = { $regex: search.trim(), $options: "i" };
+    }
+    if (status && status !== "all" && GENERAL_STATUS.includes(status)) {
+      filter.status = status;
+    } else {
+      filter.status = "active";
+    }
+
+    const totalProductUnits = await ProductUnit.countDocuments(filter);
+    const totalPages = Math.ceil(totalProductUnits / limit);
+    if (page > totalPages && totalPages !== 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Page number exceeds total pages`,
+        errors: { page: `Max available page is ${totalPages}` },
+      });
+    }
     const skip = (page - 1) * limit;
 
-    const productUnits = await ProductUnit.find({ productId: id })
-      .skip(skip)
-      .limit(limit);
-    const totalProductUnits = await ProductUnit.countDocuments();
+    const sortOption = {};
+    if (["serialNumber", "updatedAt"].includes(sort)) {
+      sortOption[sort] = order === "desc" ? -1 : 1;
+    }
 
-    const totalPages = Math.ceil(totalProductUnits / limit);
+    const productUnits = await ProductUnit.find(filter)
+      .sort(sortOption)
+      .skip(skip)
+      .limit(limit)
+      .lean();
 
     res.status(200).json({
       success: true,
@@ -51,48 +87,31 @@ exports.getProductUnitByProductId = async (req, res, next) => {
 
 exports.getProductUnitByCustomerId = async (req, res, next) => {
   try {
-    const { id } = req.params;
-
-    if (!isValidObjectId(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid category ID",
-        errors: { id: "Not a valid ObjectId" },
-      });
-    }
+    const { id: customerId } = req.params;
+    if (!validateObjectId(customerId, res)) return;
 
     let {
-      page = "1",
-      limit = "10",
+      page = 1,
+      limit = 10,
       search = "",
-      sort = "createdAt",
-      order = "asc",
+      sort = "updatedAt",
+      order = "desc",
+      status,
     } = req.query;
     page = parseInt(page);
     limit = parseInt(limit);
     search = search.toString().trim();
 
-    if (
-      isNaN(page) ||
-      isNaN(limit) ||
-      page < 1 ||
-      limit < 1 ||
-      limit > MAX_LIMIT
-    ) {
+    const paginationErrors = validatePagination(page, limit);
+    if (paginationErrors) {
       return res.status(400).json({
         success: false,
-        message: `Invalid pagination parameters (limit must be between 1 and ${MAX_LIMIT})`,
-        errors: {
-          page: "Must be greater than 0",
-          limit: `Must be between 1 and ${MAX_LIMIT}`,
-        },
+        message: `Invalid pagination parameters`,
+        errors: paginationErrors,
       });
     }
 
-    const filter = {
-      customerId: id,
-    };
-
+    const filter = { customerId };
     if (search) {
       filter.serialNumber = { $regex: search, $options: "i" };
     }
@@ -107,10 +126,10 @@ exports.getProductUnitByCustomerId = async (req, res, next) => {
         errors: { page: `Max available page is ${totalPages}` },
       });
     }
-
     const skip = (page - 1) * limit;
+
     const sortOption = {};
-    if (["serialNumber", "createdAt"].includes(sort)) {
+    if (["serialNumber", "updatedAt"].includes(sort)) {
       sortOption[sort] = order === "desc" ? -1 : 1;
     }
 
@@ -138,8 +157,38 @@ exports.getProductUnitByCustomerId = async (req, res, next) => {
 };
 
 exports.createProductUnit = async (req, res, next) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
-    const { serialNumber, productBatchId, productId } = req.body;
+    const { error, value } = createProductUnitSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors: mapJoiErrors(error),
+      });
+    }
+
+    const { productBatchId, productId } = value;
+    const serialNumber = value.serialNumber.trim().toUpperCase();
+
+    const product = await Product.findById(productId).lean();
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+        errors: { productId: "No product with this ID" },
+      });
+    }
+
+    const productBatch = await ProductBatch.findById(productBatchId).lean();
+    if (!productBatch) {
+      return res.status(404).json({
+        success: false,
+        message: "Product-batch not found",
+        errors: { id: "No product-batch with this ID" },
+      });
+    }
 
     const existingProductUnit = await ProductUnit.findOne({
       serialNumber,
@@ -149,31 +198,6 @@ exports.createProductUnit = async (req, res, next) => {
         success: false,
         message: "Product-unit already exists",
         errors: { serialNumber: "Duplicate serial number" },
-      });
-    }
-
-    const updatedProduct = await Product.findByIdAndUpdate(
-      productId,
-      { $inc: { qty: 1 } },
-      { new: true }
-    );
-
-    if (!updatedProduct) {
-      return res.status(404).json({
-        success: false,
-        message: "Product not found",
-        errors: { productId: "No product with this ID" },
-      });
-    }
-
-    const productBatch = await ProductBatch.findByIdAndUpdate(
-      productBatchId
-    ).lean();
-    if (!productBatch) {
-      return res.status(404).json({
-        success: false,
-        message: "Product-batch not found",
-        errors: { id: "No product-batch with this ID" },
       });
     }
 
@@ -189,9 +213,13 @@ exports.createProductUnit = async (req, res, next) => {
       });
     }
 
-    await ProductBatch.findByIdAndUpdate(productBatchId, {
-      $inc: { registered: 1 },
-    });
+    await ProductBatch.findByIdAndUpdate(
+      productBatchId,
+      {
+        $inc: { registered: 1 },
+      },
+      { session }
+    );
 
     const newProductUnit = new ProductUnit({
       serialNumber,
@@ -199,7 +227,15 @@ exports.createProductUnit = async (req, res, next) => {
       productId,
     });
 
-    await newProductUnit.save();
+    await newProductUnit.save({ session });
+    await Product.findByIdAndUpdate(
+      productId,
+      { $inc: { qty: 1 } },
+      { new: true, session }
+    );
+
+    await session.commitTransaction();
+    session.endSession();
 
     res.status(201).json({
       success: true,
@@ -207,6 +243,8 @@ exports.createProductUnit = async (req, res, next) => {
       data: { productUnit: newProductUnit },
     });
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
     errorHandler.mapError(error, 500, "Internal Server Error", next);
   }
 };
@@ -214,33 +252,26 @@ exports.createProductUnit = async (req, res, next) => {
 exports.updateProductUnit = async (req, res, next) => {
   try {
     const { id } = req.params;
+    if (!validateObjectId(id, res)) return;
 
-    if (!isValidObjectId(id)) {
+    const { error, value } = updateProductUnitSchema.validate(req.body);
+    if (error) {
       return res.status(400).json({
         success: false,
-        message: "Invalid category ID",
-        errors: { id: "Not a valid ObjectId" },
+        message: "Validation failed",
+        errors: mapJoiErrors(error),
       });
     }
 
-    const allowedUpdates = ["serialNumber", "customerId"];
-    const updates = {};
-    for (const key of allowedUpdates) {
-      if (req.body[key] !== undefined) {
-        updates[key] = req.body[key];
-      }
-    }
-
-    if (Object.keys(updates).length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "No updatable fields provide",
-      });
-    }
+    const allowedUpdates = ["serialNumber"];
+    const updates = allowedUpdates.reduce((acc, field) => {
+      if (value[field] !== undefined) acc[field] = value[field];
+      return acc;
+    }, {});
 
     if (updates.serialNumber) {
       const exists = await ProductUnit.findOne({
-        serialNumber: updates.serialNumber,
+        serialNumber: updates.serialNumber.trim().toUpperCase(),
         _id: { $ne: id },
       });
       if (exists) {
@@ -279,19 +310,30 @@ exports.updateProductUnit = async (req, res, next) => {
   }
 };
 
-exports.removePProductUnit = async (req, res, next) => {
+exports.inactiveProductUnit = async (req, res, next) => {
   try {
-    const productDetailId = req.params.id;
-    const productDetail = await Products.findById(productDetailId);
+    const { id } = req.params;
+    if (!validateObjectId(id, res)) return;
 
-    if (!productDetail) {
-      return res.status(404).json({ message: "Product not found" });
+    const productUnit = await ProductUnit.findByIdAndUpdate(
+      id,
+      {
+        status: "inactive",
+      },
+      {
+        new: true,
+      }
+    );
+
+    if (!productUnit) {
+      return res.status(404).json({ message: "Product unit not found" });
     }
 
-    product.status = "unused";
-    product.save();
-
-    res.status(200).json({ message: "success", productDetail: productDetail });
+    res.status(200).json({
+      success: true,
+      message: "Product unit marked as inactive",
+      data: { productUnit },
+    });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
   }
