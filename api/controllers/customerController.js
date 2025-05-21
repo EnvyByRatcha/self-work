@@ -1,38 +1,13 @@
 const Customer = require("../models/customerModel");
 const errorHandler = require("../utils/error");
-const Joi = require("joi");
-const { isValidObjectId } = require("../utils/validators");
-
-const MAX_LIMIT = 50;
-
-exports.createCustomerSchema = Joi.object({
-  name: Joi.string().trim().min(2).max(100).required(),
-  customerCode: Joi.string().trim().max(20).optional(),
-  address: Joi.string().trim().max(255).optional(),
-  tel_1: Joi.string()
-    .trim()
-    .pattern(/^[0-9\-+() ]{6,20}$/)
-    .optional(),
-  tel_2: Joi.string()
-    .trim()
-    .pattern(/^[0-9\-+() ]{6,20}$/)
-    .optional(),
-  email: Joi.string().trim().email().optional(),
-});
-
-exports.updateCustomerSchema = Joi.object({
-  name: Joi.string().trim().min(2).max(100).optional(),
-  address: Joi.string().trim().max(255).optional(),
-  tel_1: Joi.string()
-    .trim()
-    .pattern(/^[0-9\-+() ]{6,20}$/)
-    .optional(),
-  tel_2: Joi.string()
-    .trim()
-    .pattern(/^[0-9\-+() ]{6,20}$/)
-    .optional(),
-  email: Joi.string().trim().email().optional(),
-}).min(1);
+const { mapJoiErrors } = require("../utils/validators");
+const { GENERAL_STATUS } = require("../utils/enum");
+const validateObjectId = require("../helpers/validateObjectId");
+const validatePagination = require("../helpers/paginationValidator");
+const {
+  createCustomerSchema,
+  updateCustomerSchema,
+} = require("../validators/customer.validator");
 
 exports.getAllCustomers = async (req, res, next) => {
   try {
@@ -40,34 +15,32 @@ exports.getAllCustomers = async (req, res, next) => {
       page = 1,
       limit = 10,
       search = "",
-      sort = "createdAt",
-      order = "asc",
+      sort = "updatedAt",
+      order = "desc",
       status,
     } = req.query;
     page = parseInt(page);
     limit = parseInt(limit);
 
-    if (
-      isNaN(page) ||
-      isNaN(limit) ||
-      page < 1 ||
-      limit < 1 ||
-      limit > MAX_LIMIT
-    ) {
+    const paginationErrors = validatePagination(page, limit);
+    if (paginationErrors) {
       return res.status(400).json({
         success: false,
-        message: `Invalid pagination parameters (limit must be between 1 and ${MAX_LIMIT})`,
-        errors: {
-          page: "Must be greater than 0",
-          limit: `Must be between 1 and ${MAX_LIMIT}`,
-        },
+        message: `Invalid pagination parameters`,
+        errors: paginationErrors,
       });
     }
 
     const filter = {};
-    if (search) {
+    if (search.trim()) {
       filter.name = { $regex: search.trim(), $options: "i" };
     }
+    if (status && status !== "all" && GENERAL_STATUS.includes(status)) {
+      filter.status = status;
+    } else {
+      filter.status = "active";
+    }
+
     const totalCustomers = await Customer.countDocuments(filter);
     const totalPages = Math.ceil(totalCustomers / limit);
 
@@ -81,14 +54,15 @@ exports.getAllCustomers = async (req, res, next) => {
 
     const skip = (page - 1) * limit;
     const sortOption = {};
-    if (["name", "createdAt", "price"].includes(sort)) {
+    if (["name", "updatedAt"].includes(sort)) {
       sortOption[sort] = order === "desc" ? -1 : 1;
     }
 
     const customers = await Customer.find(filter)
       .sort(sortOption)
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .lean();
 
     res.status(200).json({
       success: true,
@@ -110,16 +84,9 @@ exports.getAllCustomers = async (req, res, next) => {
 exports.getCustomerById = async (req, res, next) => {
   try {
     let { id } = req.params;
+    if (!validateObjectId(id, res)) return;
 
-    if (!isValidObjectId(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid category ID",
-        errors: { id: "Not a valid ObjectId" },
-      });
-    }
-
-    const customer = await Customer.findById(id);
+    const customer = await Customer.findById(id).lean();
 
     if (!customer) {
       return res
@@ -129,7 +96,7 @@ exports.getCustomerById = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: "Customer retrieved",
+      message: "Customer retrieved successfully",
       data: { customer },
     });
   } catch (error) {
@@ -144,10 +111,13 @@ exports.createCustomer = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: "Validation failed",
-        errors: error.details.map((err) => err.message),
+        errors: mapJoiErrors(error),
       });
     }
-    const existingCustomer = await Customer.findOne({ name: value.name });
+
+    const existingCustomer = await Customer.findOne({
+      name: value.name,
+    }).lean();
     if (existingCustomer) {
       return res.status(409).json({
         success: false,
@@ -174,55 +144,32 @@ exports.createCustomer = async (req, res, next) => {
 exports.updateCustomer = async (req, res, next) => {
   try {
     const { id } = req.params;
-
-    if (!isValidObjectId(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid customer ID",
-        errors: { id: "Not a valid ObjectId" },
-      });
-    }
+    if (!validateObjectId(id, res)) return;
 
     const { error, value } = updateCustomerSchema.validate(req.body);
     if (error) {
       return res.status(400).json({
         success: false,
         message: "Validation failed",
-        errors: error.details.map((err) => err.message),
+        errors: mapJoiErrors(error),
       });
     }
 
-    const customer = await Customer.findById(id);
-    if (!customer) {
-      return res.status(404).json({
-        success: false,
-        message: "Customer not found",
-      });
-    }
-
-    const allowedUpdates = [
+    const allowedFields = [
       "name",
       "customerCode",
       "address",
       "tel_1",
       "tel_2",
       "email",
+      "status",
     ];
-    const updates = {};
-    allowedUpdates.forEach((field) => {
-      if (req.body[field] !== undefined) {
-        updates[field] = req.body[field];
-      }
-    });
+    const payload = allowedFields.reduce((acc, field) => {
+      if (value[field] !== undefined) acc[field] = value[field];
+      return acc;
+    }, {});
 
-    if (Object.keys(updates).length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "No valid fields to update",
-      });
-    }
-
-    const updatedCustomer = await Customer.findByIdAndUpdate(id, updates, {
+    const updatedCustomer = await Customer.findByIdAndUpdate(id, payload, {
       new: true,
       runValidators: true,
     });
@@ -245,18 +192,18 @@ exports.updateCustomer = async (req, res, next) => {
   }
 };
 
-exports.deactivateCustomer = async (req, res, next) => {
+exports.inactivateCustomer = async (req, res, next) => {
   try {
     const { id } = req.params;
+    if (!validateObjectId(id, res)) return;
 
-    if (!isValidObjectId(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid customer ID",
-        errors: { id: "Not a valid ObjectId" },
-      });
-    }
-    const customer = await Customer.findById(id);
+    const customer = await Customer.findByIdAndUpdate(
+      id,
+      { status: "inactive" },
+      {
+        new: true,
+      }
+    );
     if (!customer) {
       return res.status(404).json({
         success: false,
@@ -264,12 +211,9 @@ exports.deactivateCustomer = async (req, res, next) => {
       });
     }
 
-    customer.status = "inactive";
-    await customer.save();
-
     res.status(200).json({
       success: true,
-      message: "Customer removed",
+      message: "Customer marked as inactive",
       data: { customer },
     });
   } catch (error) {
