@@ -2,7 +2,11 @@ const mongoose = require("mongoose");
 const { Product } = require("../models/productModel");
 const { SparePart } = require("../models/sparePartModel");
 const errorHandler = require("../utils/error");
-const { uploadImage } = require("../service/cloudinaryService");
+const { GENERAL_STATUS } = require("../utils/enum");
+const { uploadImage, deleteImage } = require("../service/cloudinaryService");
+const { extractPublicIdFromUrl } = require("../utils/cloudinaryHelper");
+const validateObjectId = require("../helpers/validateObjectId");
+const validatePagination = require("../helpers/paginationValidator");
 
 const MAX_LIMIT = 50;
 
@@ -12,37 +16,34 @@ exports.getAllSpareParts = async (req, res, next) => {
       page = 1,
       limit = 10,
       search = "",
-      sort = "createdAt",
+      sort = "updatedAt",
       order = "desc",
       status,
     } = req.query;
     page = parseInt(page);
     limit = parseInt(limit);
 
-    if (
-      isNaN(page) ||
-      isNaN(limit) ||
-      page < 1 ||
-      limit < 1 ||
-      limit > MAX_LIMIT
-    ) {
+    const paginationErrors = validatePagination(page, limit);
+    if (paginationErrors) {
       return res.status(400).json({
         success: false,
-        message: `Invalid pagination parameters (limit must be between 1 and ${MAX_LIMIT})`,
-        errors: {
-          page: "Must be greater than 0",
-          limit: `Must be between 1 and ${MAX_LIMIT}`,
-        },
+        message: `Invalid pagination parameters`,
+        errors: paginationErrors,
       });
     }
 
     const filter = {};
-    if (search) {
+    if (search.trim()) {
       filter.name = { $regex: search.trim(), $options: "i" };
     }
+    if (status && status !== "all" && GENERAL_STATUS.includes(status)) {
+      filter.status = status;
+    } else {
+      filter.status = "active";
+    }
 
-    const totalSparePart = await SparePart.countDocuments(filter);
-    const totalPages = Math.ceil(totalSparePart / limit);
+    const totalSpareParts = await SparePart.countDocuments(filter);
+    const totalPages = Math.ceil(totalSpareParts / limit);
 
     if (page > totalPages && totalPages !== 0) {
       return res.status(400).json({
@@ -54,7 +55,7 @@ exports.getAllSpareParts = async (req, res, next) => {
 
     const skip = (page - 1) * limit;
     const sortOption = {};
-    if (["name", "createdAt", "price"].includes(sort)) {
+    if (["name", "updatedAt"].includes(sort)) {
       sortOption[sort] = order === "desc" ? -1 : 1;
     }
 
@@ -62,7 +63,8 @@ exports.getAllSpareParts = async (req, res, next) => {
       .sort(sortOption)
       .skip(skip)
       .limit(limit)
-      .populate("productId", "name");
+      .populate("productId", "name")
+      .lean();
 
     res.status(200).json({
       success: true,
@@ -72,7 +74,7 @@ exports.getAllSpareParts = async (req, res, next) => {
         pagination: {
           totalPages,
           currentPage: page,
-          totalItems: totalSparePart,
+          totalItems: totalSpareParts,
         },
       },
     });
@@ -83,28 +85,23 @@ exports.getAllSpareParts = async (req, res, next) => {
 
 exports.getSparePartById = async (req, res, next) => {
   try {
-    let { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid sparepart ID",
-        errors: { id: "Not a valid ObjectId" },
-      });
-    }
+    const { id } = req.params;
+    if (!validateObjectId(id, res)) return;
 
-    const sparePart = await SparePart.findById(id).populate(
-      "productId",
-      "name"
-    );
+    const sparePart = await SparePart.findById(id)
+      .populate("productId", "name")
+      .lean();
+
     if (!sparePart) {
-      return res
-        .status(404)
-        .json({ success: false, message: "SparePart not found" });
+      return res.status(404).json({
+        success: false,
+        message: "SparePart not found",
+      });
     }
 
     res.status(200).json({
       success: true,
-      message: "SparePart retrieved",
+      message: "SparePart retrieved successfully",
       data: { sparePart },
     });
   } catch (error) {
@@ -114,49 +111,38 @@ exports.getSparePartById = async (req, res, next) => {
 
 exports.createSparePart = async (req, res, next) => {
   try {
-    const { name, productId, photo } = req.body;
-
-    if (!name || !productId || !photo) {
+    const { error, value } = createSparePartSchema.validate(req.body);
+    if (error) {
       return res.status(400).json({
         success: false,
-        message: "Missing required fields",
-        errors: {
-          name: !name ? "Name is required" : undefined,
-          productId: !productId ? "Product_id is required" : undefined,
-          photo: !photo ? "Photo is required" : undefined,
-        },
+        message: "Validation failed",
+        errors: mapJoiErrors(error),
       });
     }
 
-    if (!mongoose.Types.ObjectId.isValid(productId)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid product ID",
-        errors: { productId: "Not a valid ObjectId" },
-      });
-    }
+    const name = value.name.trim().toLowerCase();
+    const productId = value.productId;
+    const { photo } = value;
 
-    const existingSparePart = await SparePart.findOne({
-      name: name.trim().toLowerCase(),
-    });
+    const existingSparePart = await SparePart.findOne({ name }).lean();
     if (existingSparePart) {
       return res.status(409).json({
         success: false,
-        message: "Sparepart already exists",
-        errors: { name: "Duplicate Sparepart name" },
+        message: "SparePart already exists",
+        errors: { name: "Duplicate spare part name" },
       });
     }
 
-    const product = await Product.findById(productId);
+    const product = await Product.findById(productId).lean();
     if (!product) {
       return res.status(404).json({
         success: false,
         message: "Product not found",
-        errors: { categoryName: "No product matches the provided product id" },
+        errors: { productId: "No product matches the provided product ID" },
       });
     }
 
-    const photoUrl = await uploadImage(photo,"spareParts");
+    const photoUrl = await uploadImage(photo, "spareParts");
 
     const newSparePart = new SparePart({
       name,
@@ -168,7 +154,7 @@ exports.createSparePart = async (req, res, next) => {
 
     res.status(201).json({
       success: true,
-      message: "Sparepart created successfully",
+      message: "SparePart created successfully",
       data: { sparePart: newSparePart },
     });
   } catch (error) {
@@ -179,38 +165,60 @@ exports.createSparePart = async (req, res, next) => {
 exports.updateSparePart = async (req, res, next) => {
   try {
     const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!validateObjectId(id, res)) return;
+
+    const { error, value } = updateSparePartSchema.validate(req.body);
+    if (error) {
       return res.status(400).json({
         success: false,
-        message: "Invalid sparepart ID",
-        errors: { id: "Not a valid ObjectId" },
+        message: "Validation failed",
+        errors: mapJoiErrors(error),
       });
     }
 
-    const allowedUpdates = ["name", "productId", "photoUrl"];
+    const sparePart = await SparePart.findById(id);
+    if (!sparePart) {
+      return res.status(404).json({
+        success: false,
+        message: "SparePart not found",
+        errors: { id: "No spare part with this ID" },
+      });
+    }
+
     const updates = {};
-    allowedUpdates.forEach((field) => {
-      if (req.body[field] !== undefined) {
-        updates[field] = req.body[field];
+
+    if (value.name) {
+      updates.name = value.name.trim().toLowerCase();
+    }
+
+    if (value.productId) {
+      const product = await Product.findById(value.productId).lean();
+      if (!product) {
+        return res.status(404).json({
+          success: false,
+          message: "Product not found",
+          errors: { productId: "No product matches the provided product ID" },
+        });
       }
-    });
+      updates.productId = product._id;
+    }
+
+    if (value.photo) {
+      if (sparePart.photoUrl) {
+        const publicId = extractPublicIdFromUrl(sparePart.photoUrl);
+        await deleteImage("spareParts", publicId);
+      }
+      updates.photoUrl = await uploadImage(value.photo, "spareParts");
+    }
 
     const updatedSparePart = await SparePart.findByIdAndUpdate(id, updates, {
       new: true,
       runValidators: true,
-    });
-
-    if (!updatedSparePart) {
-      return res.status(404).json({
-        success: false,
-        message: "Sparepart not found",
-        errors: { id: "No sparepart with this ID" },
-      });
-    }
+    }).populate("productId", "name");
 
     res.status(200).json({
       success: true,
-      message: "Sparepart updated successfully",
+      message: "SparePart updated successfully",
       data: { sparePart: updatedSparePart },
     });
   } catch (error) {
@@ -221,29 +229,26 @@ exports.updateSparePart = async (req, res, next) => {
 exports.deactivateSparePart = async (req, res, next) => {
   try {
     const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid sparepart ID",
-        errors: { id: "Not a valid ObjectId" },
-      });
-    }
+    if (!validateObjectId(id, res)) return;
 
-    const sparePart = await SparePart.findById(id);
+    const sparePart = await SparePart.findByIdAndUpdate(
+      id,
+      { status: "inactive" },
+      {
+        new: true,
+      }
+    );
     if (!sparePart) {
       return res.status(404).json({
         success: false,
-        message: "Sparepart not found",
-        errors: { id: "No Sparepart with this ID" },
+        message: "SparePart not found",
+        errors: { id: "No spare part with this ID" },
       });
     }
 
-    sparePart.status = "inactive";
-    await sparePart.save();
-
     res.status(200).json({
       success: true,
-      message: "Product marked as inactive",
+      message: "SparePart marked as inactive",
       data: { sparePart },
     });
   } catch (error) {
