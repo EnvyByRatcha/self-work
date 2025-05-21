@@ -1,12 +1,15 @@
-const mongoose = require("mongoose");
 const { Product, Category } = require("../models/productModel");
 const errorHandler = require("../utils/error");
-const { uploadImage } = require("../service/cloudinaryService");
+const { uploadImage, deleteImage } = require("../service/cloudinaryService");
+const { extractPublicIdFromUrl } = require("../utils/cloudinaryHelper");
+const { mapJoiErrors } = require("../utils/validators");
 const { GENERAL_STATUS } = require("../utils/enum");
 const validateObjectId = require("../helpers/validateObjectId");
 const validatePagination = require("../helpers/paginationValidator");
-
-const MAX_LIMIT = 50;
+const {
+  createProductSchema,
+  updateProductSchema,
+} = require("../validators/product.validator");
 
 exports.getAllProduct = async (req, res, next) => {
   try {
@@ -14,33 +17,30 @@ exports.getAllProduct = async (req, res, next) => {
       page = 1,
       limit = 10,
       search = "",
-      sort = "createdAt",
+      sort = "updatedAt",
       order = "desc",
       status,
     } = req.query;
     page = parseInt(page);
     limit = parseInt(limit);
 
-    if (
-      isNaN(page) ||
-      isNaN(limit) ||
-      page < 1 ||
-      limit < 1 ||
-      limit > MAX_LIMIT
-    ) {
+    const paginationErrors = validatePagination(page, limit);
+    if (paginationErrors) {
       return res.status(400).json({
         success: false,
-        message: `Invalid pagination parameters (limit must be between 1 and ${MAX_LIMIT})`,
-        errors: {
-          page: "Must be greater than 0",
-          limit: `Must be between 1 and ${MAX_LIMIT}`,
-        },
+        message: `Invalid pagination parameters`,
+        errors: paginationErrors,
       });
     }
 
     const filter = {};
-    if (search) {
+    if (search.trim()) {
       filter.name = { $regex: search.trim(), $options: "i" };
+    }
+    if (status && status !== "all" && GENERAL_STATUS.includes(status)) {
+      filter.status = status;
+    } else {
+      filter.status = "active";
     }
 
     const totalProducts = await Product.countDocuments(filter);
@@ -53,10 +53,10 @@ exports.getAllProduct = async (req, res, next) => {
         errors: { page: `Max available page is ${totalPages}` },
       });
     }
-
     const skip = (page - 1) * limit;
+
     const sortOption = {};
-    if (["name", "createdAt", "price"].includes(sort)) {
+    if (["name", "updatedAt"].includes(sort)) {
       sortOption[sort] = order === "desc" ? -1 : 1;
     }
 
@@ -64,7 +64,8 @@ exports.getAllProduct = async (req, res, next) => {
       .sort(sortOption)
       .skip(skip)
       .limit(limit)
-      .populate("categoryId", "name");
+      .populate("categoryId", "name")
+      .lean();
 
     res.status(200).json({
       success: true,
@@ -86,16 +87,11 @@ exports.getAllProduct = async (req, res, next) => {
 exports.getProductById = async (req, res, next) => {
   try {
     let { id } = req.params;
+    if (!validateObjectId(id, res)) return;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid product ID",
-        errors: { id: "Not a valid ObjectId" },
-      });
-    }
-
-    const product = await Product.findById(id).populate("categoryId", "name");
+    const product = await Product.findById(id)
+      .populate("categoryId", "name")
+      .lean();
 
     if (!product) {
       return res
@@ -105,7 +101,7 @@ exports.getProductById = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: "Product retrieved",
+      message: "Product retrieved successfully",
       data: { product },
     });
   } catch (error) {
@@ -115,23 +111,22 @@ exports.getProductById = async (req, res, next) => {
 
 exports.createProduct = async (req, res, next) => {
   try {
-    const { name, categoryName, photo } = req.body;
-
-    if (!name || !categoryName || !photo) {
+    const { error, value } = createProductSchema.validate(req.body);
+    if (error) {
       return res.status(400).json({
         success: false,
-        message: "Missing required fields",
-        errors: {
-          name: !name ? "Name is required" : undefined,
-          categoryName: !categoryName ? "Category name is required" : undefined,
-          photo: !photo ? "Photo is required" : undefined,
-        },
+        message: "Validation failed",
+        errors: mapJoiErrors(error),
       });
     }
 
+    const name = value.name.trim().toLowerCase();
+    const categoryName = value.categoryName.trim().toLowerCase();
+    const { photo } = value;
+
     const existingProduct = await Product.findOne({
-      name: name.trim().toLowerCase(),
-    });
+      name: name,
+    }).lean();
     if (existingProduct) {
       return res.status(409).json({
         success: false,
@@ -141,8 +136,8 @@ exports.createProduct = async (req, res, next) => {
     }
 
     const category = await Category.findOne({
-      name: categoryName.trim().toLowerCase(),
-    });
+      name: categoryName,
+    }).lean();
     if (!category) {
       return res.status(404).json({
         success: false,
@@ -174,28 +169,52 @@ exports.createProduct = async (req, res, next) => {
 exports.updateProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
+    if (!validateObjectId(id, res)) return;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    const { error, value } = updateProductSchema.validate(req.body);
+    if (error) {
       return res.status(400).json({
         success: false,
-        message: "Invalid product ID",
-        errors: { id: "Not a valid ObjectId" },
+        message: "Validation failed",
+        errors: mapJoiErrors(error),
       });
     }
 
-    const allowedUpdates = ["name", "categoryId", "photoUrl"];
-    const updates = {};
-    allowedUpdates.forEach((field) => {
-      if (req.body[field] !== undefined) {
-        updates[field] = req.body[field];
-      }
-    });
-
-    if (Object.keys(updates).length === 0) {
-      return res.status(400).json({
+    const product = await Product.findById(id);
+    if (!product) {
+      return res.status(404).json({
         success: false,
-        message: "No valid fields to update",
+        message: "Product not found",
+        errors: { id: "No product with this ID" },
       });
+    }
+
+    const updates = {};
+
+    if (value.name) {
+      updates.name = value.name.trim().toLowerCase();
+    }
+
+    if (value.categoryName) {
+      const category = await Category.findOne({
+        name: value.categoryName.trim().toLowerCase(),
+      }).lean();
+      if (!category) {
+        return res.status(404).json({
+          success: false,
+          message: "Category not found",
+          errors: { categoryName: "No category matches the provided name" },
+        });
+      }
+      updates.categoryId = category._id;
+    }
+
+    if (value.photo) {
+      if (product.photoUrl) {
+        const publicId = extractPublicIdFromUrl(product.photoUrl);
+        await deleteImage("products", publicId);
+      }
+      updates.photoUrl = await uploadImage(value.photo, "products");
     }
 
     const updatedProduct = await Product.findByIdAndUpdate(id, updates, {
@@ -221,19 +240,18 @@ exports.updateProduct = async (req, res, next) => {
   }
 };
 
-exports.deactivateProduct = async (req, res, next) => {
+exports.inactivateProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
+    if (!validateObjectId(id, res)) return;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid product ID",
-        errors: { id: "Not a valid ObjectId" },
-      });
-    }
-
-    const product = await Product.findById(id);
+    const product = await Product.findByIdAndUpdate(
+      id,
+      { status: "inactive" },
+      {
+        new: true,
+      }
+    );
     if (!product) {
       return res.status(404).json({
         success: false,
@@ -241,9 +259,6 @@ exports.deactivateProduct = async (req, res, next) => {
         errors: { id: "No product with this ID" },
       });
     }
-
-    product.status = "inactive";
-    await product.save();
 
     res.status(200).json({
       success: true,
