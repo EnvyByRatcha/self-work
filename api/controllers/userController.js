@@ -4,21 +4,22 @@ const errorHandler = require("../utils/error");
 const dotenv = require("dotenv");
 const { mapJoiErrors } = require("../utils/validators");
 const { GENERAL_STATUS } = require("../utils/enum");
+const { sanitizeUser } = require("../utils/sanitizers");
 const validateObjectId = require("../helpers/validateObjectId");
 const validatePagination = require("../helpers/paginationValidator");
 const {
   createUserSchema,
   updateUserSchema,
 } = require("../validators/user.validator");
-dotenv.config();
 
-const MAX_LIMIT = 50;
+dotenv.config();
 
 exports.getAllUsers = async (req, res, next) => {
   try {
     let {
       page = 1,
       limit = 10,
+      search = "",
       sort = "createdAt",
       order = "desc",
       status,
@@ -36,7 +37,10 @@ exports.getAllUsers = async (req, res, next) => {
     }
 
     const filter = {};
-    if (status && GENERAL_STATUS.includes(status)) {
+    if (search.trim()) {
+      filter.name = { $regex: search.trim(), $options: "i" };
+    }
+    if (status && status !== "all" && GENERAL_STATUS.includes(status)) {
       filter.status = status;
     } else {
       filter.status = "active";
@@ -120,34 +124,22 @@ exports.createUser = async (req, res, next) => {
       });
     }
 
-    const { firstName, lastName, email, password, level } = value;
-
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: value.email });
     if (existingUser) {
       return res
         .status(409)
         .json({ success: false, message: "Email already exists" });
     }
 
-    const hasPassword = await encrypt.hashPassword(password);
+    const hasPassword = await encrypt.hashPassword(value.password);
 
     const newUser = new User({
-      firstName,
-      lastName,
-      email,
+      ...value,
       password: hasPassword,
-      level,
     });
     await newUser.save();
 
-    const userSafeData = {
-      _id: newUser._id,
-      firstName: newUser.firstName,
-      lastName: newUser.lastName,
-      email: newUser.email,
-      level: newUser.level,
-      status: newUser.status,
-    };
+    const userSafeData = sanitizeUser(newUser);
 
     res.status(201).json({
       success: true,
@@ -175,16 +167,16 @@ exports.updateUserById = async (req, res, next) => {
       });
     }
 
-    const allowedFields = ["firstName", "lastName", "status"];
-    const payload = allowedFields.reduce((acc, field) => {
+    const allowedUpdates = ["firstName", "lastName", "status"];
+    const updates = allowedUpdates.reduce((acc, field) => {
       if (value[field] !== undefined) acc[field] = value[field];
       return acc;
     }, {});
 
-    const updatedUser = await User.findByIdAndUpdate(id, payload, {
+    const updatedUser = await User.findByIdAndUpdate(id, updates, {
       new: true,
       runValidators: true,
-    }).select("-password -__v");
+    });
 
     if (!updatedUser) {
       return res
@@ -192,10 +184,12 @@ exports.updateUserById = async (req, res, next) => {
         .json({ success: false, message: "User not found" });
     }
 
+    const userSafeData = sanitizeUser(updatedUser);
+
     res.status(200).json({
       success: true,
       message: "User updated successfully",
-      data: { user: updatedUser },
+      data: { user: userSafeData },
     });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
@@ -207,28 +201,25 @@ exports.inactiveUserById = async (req, res, next) => {
     const { id } = req.params;
     if (!validateObjectId(id, res)) return;
 
-    const user = await User.findById(id);
+    const user = await User.findByIdAndUpdate(
+      id,
+      { status: "inactive" },
+      {
+        new: true,
+      }
+    );
     if (!user) {
       return res
         .status(404)
         .json({ success: false, message: "User not found" });
     }
 
-    user.status = "inactive";
-    await user.save();
+    const userSafeData = sanitizeUser(user);
 
     res.status(200).json({
       success: true,
       message: "User marked as inactive",
-      data: {
-        user: {
-          _id: user._id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          status: user.status,
-        },
-      },
+      data: { user: userSafeData },
     });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
