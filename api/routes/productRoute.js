@@ -10,7 +10,7 @@ productRouter
 productRouter
   .route("/:id")
   .get(productController.getProductById)
-  .delete(productController.deactivateProduct)
+  .delete(productController.inactivateProduct)
   .put(productController.updateProduct);
 
 module.exports = productRouter;
