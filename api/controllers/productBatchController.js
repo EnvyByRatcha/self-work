@@ -1,33 +1,27 @@
 const { ProductBatch } = require("../models/productModel");
 const errorHandler = require("../utils/error");
-const { isValidObjectId } = require("../utils/validators");
+const validateObjectId = require("../helpers/validateObjectId");
 
-exports.getProductBashByProductId = async (req, res, next) => {
+exports.getProductBatchByProductId = async (req, res, next) => {
   try {
     const { id } = req.params;
-
-    if (!isValidObjectId(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid category ID",
-        errors: { id: "Not a valid ObjectId" },
-      });
-    }
+    if (!validateObjectId(id, res)) return;
 
     const productBatches = await ProductBatch.find({
       productId: id,
       $expr: { $lt: ["$registered", "$qty"] },
     });
 
-    if (!productBatches) {
-      return res
-        .status(404)
-        .json({ success: false, message: "ProductBatch not found" });
+    if (productBatches.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No product batches available for this product",
+      });
     }
 
     res.status(200).json({
       success: true,
-      message: "ProductBatch retrieved",
+      message: "Product batches retrieved successfully",
       data: { productBatches },
     });
   } catch (error) {

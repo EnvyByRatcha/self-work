@@ -1,18 +1,11 @@
 const { SparePartBatch } = require("../models/sparePartModel");
 const errorHandler = require("../utils/error");
-const { isValidObjectId } = require("../utils/validators");
+const validateObjectId = require("../helpers/validateObjectId");
 
 exports.getSparePartBatchByProductId = async (req, res, next) => {
   try {
     const { id } = req.params;
-
-    if (!isValidObjectId(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid category ID",
-        errors: { id: "Not a valid ObjectId" },
-      });
-    }
+    if (!validateObjectId(id, res)) return;
 
     const sparePartBatches = await SparePartBatch.find({
       sparePartId: id,
@@ -20,14 +13,15 @@ exports.getSparePartBatchByProductId = async (req, res, next) => {
     });
 
     if (!sparePartBatches) {
-      return res
-        .status(404)
-        .json({ success: false, message: "SparePartBatch not found" });
+      return res.status(404).json({
+        success: false,
+        message: "No sparePart batches available for this sparePart",
+      });
     }
 
     res.status(200).json({
       success: true,
-      message: "SparePartBatch retrieved",
+      message: "SparePart batches retrieved successfully",
       data: { sparePartBatches },
     });
   } catch (error) {
