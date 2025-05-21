@@ -5,6 +5,6 @@ const productBatchRouter = express.Router();
 
 productBatchRouter
   .route("/product/:id")
-  .get(productBatchController.getProductBashByProductId);
+  .get(productBatchController.getProductBatchByProductId);
 
 module.exports = productBatchRouter;
