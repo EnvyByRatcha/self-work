@@ -4,8 +4,6 @@ const { GENERAL_STATUS } = require("../utils/enum");
 const validateObjectId = require("../helpers/validateObjectId");
 const validatePagination = require("../helpers/paginationValidator");
 
-const MAX_LIMIT = 50;
-
 exports.getAllCategory = async (req, res, next) => {
   try {
     let {
@@ -34,6 +32,8 @@ exports.getAllCategory = async (req, res, next) => {
     }
     if (status && status !== "all" && GENERAL_STATUS.includes(status)) {
       filter.status = status;
+    } else {
+      filter.status = "active";
     }
 
     const totalCategories = await Category.countDocuments(filter);
