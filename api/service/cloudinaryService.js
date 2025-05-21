@@ -6,7 +6,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const uploadImage = async (base64Image, folder = "products") => {
+const uploadImage = async (base64Image, folder = "others") => {
   try {
     const result = await cloudinary.uploader.upload(base64Image, {
       folder,
@@ -18,6 +18,11 @@ const uploadImage = async (base64Image, folder = "products") => {
   }
 };
 
+const deleteImage = async (folder, publicId) => {
+  return await cloudinary.uploader.destroy(`${folder}/${publicId}`);
+};
+
 module.exports = {
   uploadImage,
+  deleteImage,
 };
