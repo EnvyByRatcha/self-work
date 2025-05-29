@@ -26,7 +26,12 @@ function FilterDropDown({ title, options, onSelect }: FilterDropdownProps) {
   };
 
   const handleSelect = (label: string, value: string) => {
-    setSelectedLabel(label);
+    if (value == "all") {
+      setSelectedLabel(title);
+    } else {
+      setSelectedLabel(label);
+    }
+
     onSelect(value);
     handleClose();
   };
