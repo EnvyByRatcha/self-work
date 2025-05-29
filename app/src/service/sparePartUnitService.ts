@@ -1,22 +1,18 @@
 import axios from "axios";
 import config from "../config";
 import type { ErrorResponse } from "../interface/IError";
-import type { SparePartUnit } from "../interface/ISparePart";
+import type { sparePartUnits } from "../interface/ISparePart";
 import { handleAxiosError } from "../utils/handleAxiosError";
 
 const baseUrl = `${config.apiPath}/sparePartUnits/technician`;
 const headers = config.headers();
 
 const sparePartUnitService = {
-  getSparePartUnitByTechnicianId: async (
-    page: number,
-    limit: number
-  ): Promise<GetSparePartUnitsResponse | ErrorResponse> => {
+  getSparePartUnitByTechnicianId: async (): Promise<
+    GetSparePartUnitsResponse | ErrorResponse
+  > => {
     try {
-      const response = await axios.get(
-        `${baseUrl}?page=${page}&limit=${limit}`,
-        { headers }
-      );
+      const response = await axios.get(`${baseUrl}`, { headers });
       return response.data;
     } catch (error) {
       return handleAxiosError(error, "fetching the assignments");
@@ -30,19 +26,14 @@ interface GetSparePartUnitsResponse {
   success: boolean;
   message: string;
   data: {
-    sparePartUnits: SparePartUnit[];
-    pagination: {
-      totalPage: number;
-      currentPage: number;
-      totalItems: number;
-    };
+    sparePartUnits: sparePartUnits[];
   };
 }
 
-interface SparePartUnitsResponse {
-  success: boolean;
-  message: string;
-  data: {
-    sparePartUnit: SparePartUnit;
-  };
-}
+// interface SparePartUnitsResponse {
+//   success: boolean;
+//   message: string;
+//   data: {
+//     sparePartUnit: SparePartUnit;
+//   };
+// }
