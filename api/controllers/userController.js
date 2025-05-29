@@ -1,7 +1,6 @@
 const User = require("../models/userModel");
 const encrypt = require("../utils/encrypt");
 const errorHandler = require("../utils/error");
-const dotenv = require("dotenv");
 const { mapJoiErrors } = require("../utils/validators");
 const { GENERAL_STATUS } = require("../utils/enum");
 const { sanitizeUser } = require("../utils/sanitizers");
@@ -12,7 +11,6 @@ const {
   updateUserSchema,
 } = require("../validators/user.validator");
 
-dotenv.config();
 
 exports.getAllUsers = async (req, res, next) => {
   try {
@@ -20,8 +18,9 @@ exports.getAllUsers = async (req, res, next) => {
       page = 1,
       limit = 10,
       search = "",
-      sort = "createdAt",
+      sort = "updatedAt",
       order = "desc",
+      level,
       status,
     } = req.query;
     page = parseInt(page);
@@ -38,12 +37,13 @@ exports.getAllUsers = async (req, res, next) => {
 
     const filter = {};
     if (search.trim()) {
-      filter.name = { $regex: search.trim(), $options: "i" };
+      filter.firstName = { $regex: search.trim(), $options: "i" };
+    }
+    if (level && level !== "all") {
+      filter.level = level;
     }
     if (status && status !== "all" && GENERAL_STATUS.includes(status)) {
       filter.status = status;
-    } else {
-      filter.status = "active";
     }
 
     const totalUser = await User.countDocuments(filter);
@@ -58,7 +58,7 @@ exports.getAllUsers = async (req, res, next) => {
     }
 
     const skip = (page - 1) * limit;
-    const sortableFields = ["createdAt"];
+    const sortableFields = ["updatedAt"];
     const sortOption = {};
     if (sortableFields.includes(sort)) {
       sortOption[sort] = order === "desc" ? -1 : 1;

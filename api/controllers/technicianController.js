@@ -1,26 +1,27 @@
 const Technician = require("../models/TechnicianModel");
 const encrypt = require("../utils/encrypt");
+const { GENERAL_STATUS } = require("../utils/enum");
 const errorHandler = require("../utils/error");
-const dotenv = require("dotenv");
+const { mapJoiErrors } = require("../utils/validators");
 const validateObjectId = require("../helpers/validateObjectId");
 const validatePagination = require("../helpers/paginationValidator");
 const {
   createTechnicianSchema,
   updateTechnicianSchema,
 } = require("../validators/user.validator");
-const GENERAL_STATUS = require("../utils/enum");
 
-dotenv.config();
+
 
 exports.getAllTechnicians = async (req, res, next) => {
   try {
     let {
       page = 1,
       limit = 10,
-      sort = "createdAt",
-      order = "desc",
-      status,
       search = "",
+      sort = "updatedAt",
+      order = "desc",
+      level,
+      status,
     } = req.query;
     page = parseInt(page);
     limit = parseInt(limit);
@@ -35,7 +36,13 @@ exports.getAllTechnicians = async (req, res, next) => {
     }
 
     const filter = {};
-    if (status && STATUS_ENUM.includes(status)) {
+    if (search.trim()) {
+      filter.firstName = { $regex: search.trim(), $options: "i" };
+    }
+    if (level && level !== "all") {
+      filter.level = level;
+    }
+    if (status && status !== "all" && GENERAL_STATUS.includes(status)) {
       filter.status = status;
     }
 
@@ -51,7 +58,7 @@ exports.getAllTechnicians = async (req, res, next) => {
     }
 
     const skip = (page - 1) * limit;
-    const sortableFields = ["createdAt"];
+    const sortableFields = ["updatedAt"];
     const sortOption = {};
     if (sortableFields.includes(sort)) {
       sortOption[sort] = order === "desc" ? -1 : 1;

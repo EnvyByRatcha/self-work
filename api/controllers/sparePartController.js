@@ -1,4 +1,3 @@
-const mongoose = require("mongoose");
 const { Product } = require("../models/productModel");
 const { SparePart } = require("../models/sparePartModel");
 const errorHandler = require("../utils/error");
@@ -7,8 +6,10 @@ const { uploadImage, deleteImage } = require("../service/cloudinaryService");
 const { extractPublicIdFromUrl } = require("../utils/cloudinaryHelper");
 const validateObjectId = require("../helpers/validateObjectId");
 const validatePagination = require("../helpers/paginationValidator");
-
-const MAX_LIMIT = 50;
+const {
+  createSparePartSchema,
+  updateSparePartSchema,
+} = require("../validators/sparePart.validator");
 
 exports.getAllSpareParts = async (req, res, next) => {
   try {
@@ -38,8 +39,6 @@ exports.getAllSpareParts = async (req, res, next) => {
     }
     if (status && status !== "all" && GENERAL_STATUS.includes(status)) {
       filter.status = status;
-    } else {
-      filter.status = "active";
     }
 
     const totalSpareParts = await SparePart.countDocuments(filter);
@@ -103,6 +102,36 @@ exports.getSparePartById = async (req, res, next) => {
       success: true,
       message: "SparePart retrieved successfully",
       data: { sparePart },
+    });
+  } catch (error) {
+    errorHandler.mapError(error, 500, "Internal Server Error", next);
+  }
+};
+
+exports.getSparePartByProductSerialNumber = async (req, res, next) => {
+  try {
+    const { serialNumber } = req.params;
+
+    const product = await Product.findOne({ serialNumber });
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    const spareParts = await SparePart.find({ productId: product._id });
+    if (!spareParts) {
+      return res.status(404).json({
+        success: false,
+        message: "SparePart not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "SpareParts retrieved successfully",
+      data: { spareParts },
     });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);

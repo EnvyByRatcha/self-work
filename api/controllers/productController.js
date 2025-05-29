@@ -34,13 +34,11 @@ exports.getAllProduct = async (req, res, next) => {
     }
 
     const filter = {};
-    if (search.trim()) {
-      filter.name = { $regex: search.trim(), $options: "i" };
+    if (search) {
+      filter.name = { $regex: search.trim().toLowerCase(), $options: "i" };
     }
     if (status && status !== "all" && GENERAL_STATUS.includes(status)) {
       filter.status = status;
-    } else {
-      filter.status = "active";
     }
 
     const totalProducts = await Product.countDocuments(filter);

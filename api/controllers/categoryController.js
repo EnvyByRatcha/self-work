@@ -32,8 +32,6 @@ exports.getAllCategory = async (req, res, next) => {
     }
     if (status && status !== "all" && GENERAL_STATUS.includes(status)) {
       filter.status = status;
-    } else {
-      filter.status = "active";
     }
 
     const totalCategories = await Category.countDocuments(filter);

@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const {
   ProductUnit,
   ProductBatch,
@@ -6,10 +7,11 @@ const {
 const errorHandler = require("../utils/error");
 const { mapJoiErrors } = require("../utils/validators");
 const validateObjectId = require("../helpers/validateObjectId");
+const validatePagination = require("../helpers/paginationValidator");
 const {
   createProductUnitSchema,
   updateProductUnitSchema,
-} = require("../validators/productUnit.validator");
+} = require("../validators/product.validator");
 
 exports.getProductUnitByProductId = async (req, res, next) => {
   try {
@@ -70,7 +72,7 @@ exports.getProductUnitByProductId = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: "Product-unit retrieved successfully",
+      message: "Product-units retrieved successfully",
       data: {
         productUnits,
         pagination: {
@@ -141,7 +143,7 @@ exports.getProductUnitByCustomerId = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: "Product-unit retrieved successfully",
+      message: "Product-units retrieved successfully",
       data: {
         productUnits,
         pagination: {
@@ -186,7 +188,7 @@ exports.createProductUnit = async (req, res, next) => {
       return res.status(404).json({
         success: false,
         message: "Product-batch not found",
-        errors: { id: "No product-batch with this ID" },
+        errors: { productBatchId: "No product-batch with this ID" },
       });
     }
 
@@ -213,14 +215,6 @@ exports.createProductUnit = async (req, res, next) => {
       });
     }
 
-    await ProductBatch.findByIdAndUpdate(
-      productBatchId,
-      {
-        $inc: { registered: 1 },
-      },
-      { session }
-    );
-
     const newProductUnit = new ProductUnit({
       serialNumber,
       productBatchId,
@@ -228,10 +222,17 @@ exports.createProductUnit = async (req, res, next) => {
     });
 
     await newProductUnit.save({ session });
+    await ProductBatch.findByIdAndUpdate(
+      productBatchId,
+      {
+        $inc: { registered: 1 },
+      },
+      { session }
+    );
     await Product.findByIdAndUpdate(
       productId,
       { $inc: { qty: 1 } },
-      { new: true, session }
+      { session }
     );
 
     await session.commitTransaction();

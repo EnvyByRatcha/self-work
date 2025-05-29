@@ -1,32 +1,83 @@
+const mongoose = require("mongoose");
 const {
-  SparePartUnit,
   SparePart,
   SparePartBatch,
+  SparePartUnit,
 } = require("../models/sparePartModel");
 const errorHandler = require("../utils/error");
-const { isValidObjectId } = require("../utils/validators");
-
-const MAX_LIMIT = 50;
+const { mapJoiErrors } = require("../utils/validators");
+const validateObjectId = require("../helpers/validateObjectId");
+const validatePagination = require("../helpers/paginationValidator");
+const {
+  createSparePartUnitSchema,
+  updateSparePartUnitSchema,
+} = require("../validators/sparePart.validator");
 
 exports.getAllSparePartUnit = async (req, res, next) => {
   try {
-    let { page, limit } = req.body;
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || 10;
+    let {
+      page = 1,
+      limit = 10,
+      search = "",
+      sort = "updatedAt",
+      order = "desc",
+      status,
+    } = req.query;
+    page = parseInt(page);
+    limit = parseInt(limit);
+
+    const paginationErrors = validatePagination(page, limit);
+    if (paginationErrors) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid pagination parameters`,
+        errors: paginationErrors,
+      });
+    }
+
+    const filter = {};
+    if (search.trim()) {
+      filter.serialNumber = { $regex: search.trim(), $options: "i" };
+    }
+    if (status && status !== "all" && GENERAL_STATUS.includes(status)) {
+      filter.status = status;
+    } else {
+      filter.status = "active";
+    }
+
+    const totalSparePartUnits = await SparePartUnit.countDocuments(filter);
+    const totalPages = Math.ceil(totalSparePartUnits / limit);
+    if (page > totalPages && totalPages !== 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Page number exceeds total pages`,
+        errors: { page: `Max available page is ${totalPages}` },
+      });
+    }
     const skip = (page - 1) * limit;
 
-    const sparePartUnits = await SparePartUnit.find().skip(skip).limit(limit);
-    const totalSparePartUnits = await SparePartUnit.countDocuments();
+    const sortOption = {};
+    if (["serialNumber", "updatedAt"].includes(sort)) {
+      sortOption[sort] = order === "desc" ? -1 : 1;
+    }
 
-    const totalPages = Math.ceil(totalSparePartUnits / limit);
+    const sparePartUnits = await SparePartUnit.find(filter)
+      .sort(sortOption)
+      .skip(skip)
+      .limit(limit)
+      .lean();
 
     res.status(200).json({
-      message: "success",
-      page: {
-        totalPage: totalPages,
-        currentPage: page,
+      success: true,
+      message: "Spaerepart-unit retrieved successfully",
+      data: {
+        sparePartUnits,
+        pagination: {
+          totalPages,
+          currentPage: page,
+          totalItems: totalSparePartUnits,
+        },
       },
-      sparePartUnits: sparePartUnits,
     });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
@@ -35,42 +86,34 @@ exports.getAllSparePartUnit = async (req, res, next) => {
 
 exports.getSparePartUnitBySparePartId = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { id: sparePartId } = req.params;
+    if (!validateObjectId(sparePartId, res)) return;
 
-    if (!isValidObjectId(id)) {
+    let {
+      page = 1,
+      limit = 10,
+      search = "",
+      sort = "updatedAt",
+      order = "desc",
+      status,
+    } = req.query;
+    page = parseInt(page);
+    limit = parseInt(limit);
+
+    const paginationErrors = validatePagination(page, limit);
+    if (paginationErrors) {
       return res.status(400).json({
         success: false,
-        message: "Invalid category ID",
-        errors: { id: "Not a valid ObjectId" },
+        message: `Invalid pagination parameters`,
+        errors: paginationErrors,
       });
     }
 
-    let { page, limit, search = "", status } = req.body;
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || 10;
-
-    if (
-      isNaN(page) ||
-      isNaN(limit) ||
-      page < 1 ||
-      limit < 1 ||
-      limit > MAX_LIMIT
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: `Invalid pagination parameters (limit must be between 1 and ${MAX_LIMIT})`,
-        errors: {
-          page: "Must be greater than 0",
-          limit: `Must be between 1 and ${MAX_LIMIT}`,
-        },
-      });
-    }
-
-    const filter = { sparePartId: id };
-    if (search) {
+    const filter = { sparePartId };
+    if (search.trim()) {
       filter.serialNumber = { $regex: search.trim(), $options: "i" };
     }
-    if (status && GENERAL_STATUS.includes(status)) {
+    if (status && status !== "all" && GENERAL_STATUS.includes(status)) {
       filter.status = status;
     } else {
       filter.status = "active";
@@ -78,7 +121,6 @@ exports.getSparePartUnitBySparePartId = async (req, res, next) => {
 
     const totalSparePartUnits = await SparePartUnit.countDocuments(filter);
     const totalPages = Math.ceil(totalSparePartUnits / limit);
-
     if (page > totalPages && totalPages !== 0) {
       return res.status(400).json({
         success: false,
@@ -88,16 +130,22 @@ exports.getSparePartUnitBySparePartId = async (req, res, next) => {
         },
       });
     }
-
     const skip = (page - 1) * limit;
 
+    const sortOption = {};
+    if (["serialNumber", "updatedAt"].includes(sort)) {
+      sortOption[sort] = order === "desc" ? -1 : 1;
+    }
+
     const sparePartUnits = await SparePartUnit.find(filter)
+      .sort(sortOption)
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .lean();
 
     res.status(200).json({
       success: true,
-      message: "Spare-part-unit retrieved successfully",
+      message: "Sparepart-unit retrieved successfully",
       data: {
         sparePartUnits,
         pagination: {
@@ -114,77 +162,58 @@ exports.getSparePartUnitBySparePartId = async (req, res, next) => {
 
 exports.getSparePartByTechnicianId = async (req, res, next) => {
   try {
-    const userId = req.user.userId;
+    const technicianId = String(req.user.userId);
 
-    let {
-      page = 1,
-      limit = 10,
-      search = "",
-      sort = "createdAt",
-      order = "asc",
-    } = req.query;
-    page = parseInt(page);
-    limit = parseInt(limit);
-
-    if (
-      isNaN(page) ||
-      isNaN(limit) ||
-      page < 1 ||
-      limit < 1 ||
-      limit > MAX_LIMIT
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: `Invalid pagination parameters (limit must be between 1 and ${MAX_LIMIT})`,
-        errors: {
-          page: "Must be greater than 0",
-          limit: `Must be between 1 and ${MAX_LIMIT}`,
+    const pipeline = [
+      {
+        $match: {
+          technicianId: new mongoose.Types.ObjectId(technicianId),
+          status: "issued",
         },
-      });
-    }
-
-    const filter = {};
-    filter.technicianId = userId;
-    if (search.trim()) {
-      filter.name = { $regex: search.trim(), $options: "i" };
-    }
-
-    const totalSparePartUnits = await SparePartUnit.countDocuments(filter);
-    const totalPages = Math.ceil(totalSparePartUnits / limit);
-
-    if (page > totalPages && totalPages !== 0) {
-      return res.status(400).json({
-        success: false,
-        message: `Page number exceeds total pages (${totalPages})`,
-        errors: {
-          page: `Max available page is ${totalPages}`,
+      },
+      {
+        $lookup: {
+          from: "spareparts",
+          localField: "sparePartId",
+          foreignField: "_id",
+          as: "sparePartInfo",
         },
-      });
-    }
+      },
+      {
+        $unwind: "$sparePartInfo",
+      },
+      {
+        $group: {
+          _id: "$sparePartId",
+          name: { $first: "$sparePartInfo.name" },
+          units: {
+            $push: {
+              _id: "$_id",
+              serialNumber: "$serialNumber",
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          units: 1,
+        },
+      },
+    ];
 
-    const skip = (page - 1) * limit;
-    const sortOption = {};
-    if (["name", "createdAt"].includes(sort)) {
-      sortOption[sort] = order === "desc" ? -1 : 1;
+    const groupedSpareParts = await SparePartUnit.aggregate(pipeline);
+    if (!groupedSpareParts) {
+      return res
+        .status(404)
+        .json({ success: false, message: "SparePart-unit not found" });
     }
-
-    const sparePartUnits = await SparePartUnit.find(filter)
-      .sort(sortOption)
-      .skip(skip)
-      .limit(limit)
-      .lean();
 
     res.status(200).json({
       success: true,
-      message: "SparePartUnits retrieved successfully",
-      data: {
-        sparePartUnits,
-        pagination: {
-          totalPages,
-          currentPage: page,
-          totalItems:totalSparePartUnits,
-        },
-      },
+      message: "Grouped spare parts retrieved successfully",
+      data: { sparePartUnits: groupedSpareParts },
     });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
@@ -192,36 +221,47 @@ exports.getSparePartByTechnicianId = async (req, res, next) => {
 };
 
 exports.createSparePartUnit = async (req, res, next) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
-    const { serialNumber, sparePartId, sparePartBatchId } = req.body;
-
-    const existingSparePartUnit = await SparePartUnit.findOne({ serialNumber });
-    if (existingSparePartUnit) {
-      return res.status(409).json({ message: "Serial number already exits" });
-    }
-
-    const updateSparePart = await SparePart.findByIdAndUpdate(
-      sparePartId,
-      { $inc: { qty: 1 } },
-      { new: true }
-    );
-
-    if (!updateSparePart) {
-      return res.status(404).json({
+    const { error, value } = createSparePartUnitSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({
         success: false,
-        message: "SparePart not found",
-        errors: { productId: "No sparePart with this ID" },
+        message: "Validation failed",
+        errors: mapJoiErrors(error),
       });
     }
 
-    const sparePartBatch = await SparePartBatch.findByIdAndUpdate(
+    const { sparePartBatchId, sparePartId } = value;
+    const serialNumber = value.serialNumber.trim().toUpperCase();
+
+    const sparePart = await SparePart.findById(sparePartId).lean();
+    if (!sparePart) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+        errors: { sparePartId: "No sparepart with this ID" },
+      });
+    }
+
+    const sparePartBatch = await SparePartBatch.findById(
       sparePartBatchId
     ).lean();
     if (!sparePartBatch) {
       return res.status(404).json({
         success: false,
-        message: "SparePart-batch not found",
-        errors: { id: "No sparePart-batch with this ID" },
+        message: "Sparepart-batch not found",
+        errors: { sparePartBatchId: "No sparePart-batch with this ID" },
+      });
+    }
+
+    const existingSparePartUnit = await SparePartUnit.findOne({ serialNumber });
+    if (existingSparePartUnit) {
+      return res.status(409).json({
+        success: false,
+        message: "SparePart-unit already exists",
+        errors: { serialNumber: "Duplicate serial number" },
       });
     }
 
@@ -233,13 +273,9 @@ exports.createSparePartUnit = async (req, res, next) => {
       return res.status(409).json({
         success: false,
         message: "Cannot register more units than batch quantity",
-        errors: { sparePartBatch: "Sparepart batch is already full" },
+        errors: { productBatch: "SparePart batch is already full" },
       });
     }
-
-    await SparePartBatch.findByIdAndUpdate(sparePartBatchId, {
-      $inc: { registered: 1 },
-    });
 
     const newSparePartUnit = new SparePartUnit({
       serialNumber,
@@ -247,7 +283,22 @@ exports.createSparePartUnit = async (req, res, next) => {
       sparePartBatchId,
     });
 
-    await newSparePartUnit.save();
+    await newSparePartUnit.save({ session });
+    await SparePartBatch.findByIdAndUpdate(
+      sparePartBatchId,
+      {
+        $inc: { registered: 1 },
+      },
+      { session }
+    );
+    await SparePart.findByIdAndUpdate(
+      sparePartId,
+      { $inc: { qty: 1 } },
+      { session }
+    );
+
+    await session.commitTransaction();
+    session.endSession();
 
     res.status(201).json({
       success: true,
@@ -255,6 +306,8 @@ exports.createSparePartUnit = async (req, res, next) => {
       data: { sparePartUnit: newSparePartUnit },
     });
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
     errorHandler.mapError(error, 500, "Internal Server Error", next);
   }
 };
@@ -262,39 +315,79 @@ exports.createSparePartUnit = async (req, res, next) => {
 exports.updateSparePartUnit = async (req, res, next) => {
   try {
     const { id } = req.params;
+    if (!validateObjectId(id, res)) return;
+
+    const { error, value } = updateSparePartUnitSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors: mapJoiErrors(error),
+      });
+    }
+
+    const allowedUpdates = ["serialNumber"];
+    const updates = allowedUpdates.reduce((acc, field) => {
+      if (value[field] !== undefined) acc[field] = value[field];
+      return acc;
+    }, {});
+
+    if (updates.serialNumber) {
+      const exists = await SparePartUnit.findOne({
+        serialNumber: updates.serialNumber.trim().toUpperCase(),
+        _id: { $ne: id },
+      });
+      if (exists) {
+        return res.status(409).json({
+          success: false,
+          message: "Serial number already in use",
+          errors: { serialNumber: "Duplicated serial number" },
+        });
+      }
+    }
 
     const updateSparePartUnit = await SparePartUnit.findByIdAndUpdate(
       id,
-      req.body,
+      updates,
       {
         new: true,
         runValidators: true,
       }
-    );
+    ).lean();
 
     if (!updateSparePartUnit) {
-      return res.status(409).json({ message: "Spare part not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Sparepart-unit not found",
+        errors: { id: "No sparepart-unit with this ID" },
+      });
     }
 
-    res
-      .status(200)
-      .json({ message: "success", sparepartUnit: updateSparePartUnit });
+    res.status(200).json({
+      success: true,
+      message: "Sparepart-unit updated successfully",
+      data: { sparePartUnit: updateSparePartUnit },
+    });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
   }
 };
 
-exports.removeSparePartUnit = async (req, res, next) => {
+exports.inactiveSparePartUnit = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const sparePartUnit = await SparePartUnit.findById(id);
+    if (!validateObjectId(id, res)) return;
 
+    const sparePartUnit = await SparePartUnit.findByIdAndDelete(
+      id,
+      {
+        status: "inactive",
+      },
+      { new: true }
+    );
     if (!sparePartUnit) {
-      return res.status(404).json({ message: "Spare part not found" });
+      return res.status(404).json({ message: "Sparepart unit not found" });
     }
-
-    sparePartUnit.status = "unused";
-    sparePartUnit.save();
 
     res.status(200).json({ message: "success", sparePartUnit: sparePartUnit });
   } catch (error) {

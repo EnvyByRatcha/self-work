@@ -32,13 +32,14 @@ exports.getAllCustomers = async (req, res, next) => {
     }
 
     const filter = {};
-    if (search.trim()) {
-      filter.name = { $regex: search.trim(), $options: "i" };
+    if (search.trim().toUpperCase()) {
+      filter.customerCode = {
+        $regex: search.trim().toUpperCase(),
+        $options: "i",
+      };
     }
     if (status && status !== "all" && GENERAL_STATUS.includes(status)) {
       filter.status = status;
-    } else {
-      filter.status = "active";
     }
 
     const totalCustomers = await Customer.countDocuments(filter);
@@ -54,7 +55,7 @@ exports.getAllCustomers = async (req, res, next) => {
 
     const skip = (page - 1) * limit;
     const sortOption = {};
-    if (["name", "updatedAt"].includes(sort)) {
+    if (["updatedAt"].includes(sort)) {
       sortOption[sort] = order === "desc" ? -1 : 1;
     }
 
@@ -115,8 +116,10 @@ exports.createCustomer = async (req, res, next) => {
       });
     }
 
+    const name = value.name.trim().toUpperCase();
+
     const existingCustomer = await Customer.findOne({
-      name: value.name,
+      name,
     }).lean();
     if (existingCustomer) {
       return res.status(409).json({
@@ -128,6 +131,7 @@ exports.createCustomer = async (req, res, next) => {
 
     const newCustomer = new Customer({
       ...value,
+      name,
     });
     await newCustomer.save();
 
