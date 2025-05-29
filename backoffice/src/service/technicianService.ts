@@ -1,6 +1,6 @@
 import axios from "axios";
 import config from "../config";
-import type { User, UserFormData } from "../interface/IUser";
+import type { User, UserFormData, UserFormDataForUpdate } from "../interface/IUser";
 import type { ErrorResponse } from "../interface/IError";
 import { handleAxiosError } from "../utils/handleAxiosError";
 
@@ -55,7 +55,7 @@ const technicianService = {
   },
   updateTechnician: async (
     id: string,
-    payload: UserFormData
+    payload: UserFormDataForUpdate
   ): Promise<TechnicianResponse | ErrorResponse> => {
     try {
       const response = await axios.put(`${baseUrl}/${id}`, payload, {
