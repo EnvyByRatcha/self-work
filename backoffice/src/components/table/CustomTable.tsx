@@ -70,9 +70,11 @@ function CustomTable<T extends { _id: string }>({
               <ArticleOutlinedIcon />
             </Button>
           )}
-          <Button onClick={() => onEdit?.(item)}>
-            <BorderColorOutlinedIcon />
-          </Button>
+          {onEdit && (
+            <Button onClick={() => onEdit?.(item)}>
+              <BorderColorOutlinedIcon />
+            </Button>
+          )}
           {onRemove && (
             <Button onClick={() => onRemove(item._id)}>
               <DoDisturbAltOutlinedIcon color="error" />
