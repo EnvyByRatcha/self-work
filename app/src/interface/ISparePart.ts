@@ -1,3 +1,14 @@
+export interface SparePart {
+  _id: string;
+  name: string;
+  qty: number;
+  photoUrl: string;
+  productId: any;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface SparePartUnit {
   _id: string;
   serialNumber: string;
@@ -7,7 +18,19 @@ export interface SparePartUnit {
   updatedAt: string;
 }
 
-export interface SparePartUnitWithBatch {
-  batchId: string;
-  units: SparePartUnit[];
+export interface sparePartUnits {
+  _id: string;
+  name: string;
+  units: {
+    _id: string;
+    serialNumber: string;
+  }[];
+}
+
+export interface sparePartUnitsFormData {
+  sparePartId: string;
+  name: string;
+  units: {
+    _id: string;
+  }[];
 }
