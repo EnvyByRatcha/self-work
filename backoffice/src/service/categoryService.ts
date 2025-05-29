@@ -5,6 +5,7 @@ import type { ErrorResponse } from "../interface/IError";
 import { handleAxiosError } from "../utils/handleAxiosError";
 
 const baseUrl = `${config.apiPath}/categories`;
+const headers = config.headers();
 
 const categoryService = {
   getAllCategory: async (
@@ -22,7 +23,9 @@ const categoryService = {
       if (search) params.append("search", search);
       if (status) params.append("status", status);
 
-      const response = await axios.get(`${baseUrl}?${params.toString()}`);
+      const response = await axios.get(`${baseUrl}?${params.toString()}`, {
+        headers,
+      });
       return response.data;
     } catch (error) {
       return handleAxiosError(error, "fetching the categories");
@@ -32,7 +35,9 @@ const categoryService = {
     payload: CategoryFormData
   ): Promise<CategoryResponse | ErrorResponse> => {
     try {
-      const response = await axios.post(baseUrl, payload);
+      const response = await axios.post(baseUrl, payload, {
+        headers,
+      });
       return response.data;
     } catch (error) {
       return handleAxiosError(error, "creating the category");
@@ -43,7 +48,9 @@ const categoryService = {
     payload: CategoryFormData
   ): Promise<CategoryResponse | ErrorResponse> => {
     try {
-      const response = await axios.put(`${baseUrl}/${id}`, payload);
+      const response = await axios.put(`${baseUrl}/${id}`, payload, {
+        headers,
+      });
       return response.data;
     } catch (error) {
       return handleAxiosError(error, "updating the category");
@@ -53,7 +60,9 @@ const categoryService = {
     id: string
   ): Promise<CategoryResponse | ErrorResponse> => {
     try {
-      const response = await axios.delete(`${baseUrl}/${id}`);
+      const response = await axios.delete(`${baseUrl}/${id}`, {
+        headers,
+      });
       return response.data;
     } catch (error) {
       return handleAxiosError(error, "removing the category");
