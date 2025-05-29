@@ -58,6 +58,9 @@ function CustomTable<T extends { _id: string }>({
           if (col.key === "updatedAt") {
             displayValue = dayjs(value as string).format("DD/MM/YYYY");
           }
+          if (col.key === "createdAt") {
+            displayValue = dayjs(value as string).format("DD/MM/YYYY");
+          }
 
           return <TableCell key={col.key as string}>{displayValue}</TableCell>;
         })}
@@ -81,21 +84,23 @@ function CustomTable<T extends { _id: string }>({
   });
 
   return (
-    <TableContainer
-      component={Paper}
-      elevation={0}
-      sx={{ marginTop: "20px", borderRadius: "12px 12px 0px 0px" }}
-    >
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
-        <TableHead sx={{ bgcolor: "table.color" }}>
-          <TableRow>
-            {renderColumns}
-            <TableCell align="center">Option</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>{renderData}</TableBody>
-      </Table>
-    </TableContainer>
+    <Paper sx={{ width: "100%" }}>
+      <TableContainer
+        component={Paper}
+        elevation={0}
+        sx={{ marginTop: "20px", borderRadius: "12px 12px 0px 0px" }}
+      >
+        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <TableHead sx={{ bgcolor: "table.color" }}>
+            <TableRow>
+              {renderColumns}
+              <TableCell align="center">Option</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>{renderData}</TableBody>
+        </Table>
+      </TableContainer>
+    </Paper>
   );
 }
 
