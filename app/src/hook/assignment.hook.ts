@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { unwrapOrError } from "../utils/upwrapOrError";
-import { Assignment } from "../interface/IAssignment";
+import {
+  Assignment,
+  AssignmentDetailFormData,
+  AssignmentFormData,
+} from "../interface/IAssignment";
 import assignmentService from "../service/assignmentService";
 
 const useAssignment = () => {
@@ -21,7 +25,7 @@ const useAssignment = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await assignmentService.getAssignmentByUserId(
+      const response = await assignmentService.getAssignmentByTechnicianId(
         page,
         limit
       );
@@ -37,7 +41,51 @@ const useAssignment = () => {
     }
   };
 
-  return { assignments, totalPage, setCurrentPage, setLimit, loading, error };
+  const getAssignmentDetailById = async (id: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await assignmentService.getAssignmentDetail(id);
+      const result = unwrapOrError(response);
+      if (result.success) {
+        return result;
+      }
+    } catch (error) {
+      setError("fail to fetching sparePart");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createAssignment = async (payload: AssignmentFormData) => {
+    const response = await assignmentService.createAssignment(payload);
+    return response;
+  };
+
+  const createAssignmentDetail = async (
+    id: string,
+    payload: AssignmentDetailFormData
+  ) => {
+    console.log(payload);
+
+    const response = await assignmentService.createAssignmentDetail(
+      id,
+      payload
+    );
+    return response;
+  };
+
+  return {
+    assignments,
+    getAssignmentDetailById,
+    createAssignment,
+    createAssignmentDetail,
+    totalPage,
+    setCurrentPage,
+    setLimit,
+    loading,
+    error,
+  };
 };
 
 export default useAssignment;
