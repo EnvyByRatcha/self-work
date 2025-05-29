@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import userService from "../service/userService";
-import type { User } from "../interface/IUser";
+import type { User, UserFormDataForUpdate } from "../interface/IUser";
 import type { UserFormData } from "../interface/IUser";
 import { unwrapOrError } from "../utils/upwrapOrError";
 
@@ -63,6 +63,11 @@ const useUser = () => {
     return data;
   };
 
+  const updateUserById = async (id: string, payload: UserFormDataForUpdate) => {
+    const data = await userService.updateUser(id, payload);
+    return data;
+  };
+
   const removeUser = async (id: string) => {
     const data = await userService.inActiveUser(id);
     fetchUser(currentPage, totalPage);
@@ -80,6 +85,7 @@ const useUser = () => {
     setTotalPage,
     setLimit,
     createUser,
+    updateUserById,
     getUserById,
     fetchUser,
     removeUser,

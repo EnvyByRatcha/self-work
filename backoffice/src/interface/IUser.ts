@@ -3,7 +3,8 @@ export interface User {
   firstName: string;
   lastName: string;
   email: string;
-  username: string;
+  address: string;
+  tel_1: string;
   level: string;
   status: string;
   createdAt: string;
@@ -16,4 +17,13 @@ export interface UserFormData {
   email: string;
   password: string;
   level: string;
+}
+
+export interface UserFormDataForUpdate {
+  firstName?: string;
+  lastName?: string;
+  address?: string;
+  tel_1?: string;
+  email?: string;
+  level?: string;
 }
