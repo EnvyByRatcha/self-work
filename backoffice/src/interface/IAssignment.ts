@@ -1,6 +1,7 @@
 export interface Assignment {
   _id: string;
   title: string;
+  serialNumber: string;
   customerCode: string;
   technicianId: string;
   userId: string;
@@ -13,11 +14,11 @@ export interface Assignment {
 }
 
 export interface AssignmentFormData {
-  title: string;
+  serialNumber: string;
   customerCode: string;
-  technicianId: string;
-  solution: string;
   addressRemark: string;
+  title: string;
+  solution: string;
 }
 
 export interface AssignmentDetailFormData {
