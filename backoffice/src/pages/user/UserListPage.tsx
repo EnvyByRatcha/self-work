@@ -49,8 +49,6 @@ const UserListPage = () => {
     setSearchTermInput(value);
   };
 
-  const handleRemove = () => {};
-
   return (
     <>
       <TitleBox title={"User list"} />
@@ -82,12 +80,7 @@ const UserListPage = () => {
           </Stack>
         </Stack>
 
-        <CustomTable
-          data={users}
-          columns={userColumn}
-          isLinkButton
-          onRemove={handleRemove}
-        />
+        <CustomTable data={users} columns={userColumn} isLinkButton />
         <TablePaginate
           totalPage={totalPage}
           onChangePage={(page) => setCurrentPage(page)}

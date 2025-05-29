@@ -1,4 +1,4 @@
-import ContentBox from "../../components/common/ContentBox";
+ import ContentBox from "../../components/common/ContentBox";
 import TitleBox from "../../components/common/TitleBox";
 import UserForm from "../../components/form/UserForm";
 import useUser from "../../hook/user.hook";
