@@ -4,14 +4,15 @@ import TitleBox from "../../components/common/TitleBox";
 import useUser from "../../hook/user.hook";
 import { useEffect, useState } from "react";
 import { User } from "../../interface/IUser";
-import { Box, Grid, Stack, Typography } from "@mui/material";
-import CustomCard from "../../components/common/CustomCard";
-import InfoIcon from "@mui/icons-material/Info";
+import UserDetailForm from "../../components/form/UserDetailForm";
+import { Notyf } from "notyf";
+
+const notyf = new Notyf();
 
 const UserDetailPage = () => {
   const { id } = useParams();
 
-  const { getUserById } = useUser();
+  const { getUserById, updateUserById } = useUser();
 
   const [user, setUser] = useState<User>();
 
@@ -28,108 +29,26 @@ const UserDetailPage = () => {
     }
   };
 
-  const renderUser = (
-    <Box>
-      <Grid container spacing={{ xs: 4, md: 0 }} rowGap={2}>
-        <Stack direction={"row"} gap={2}>
-          <InfoIcon sx={{ color: "custom.linkButton" }} />
-          <Typography
-            fontSize={"1rem"}
-            fontWeight={700}
-            mb={"20px"}
-            color="text.primary"
-          >
-            Personal info
-          </Typography>
-        </Stack>
-
-        <Grid size={{ xs: 12 }}>
-          <CustomCard>
-            <Stack direction={"row"} lineHeight={1.3}>
-              <Typography
-                minWidth={"120px"}
-                fontSize={"0.875rem"}
-                fontWeight={700}
-              >
-                First name
-              </Typography>
-              <Typography fontSize={"0.875rem"} fontWeight={400}>
-                {user?.firstName}
-              </Typography>
-            </Stack>
-            <Stack direction={"row"}>
-              <Typography
-                minWidth={"120px"}
-                fontSize={"0.875rem"}
-                fontWeight={700}
-              >
-                Last name
-              </Typography>
-              <Typography fontSize={"0.875rem"} fontWeight={400}>
-                {user?.lastName}
-              </Typography>
-            </Stack>
-          </CustomCard>
-        </Grid>
-
-        <Grid size={{ xs: 12 }}>
-          <CustomCard>
-            <Stack direction={"row"} lineHeight={1.3}>
-              <Typography
-                minWidth={"120px"}
-                fontSize={"0.875rem"}
-                fontWeight={700}
-              >
-                Address
-              </Typography>
-              <Typography fontSize={"0.875rem"} fontWeight={400}>
-                {"16/72"}
-              </Typography>
-            </Stack>
-          </CustomCard>
-        </Grid>
-
-        <Grid size={{ xs: 12 }}>
-          <CustomCard>
-            <Stack direction={"row"} lineHeight={1.3}>
-              <Typography
-                minWidth={"120px"}
-                fontSize={"0.875rem"}
-                fontWeight={700}
-              >
-                Number
-              </Typography>
-              <Typography fontSize={"0.875rem"} fontWeight={400}>
-                {"(+66) 960193880"}
-              </Typography>
-            </Stack>
-          </CustomCard>
-        </Grid>
-
-        <Grid size={{ xs: 12 }}>
-          <CustomCard>
-            <Stack direction={"row"} lineHeight={1.3}>
-              <Typography
-                minWidth={"120px"}
-                fontSize={"0.875rem"}
-                fontWeight={700}
-              >
-                Primary Email
-              </Typography>
-              <Typography fontSize={"0.875rem"} fontWeight={400}>
-                {user?.email}
-              </Typography>
-            </Stack>
-          </CustomCard>
-        </Grid>
-      </Grid>
-    </Box>
-  );
+  const updateUser = async (payload: any) => {
+    if (id) {
+      const data = await updateUserById(id, payload);
+      if (data.success) {
+        notyf.success(data.message);
+        fetchUser(id);
+        return;
+      }
+      notyf.error(data?.message);
+      return;
+    }
+    notyf.error("User id is undifine");
+  };
 
   return (
     <>
       <TitleBox title={"User detail"} />
-      <ContentBox padding>{user && renderUser}</ContentBox>
+      <ContentBox padding>
+        {user && <UserDetailForm user={user} onSubmit={updateUser} />}
+      </ContentBox>
     </>
   );
 };
