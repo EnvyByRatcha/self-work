@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import technicianService from "../service/technicianService";
-import type { User } from "../interface/IUser";
+import type { User, UserFormDataForUpdate } from "../interface/IUser";
 import type { UserFormData } from "../interface/IUser";
 import { unwrapOrError } from "../utils/upwrapOrError";
 
@@ -49,8 +49,24 @@ const useTechnician = () => {
     }
   };
 
+  const getTechnicianById = async (id: string) => {
+    const data = await technicianService.getTechnicianById(id);
+    const result = unwrapOrError(data);
+    if (result.success) {
+      return result;
+    }
+  };
+
   const createTechnician = async (payload: UserFormData) => {
     const data = await technicianService.createTechnician(payload);
+    return data;
+  };
+
+  const updateTechnicianById = async (
+    id: string,
+    payload: UserFormDataForUpdate
+  ) => {
+    const data = await technicianService.updateTechnician(id, payload);
     return data;
   };
 
@@ -70,7 +86,8 @@ const useTechnician = () => {
     setCurrentPage,
     setTotalPage,
     setLimit,
-    createTechnician,
+    createTechnician,getTechnicianById,
+    updateTechnicianById,
     removeUser,
     loading,
     error,
