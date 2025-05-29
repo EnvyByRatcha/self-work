@@ -100,6 +100,7 @@ const ProductDetailPage = () => {
       });
       setOpenModal(false);
       fetchProductBatch(id!);
+      fetchProductUnit(id!);
       return;
     }
     notyf.error(data?.message);
