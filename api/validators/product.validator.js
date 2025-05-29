@@ -27,4 +27,19 @@ const updateProductSchema = Joi.object({
     }),
 });
 
-module.exports = { createProductSchema, updateProductSchema };
+const createProductUnitSchema = Joi.object({
+  serialNumber: Joi.string().trim().length(10).required(),
+  productBatchId: Joi.string().trim().min(2).max(100).required(),
+  productId: Joi.string().trim().min(2).max(100).required(),
+});
+
+const updateProductUnitSchema = Joi.object({
+  serialNumber: Joi.string().trim().length(10).required(),
+});
+
+module.exports = {
+  createProductSchema,
+  updateProductSchema,
+  createProductUnitSchema,
+  updateProductUnitSchema,
+};

@@ -27,4 +27,19 @@ const updateSparePartSchema = Joi.object({
     }),
 });
 
-module.exports = { createSparePartSchema, updateSparePartSchema };
+const createSparePartUnitSchema = Joi.object({
+  serialNumber: Joi.string().trim().length(10).required(),
+  sparePartBatchId: Joi.string().trim().min(2).max(100).required(),
+  sparePartId: Joi.string().trim().min(2).max(100).required(),
+});
+
+const updateSparePartUnitSchema = Joi.object({
+  serialNumber: Joi.string().trim().length(10).required(),
+});
+
+module.exports = {
+  createSparePartSchema,
+  updateSparePartSchema,
+  createSparePartUnitSchema,
+  updateSparePartUnitSchema,
+};

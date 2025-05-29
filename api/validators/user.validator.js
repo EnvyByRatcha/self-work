@@ -13,7 +13,7 @@ const createTechnicianSchema = Joi.object({
   lastName: Joi.string().trim().min(2).max(50).required(),
   email: Joi.string().trim().lowercase().email().required(),
   password: Joi.string().min(6).required(),
-  level: Joi.string().valid("technician", "Lead-technician").required(),
+  level: Joi.string().valid("technician", "lead-technician").required(),
 });
 
 const updateUserSchema = Joi.object({

@@ -2,7 +2,7 @@ const Joi = require("joi");
 
 const createCustomerSchema = Joi.object({
   name: Joi.string().trim().min(2).max(100).required(),
-  customerCode: Joi.string().trim().min(8).max(8).optional(),
+  customerCode: Joi.string().trim().length(8).required(),
   address: Joi.string().trim().max(255).optional(),
   tel_1: Joi.string()
     .trim()
@@ -18,7 +18,7 @@ const createCustomerSchema = Joi.object({
 
 const updateCustomerSchema = Joi.object({
   name: Joi.string().trim().min(2).max(100).optional(),
-  customerCode: Joi.string().trim().min(8).max(8).optional(),
+  customerCode: Joi.string().trim().length(8).optional(),
   address: Joi.string().trim().max(255).optional(),
   tel_1: Joi.string()
     .trim()
