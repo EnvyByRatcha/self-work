@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 
-interface ContentBoxProps {
+interface CustomModalPropsV2 {
   title: String;
   open: boolean;
   setOpen: (open: boolean) => void;
@@ -24,7 +24,7 @@ const style = {
   p: 4,
 };
 
-const CustomModalV2 = ({ title, open, setOpen, children }: ContentBoxProps) => {
+const CustomModalV2 = ({ title, open, setOpen, children }: CustomModalPropsV2) => {
   const handleClose = () => setOpen(false);
 
   return (
