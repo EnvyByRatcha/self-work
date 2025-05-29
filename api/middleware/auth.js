@@ -1,6 +1,4 @@
 const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv");
-dotenv.config();
 
 exports.verifyToken = (req, res, next) => {
   const auth = req.headers.authorization;
@@ -18,4 +16,13 @@ exports.verifyToken = (req, res, next) => {
   } catch (error) {
     errorHandler.mapError(error, 403, "Forbidden: Invalid token", next);
   }
+};
+
+exports.authorizeRoles = (...allowedRoles) => {
+  return (req, res, next) => {
+    if (!req.user || !allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ message: "Forbidden: Access denied" });
+    }
+    next();
+  };
 };
