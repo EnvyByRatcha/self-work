@@ -15,8 +15,7 @@ const inventoryTransitionService = {
   getAllInventoryTransitions: async (
     page: number,
     limit: number,
-    sort?: string,
-    order?: "asc" | "desc",
+    search?: string,
     status?: string
   ): Promise<GetTransitionsResponse | ErrorResponse> => {
     try {
@@ -25,8 +24,7 @@ const inventoryTransitionService = {
         limit: limit.toString(),
       });
 
-      if (sort) params.append("sort", sort);
-      if (order) params.append("order", order);
+      if (search) params.append("search", search);
       if (status) params.append("status", status);
 
       const response = await axios.get(`${baseUrl}?${params.toString()}`);

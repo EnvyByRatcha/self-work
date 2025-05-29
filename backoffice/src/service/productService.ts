@@ -11,8 +11,6 @@ const productService = {
     page: number,
     limit: number,
     search?: string,
-    sort?: string,
-    order?: "asc" | "desc",
     status?: string
   ): Promise<GetProductsResponse | ErrorResponse> => {
     try {
@@ -22,8 +20,6 @@ const productService = {
       });
 
       if (search) params.append("search", search);
-      if (sort) params.append("sort", sort);
-      if (order) params.append("order", order);
       if (status) params.append("status", status);
 
       const response = await axios.get(`${baseUrl}?${params.toString()}`);

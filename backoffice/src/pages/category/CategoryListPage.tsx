@@ -1,4 +1,4 @@
-import { Pagination, Stack } from "@mui/material";
+import { Stack } from "@mui/material";
 import ContentBox from "../../components/common/ContentBox";
 import TitleBox from "../../components/common/TitleBox";
 import CustomTextField from "../../components/input/CustomTextField";
@@ -12,9 +12,10 @@ import type { Category, CategoryFormData } from "../../interface/ICategory";
 import { Notyf } from "notyf";
 import SearchBox from "../../components/common/SearchBox";
 import { useDebounce } from "../../hook/useDebounced.hook";
-import FilterDropDown from "../../components/common/filterDropdown";
+import FilterDropDown from "../../components/common/FilterDropDown";
 import CustomModalV2 from "../../components/Modal/CustomModalV2";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
+import TablePaginate from "../../components/common/TablePaginate";
 
 const notyf = new Notyf();
 
@@ -55,15 +56,9 @@ const CategoryListPage = () => {
   const [searchTermInput, setSearchTermInput] = useState("");
   const debouncedSearchTerm = useDebounce(searchTermInput, 800);
 
-  const [statusSelected, setStatusSelected] = useState<string>("all");
-
   useEffect(() => {
     setSearchTerm(debouncedSearchTerm);
   }, [debouncedSearchTerm]);
-
-  useEffect(() => {
-    setStatusFilter(statusSelected);
-  }, [statusSelected]);
 
   const handleClearSearchTerm = () => {
     setSearchTermInput("");
@@ -179,7 +174,7 @@ const CategoryListPage = () => {
           <FilterDropDown
             title="Status"
             options={statusOptions}
-            onSelect={(value) => setStatusSelected(value)}
+            onSelect={(value) => setStatusFilter(value)}
           />
         </Stack>
 
@@ -189,18 +184,9 @@ const CategoryListPage = () => {
           onEdit={handleEdit}
           onRemove={handleInactive}
         />
-        <Pagination
-          count={totalPage}
-          color="primary"
-          sx={{
-            marginTop: "12px",
-            width: "100%",
-            display: "flex",
-            justifyContent: "center",
-          }}
-          onChange={(_, page) => setCurrentPage(page)}
-          shape="rounded"
-          size="small"
+        <TablePaginate
+          totalPage={totalPage}
+          onChangePage={(page) => setCurrentPage(page)}
         />
 
         <CustomModalV2

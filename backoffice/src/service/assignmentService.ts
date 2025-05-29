@@ -1,6 +1,6 @@
 import axios from "axios";
 import config from "../config";
-import type { Assignment,formData } from "../interface/IAssignment";
+import type { Assignment, formData } from "../interface/IAssignment";
 import type { ErrorResponse } from "../interface/IError";
 import { handleAxiosError } from "../utils/handleAxiosError";
 
@@ -10,12 +10,19 @@ const headers = config.headers();
 const assignmentService = {
   getAllAssignment: async (
     page: number,
-    limit: number
+    limit: number,
+    search?: string,
+    status?: string
   ): Promise<GetAssignmentsResponse | ErrorResponse> => {
     try {
-      const response = await axios.get(
-        `${baseUrl}?page=${page}&limit=${limit}`
-      );
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+      });
+
+      if (search) params.append("search", search);
+      if (status) params.append("status", status);
+      const response = await axios.get(`${baseUrl}?${params.toString()}`);
       return response.data;
     } catch (error) {
       return handleAxiosError(error, "fetching the assignments");
@@ -59,7 +66,7 @@ interface GetAssignmentsResponse {
   success: boolean;
   message: string;
   data: {
-    customers: Assignment[];
+    assignments: Assignment[];
     pagination: {
       totalPage: number;
       currentPage: number;
@@ -72,6 +79,6 @@ interface AssignmentResponse {
   success: boolean;
   message: string;
   data: {
-    customer: Assignment;
+    assignment: Assignment;
   };
 }

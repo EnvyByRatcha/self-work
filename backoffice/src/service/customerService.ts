@@ -9,12 +9,20 @@ const baseUrl = `${config.apiPath}/customers`;
 const customerService = {
   getAllCustomer: async (
     page: number,
-    limit: number
+    limit: number,
+    search?: string,
+    status?: string
   ): Promise<GetCustomersResponse | ErrorResponse> => {
     try {
-      const response = await axios.get(
-        `${baseUrl}?page=${page}&limit=${limit}`
-      );
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+      });
+
+      if (search) params.append("search", search);
+      if (status) params.append("status", status);
+
+      const response = await axios.get(`${baseUrl}?${params.toString()}`);
       return response.data;
     } catch (error) {
       return handleAxiosError(error, "fetching the customers");

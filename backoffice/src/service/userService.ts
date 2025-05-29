@@ -10,23 +10,30 @@ const headers = config.headers();
 const userService = {
   getAllUsers: async (
     page: number,
-    limit: number
+    limit: number,
+    search?: string,
+    level?: string,
+    status?: string
   ): Promise<GetUsersResponse | ErrorResponse> => {
     try {
-      const response = await axios.get(
-        `${baseUrl}?page=${page}&limit=${limit}`,
-        {
-          headers,
-        }
-      );
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+      });
+
+      if (search) params.append("search", search);
+      if (level) params.append("level", level);
+      if (status) params.append("status", status);
+
+      const response = await axios.get(`${baseUrl}?${params.toString()}`, {
+        headers,
+      });
       return response.data;
     } catch (error) {
       return handleAxiosError(error, "fetching the users");
     }
   },
-  getUserById: async (
-    id: string
-  ): Promise<UserResponse | ErrorResponse> => {
+  getUserById: async (id: string): Promise<UserResponse | ErrorResponse> => {
     try {
       const response = await axios.get(`${baseUrl}/${id}`, { headers });
       return response.data;
@@ -57,9 +64,7 @@ const userService = {
       return handleAxiosError(error, "updating the user");
     }
   },
-  deActiveUser: async (
-    id: string
-  ): Promise<UserResponse | ErrorResponse> => {
+  inActiveUser: async (id: string): Promise<UserResponse | ErrorResponse> => {
     try {
       const response = await axios.delete(`${baseUrl}/${id}`, { headers });
       return response.data;

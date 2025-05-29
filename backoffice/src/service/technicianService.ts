@@ -10,15 +10,24 @@ const headers = config.headers();
 const technicianService = {
   getAllTechnician: async (
     page: number,
-    limit: number
+    limit: number,
+    search?: string,
+    level?: string,
+    status?: string
   ): Promise<GetTechniciansResponse | ErrorResponse> => {
     try {
-      const response = await axios.get(
-        `${baseUrl}?page=${page}&limit=${limit}`,
-        {
-          headers,
-        }
-      );
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+      });
+
+      if (search) params.append("search", search);
+      if (level) params.append("level", level);
+      if (status) params.append("status", status);
+
+      const response = await axios.get(`${baseUrl}?${params.toString()}`, {
+        headers,
+      });
       return response.data;
     } catch (error) {
       return handleAxiosError(error, "fetching the users");
@@ -57,7 +66,7 @@ const technicianService = {
       return handleAxiosError(error, "updating the user");
     }
   },
-  deActiveTechnician: async (
+  inActiveTechnician: async (
     id: string
   ): Promise<TechnicianResponse | ErrorResponse> => {
     try {
