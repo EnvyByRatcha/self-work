@@ -8,6 +8,7 @@ import CustomTable from "../../components/table/CustomTable";
 import { ProductUnit } from "../../interface/IProduct";
 import useProductUnit from "../../hook/productUnit.hook";
 import { productUnitColumn } from "../../constants/productUnitColumn";
+import CustomerDetailForm from "../../components/form/CustomerDetailForm";
 
 const CustomerDetailPage = () => {
   const { id } = useParams();
@@ -42,10 +43,15 @@ const CustomerDetailPage = () => {
     }
   };
 
+  const updateCustomer = () => {};
+
   return (
     <>
       <TitleBox title={customer?.name || "Customer name"} />
       <ContentBox padding>
+        {customer && (
+          <CustomerDetailForm customer={customer} onSubmit={updateCustomer} />
+        )}
         <CustomTable data={productUnits} columns={productUnitColumn} />
       </ContentBox>
     </>
