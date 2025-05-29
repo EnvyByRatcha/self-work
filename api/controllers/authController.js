@@ -3,8 +3,6 @@ const Technician = require("../models/TechnicianModel");
 const encrypt = require("../utils/encrypt");
 const errorHandler = require("../utils/error");
 const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv");
-dotenv.config();
 
 exports.signIn = async (req, res, next) => {
   try {
@@ -29,9 +27,10 @@ exports.signIn = async (req, res, next) => {
       {
         userId: user._id,
         email: user.email,
+        role: user.level,
       },
       process.env.SECRET,
-      { expiresIn: "1d" }
+      { expiresIn: process.env.EXPIRE_TIME }
     );
 
     res.status(200).json({ message: "success", token: token });
@@ -63,9 +62,10 @@ exports.signInApp = async (req, res, next) => {
       {
         userId: user._id,
         email: user.email,
+        role: user.level,
       },
       process.env.SECRET,
-      { expiresIn: "1d" }
+      { expiresIn: process.env.EXPIRE_TIME }
     );
 
     res.status(200).json({ message: "success", token: token });
