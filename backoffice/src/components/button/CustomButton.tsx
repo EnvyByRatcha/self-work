@@ -5,6 +5,7 @@ interface CustomerButtonProps {
   type?: string;
   title?: string;
   backgroundColor?: string;
+  bgHover?: string;
   color?: string;
   fullWidth?: boolean;
   icon?: ReactNode;
@@ -16,6 +17,7 @@ const CustomButton = ({
   type,
   title,
   backgroundColor,
+  bgHover,
   color,
   fullWidth,
   icon,
@@ -39,7 +41,7 @@ const CustomButton = ({
         borderRadius: "8px",
         gap: "8px",
         "&:hover": {
-          backgroundColor: "custom.customButtonHover",
+          backgroundColor: bgHover ? bgHover : "custom.customButtonHover",
         },
         textTransform: "none",
       }}
