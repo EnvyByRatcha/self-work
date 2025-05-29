@@ -15,7 +15,7 @@ interface userFormData {
 
 const optionLevel = [
   { label: "technician", value: "technician" },
-  { label: "Lead-technician", value: "Lead-technician" },
+  { label: "Lead-technician", value: "lead-technician" },
 ];
 
 const TechnicianForm = ({ onSubmit }: any) => {
