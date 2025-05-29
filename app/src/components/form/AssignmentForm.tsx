@@ -7,6 +7,7 @@ import InfoIcon from "@mui/icons-material/Info";
 
 const AssignmentForm = ({ onSubmit }: any) => {
   const [formData, setFormData] = useState<AssignmentFormData>({
+    serialNumber: "",
     title: "",
     customerCode: "",
     solution: "",
@@ -42,12 +43,22 @@ const AssignmentForm = ({ onSubmit }: any) => {
               mb={"8px"}
               color="text.primary"
             >
-              Customer details
+              Assignment details
             </Typography>
           </Stack>
+           <Grid size={{ xs: 12 }}>
+            <CustomTextField
+              label="Serial number"
+              name="serialNumber"
+              type="text"
+              required
+              value={formData.serialNumber}
+              onChange={handleChange}
+            />
+          </Grid>
           <Grid size={{ xs: 12 }}>
             <CustomTextField
-              label="Customer code"
+              label="Customer"
               name="customerCode"
               type="text"
               required
@@ -65,16 +76,7 @@ const AssignmentForm = ({ onSubmit }: any) => {
               onChange={handleChange}
             />
           </Grid>
-          <Grid size={{ xs: 12 }}>
-            <CustomTextField
-              label="Customer code"
-              name="customerCode"
-              type="text"
-              required
-              value={formData.customerCode}
-              onChange={handleChange}
-            />
-          </Grid>
+
           <Grid size={{ xs: 12 }}>
             <CustomTextField
               label="Title"
@@ -98,7 +100,6 @@ const AssignmentForm = ({ onSubmit }: any) => {
             />
           </Grid>
         </Grid>
-
         <Stack direction={"row"}>
           <CustomButton title="Proceed" type="submit" />
         </Stack>
