@@ -9,10 +9,8 @@ function ContentBox({ children, padding }: ContentBoxProps) {
   return (
     <Box
       sx={{
-        backgroundColor: "#537D5D",
         padding: padding ? "40px" : "unset",
-        maxWidth: "1280px",
-        border: "1px solid black",
+        maxWidth: "900px",
         marginX: "auto",
       }}
     >
