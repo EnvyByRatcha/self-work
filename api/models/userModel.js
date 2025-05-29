@@ -7,7 +7,7 @@ const UserSchema = new mongoose.Schema(
     lastName: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String, required: true },
-    level: { type: String, default: "employee" },
+    level: { type: String, default: "user" },
     status: {
       type: String,
       enum: GENERAL_STATUS,
