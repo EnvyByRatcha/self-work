@@ -22,6 +22,9 @@ import CustomerDetailPage from "../pages/customer/CustomerDetailPage";
 import TechnicianListPage from "../pages/technician/TechnicianListPage";
 import TechnicianCreatePage from "../pages/technician/TechnicianCreatePage";
 import TechnicianIssuedPage from "../pages/inventory/form/TechnicianIssuedPage";
+import AssignmentListPage from "../pages/assignment/AssignmentListPage";
+import UserDetailPage from "../pages/user/UserDetailPage";
+import TechnicianDetailPage from "../pages/technician/TechnicianDetailPage";
 
 const router = createBrowserRouter([
   {
@@ -53,12 +56,20 @@ const router = createBrowserRouter([
         element: <UserCreatePage />,
       },
       {
+        path: "user/:id",
+        element: <UserDetailPage />,
+      },
+      {
         path: "technician",
         element: <TechnicianListPage />,
       },
       {
         path: "technician/create",
         element: <TechnicianCreatePage />,
+      },
+      {
+        path: "technician/:id",
+        element: <TechnicianDetailPage />,
       },
       {
         path: "category",
@@ -115,6 +126,10 @@ const router = createBrowserRouter([
       {
         path: "inventory/create/technician-issued",
         element: <TechnicianIssuedPage />,
+      },
+      {
+        path: "assignment",
+        element: <AssignmentListPage />,
       },
       { path: "*", element: <NotFoundPage /> },
     ],

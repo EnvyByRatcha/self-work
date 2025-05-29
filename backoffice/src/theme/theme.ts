@@ -138,6 +138,16 @@ export const getTheme = (mode: "light" | "dark") => {
           }),
         },
       },
+      MuiCardContent: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            backgroundColor: theme.palette.custom.inputBg,
+            "&:last-child": {
+              paddingBottom: "16px",
+            },
+          }),
+        },
+      },
     },
   });
 };
