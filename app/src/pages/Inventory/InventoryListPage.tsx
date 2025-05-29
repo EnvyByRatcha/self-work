@@ -1,60 +1,39 @@
-import {
-  Box,
-  Card,
-  CardContent,
-  Divider,
-  List,
-  ListItem,
-  Typography,
-} from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import useSparePartUnit from "../../hook/sparePartUnit.hook";
+import ContentBox from "../../components/common/ContentBox";
+import CustomCard from "../../components/common/CustomCard";
 
 function InventoryListPage() {
-  const { unitWithBatch } = useSparePartUnit();
+  const { sparePartUnits } = useSparePartUnit();
+
+  const renderUnitWithBatch = sparePartUnits.map((part) => (
+    <CustomCard key={part._id}>
+      <Stack direction={"row"} justifyContent={"space-between"}>
+        <Stack>
+          <Typography variant="h6" gutterBottom>
+            {part.name}
+          </Typography>
+        </Stack>
+        <Typography variant="h6" gutterBottom>
+          {part.units.length}
+        </Typography>
+      </Stack>
+    </CustomCard>
+  ));
 
   return (
-    <Box p={4}>
-      <Typography variant="h4" gutterBottom>
-        Inventory List by Batch
-      </Typography>
-
-      {unitWithBatch.length === 0 && (
+    <ContentBox padding>
+      <Stack direction={"row"} justifyContent={"space-between"} mb={2}>
+        <Typography fontSize={"1.75rem"} fontWeight={700} color="textPrimary">
+          Assignment list
+        </Typography>
+      </Stack>
+      {sparePartUnits.length === 0 && (
         <Typography>No spare part units found.</Typography>
       )}
 
-      {unitWithBatch.map((batch) => (
-        <Card key={batch.batchId} variant="outlined" sx={{ mb: 3 }}>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Batch ID: {batch.batchId}
-            </Typography>
-            <List>
-              {batch.units.map((unit) => (
-                <div key={unit._id}>
-                  <ListItem disablePadding sx={{ py: 1, px: 2 }}>
-                    <Box sx={{ width: "100%" }}>
-                      <Typography variant="subtitle1">
-                        Serial Number: {unit.serialNumber}
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        Technician ID: {unit.technicianId}
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        Status: {unit.status}
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        Updated At: {new Date(unit.updatedAt).toLocaleString()}
-                      </Typography>
-                    </Box>
-                  </ListItem>
-                  <Divider />
-                </div>
-              ))}
-            </List>
-          </CardContent>
-        </Card>
-      ))}
-    </Box>
+      {sparePartUnits.length > 0 && renderUnitWithBatch}
+    </ContentBox>
   );
 }
 
