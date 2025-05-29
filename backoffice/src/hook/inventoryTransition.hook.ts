@@ -5,12 +5,14 @@ import type {
 } from "../interface/IInventory";
 import { useEffect, useState } from "react";
 import { unwrapOrError } from "../utils/upwrapOrError";
-import { TechnicianIssuedFormData } from "../interface/ITechnicianUssued";
 
 const useInventoryTransition = () => {
   const [inventoryTransitions, setInventoryTransitions] = useState<
     InventoryTransition[]
   >([]);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
@@ -20,16 +22,23 @@ const useInventoryTransition = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchInventoryTransition(currentPage, limit);
-  }, [currentPage]);
+    fetchInventoryTransition(currentPage, limit, searchTerm, statusFilter);
+  }, [currentPage, limit, searchTerm, statusFilter]);
 
-  const fetchInventoryTransition = async (page: number, limit: number) => {
+  const fetchInventoryTransition = async (
+    page: number,
+    limit: number,
+    search?: string,
+    status?: string
+  ) => {
     setLoading(true);
     setError(null);
     try {
       const data = await inventoryTransitionService.getAllInventoryTransitions(
         page,
-        limit
+        limit,
+        search,
+        status
       );
       const result = unwrapOrError(data);
       if (result.success) {
@@ -82,6 +91,8 @@ const useInventoryTransition = () => {
 
   return {
     inventoryTransitions,
+    setSearchTerm,
+    setStatusFilter,
     getInventoryTransitionDetailById,
     createInventoryTransition,
     createTechnicianIssued,

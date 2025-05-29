@@ -1,10 +1,16 @@
 import { useEffect, useState } from "react";
 import sparePartService from "../service/sparePartService";
-import type { SparePart, SparePartFormData, SparePartUnit } from "../interface/ISparePart";
+import type {
+  SparePart,
+  SparePartFormData,
+} from "../interface/ISparePart";
 import { unwrapOrError } from "../utils/upwrapOrError";
 
 const useSparePart = () => {
   const [spareParts, setSpareParts] = useState<SparePart[]>([]);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
@@ -14,14 +20,24 @@ const useSparePart = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchSparePart(currentPage, limit);
-  }, [currentPage]);
+    fetchSparePart(currentPage, limit, searchTerm, statusFilter);
+  }, [currentPage, searchTerm, statusFilter]);
 
-  const fetchSparePart = async (page: number, limit: number) => {
+  const fetchSparePart = async (
+    page: number,
+    limit: number,
+    search?: string,
+    status?: string
+  ) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await sparePartService.getAllSparePart(page, limit);
+      const data = await sparePartService.getAllSparePart(
+        page,
+        limit,
+        search,
+        status
+      );
       const result = unwrapOrError(data);
       setSpareParts(result.data.spareParts);
       setTotalPage(result.data.pagination.totalPage);
@@ -55,6 +71,8 @@ const useSparePart = () => {
 
   return {
     spareParts,
+    setSearchTerm,
+    setStatusFilter,
     getSparePartById,
     createSparePart,
     totalPage,

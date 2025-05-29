@@ -5,7 +5,10 @@ import { unwrapOrError } from "../utils/upwrapOrError";
 
 const useProduct = () => {
   const [products, setProducts] = useState<Product[]>([]);
-  
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
   const [limit, setLimit] = useState(5);
@@ -14,14 +17,24 @@ const useProduct = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchProduct(currentPage, limit);
-  }, [currentPage]);
+    fetchProduct(currentPage, limit, searchTerm, statusFilter);
+  }, [currentPage, limit, searchTerm, statusFilter]);
 
-  const fetchProduct = async (page: number, limit: number) => {
+  const fetchProduct = async (
+    page: number,
+    limit: number,
+    search?: string,
+    status?: string
+  ) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await productService.getAllProducts(page, limit);
+      const data = await productService.getAllProducts(
+        page,
+        limit,
+        search,
+        status
+      );
       const result = unwrapOrError(data);
       setProducts(result.data.products);
       setTotalPage(result.data.pagination.totalPage);
@@ -55,6 +68,8 @@ const useProduct = () => {
 
   return {
     products,
+    setSearchTerm,
+    setStatusFilter,
     getProductById,
     createProduct,
     totalPage,

@@ -6,6 +6,11 @@ import { unwrapOrError } from "../utils/upwrapOrError";
 
 const useTechnician = () => {
   const [technicians, setTechnicians] = useState<User[]>([]);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [levelFilter, setLevelFilter] = useState("all");
+
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
   const [limit, setLimit] = useState(5);
@@ -14,14 +19,26 @@ const useTechnician = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchTechnician(currentPage, limit);
-  }, [currentPage]);
+    fetchTechnician(currentPage, limit, searchTerm, levelFilter, statusFilter);
+  }, [currentPage, searchTerm, levelFilter, statusFilter]);
 
-  const fetchTechnician = async (page: number, limit: number) => {
+  const fetchTechnician = async (
+    page: number,
+    limit: number,
+    search?: string,
+    level?: string,
+    status?: string
+  ) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await technicianService.getAllTechnician(page, limit);
+      const data = await technicianService.getAllTechnician(
+        page,
+        limit,
+        search,
+        level,
+        status
+      );
       const result = unwrapOrError(data);
       setTechnicians(result.data.technicians);
       setTotalPage(result.data.pagination.currentPage);
@@ -38,13 +55,16 @@ const useTechnician = () => {
   };
 
   const removeUser = async (id: string) => {
-    const data = await technicianService.deActiveTechnician(id);
+    const data = await technicianService.inActiveTechnician(id);
     fetchTechnician(currentPage, totalPage);
     return data;
   };
 
   return {
     technicians,
+    setSearchTerm,
+    setStatusFilter,
+    setLevelFilter,
     currentPage,
     totalPage,
     setCurrentPage,
