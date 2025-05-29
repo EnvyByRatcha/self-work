@@ -10,6 +10,7 @@ export const customerColumn: CustomerColumn[] = [
   { key: "name", label: "Name" },
   { key: "customerCode", label: "Code" },
   { key: "email", label: "Email" },
-  { key: "tel_1", label: "tel_1" },
-  { key: "tel_2", label: "tel_2" },
+  { key: "tel_1", label: "Tel_1" },
+  { key: "tel_2", label: "Tel_2" },
+  { key: "status", label: "Status" },
 ];

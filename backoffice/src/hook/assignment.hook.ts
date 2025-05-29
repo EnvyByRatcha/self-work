@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { Customer, CustomerFormData } from "../interface/ICustomer";
-import customerService from "../service/customerService";
+import { Assignment } from "../interface/IAssignment";
 import { unwrapOrError } from "../utils/upwrapOrError";
+import assignmentService from "../service/assignmentService";
 
-const useCustomer = () => {
-  const [customers, setCustomers] = useState<Customer[]>([]);
+const useAssignment = () => {
+
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -17,10 +18,10 @@ const useCustomer = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchCustomer(currentPage, limit, searchTerm, statusFilter);
+    fetchAssignment(currentPage, limit, searchTerm, statusFilter);
   }, [currentPage, searchTerm, statusFilter]);
 
-  const fetchCustomer = async (
+  const fetchAssignment = async (
     page: number,
     limit: number,
     search?: string,
@@ -29,14 +30,14 @@ const useCustomer = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await customerService.getAllCustomer(
+      const data = await assignmentService.getAllAssignment(
         page,
         limit,
         search,
         status
       );
       const result = unwrapOrError(data);
-      setCustomers(result.data.customers);
+      setAssignments(result.data.assignments);
       setTotalPage(result.data.pagination.totalPage);
     } catch (error) {
       setError("fail to fetching products");
@@ -45,33 +46,10 @@ const useCustomer = () => {
     }
   };
 
-  const getCustomerById = async (id: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await customerService.getCustomerById(id);
-      const result = unwrapOrError(data);
-      if (result.success) {
-        return result;
-      }
-    } catch (error) {
-      setError("fail to fetching product");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const createCustomer = async (payload: CustomerFormData) => {
-    const data = await customerService.createCustomer(payload);
-    return data;
-  };
-
   return {
-    customers,
+    assignments,
     setSearchTerm,
     setStatusFilter,
-    getCustomerById,
-    createCustomer,
     totalPage,
     setCurrentPage,
     setLimit,
@@ -80,4 +58,4 @@ const useCustomer = () => {
   };
 };
 
-export default useCustomer;
+export default useAssignment;
