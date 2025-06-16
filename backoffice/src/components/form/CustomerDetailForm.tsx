@@ -15,6 +15,8 @@ interface EditForm {
   label: string;
   value: string;
   type: "text" | "email" | "password" | "number" | "tel";
+  inputField: "textField" | "selector";
+  options?: { label: string; value: string }[];
 }
 
 const CustomerDetailForm = ({
@@ -28,15 +30,19 @@ const CustomerDetailForm = ({
     label: "",
     value: "",
     type: "text",
+    inputField: "textField",
+    options: [],
   });
 
   const handleOpenEditor = (
     field: keyof Customer,
     label: string,
     value: string,
-    type: "text" | "email" | "password" | "number" | "tel"
+    type: "text" | "email" | "password" | "number" | "tel",
+    inputField: "textField" | "selector",
+    options?: { label: string; value: string }[]
   ) => {
-    setEditState({ field, label, value, type });
+    setEditState({ field, label, value, type, inputField, options });
     setModalOpen(true);
   };
 
@@ -46,6 +52,8 @@ const CustomerDetailForm = ({
       label: "",
       value: "",
       type: "text",
+      inputField: "textField",
+      options: [],
     });
   };
 
@@ -67,14 +75,20 @@ const CustomerDetailForm = ({
               mb={"20px"}
               color="text.primary"
             >
-              Personal info
+              Customer info
             </Typography>
           </Stack>
 
           <Grid size={{ xs: 12 }}>
             <CustomCard
               handleClick={() =>
-                handleOpenEditor("name", "Name", customer?.name, "text")
+                handleOpenEditor(
+                  "name",
+                  "Name",
+                  customer?.name,
+                  "text",
+                  "textField"
+                )
               }
             >
               <Stack direction={"row"} lineHeight={1.3}>
@@ -96,10 +110,38 @@ const CustomerDetailForm = ({
             <CustomCard
               handleClick={() =>
                 handleOpenEditor(
+                  "customerCode",
+                  "Customer code",
+                  customer?.customerCode,
+                  "text",
+                  "textField"
+                )
+              }
+            >
+              <Stack direction={"row"} lineHeight={1.3}>
+                <Typography
+                  minWidth={"120px"}
+                  fontSize={"0.875rem"}
+                  fontWeight={700}
+                >
+                  Code
+                </Typography>
+                <Typography fontSize={"0.875rem"} fontWeight={400}>
+                  {customer?.customerCode}
+                </Typography>
+              </Stack>
+            </CustomCard>
+          </Grid>
+
+          <Grid size={{ xs: 12 }}>
+            <CustomCard
+              handleClick={() =>
+                handleOpenEditor(
                   "address",
                   "Address",
                   customer?.address,
-                  "text"
+                  "text",
+                  "textField"
                 )
               }
             >
@@ -121,7 +163,13 @@ const CustomerDetailForm = ({
           <Grid size={{ xs: 12 }}>
             <CustomCard
               handleClick={() =>
-                handleOpenEditor("tel_1", "Phone", customer?.tel_1, "tel")
+                handleOpenEditor(
+                  "tel_1",
+                  "Phone",
+                  customer?.tel_1,
+                  "tel",
+                  "textField"
+                )
               }
             >
               <Stack direction={"row"} lineHeight={1.3}>
@@ -154,7 +202,13 @@ const CustomerDetailForm = ({
           <Grid size={{ xs: 12 }}>
             <CustomCard
               handleClick={() =>
-                handleOpenEditor("email", "Email", customer?.email, "email")
+                handleOpenEditor(
+                  "email",
+                  "Email",
+                  customer?.email,
+                  "email",
+                  "textField"
+                )
               }
             >
               <Stack direction={"row"} lineHeight={1.3}>
@@ -183,6 +237,7 @@ const CustomerDetailForm = ({
         onSubmit={handleSubmit}
         type={editState.type}
         field={editState.field}
+        inputField={editState.inputField}
       />
     </>
   );
