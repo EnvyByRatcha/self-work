@@ -2,12 +2,18 @@ import { Pagination } from "@mui/material";
 
 interface PaginateProps {
   totalPage: number;
+  currentPage: number;
   onChangePage: (page: number) => void;
 }
 
-function TablePaginate({ totalPage, onChangePage }: PaginateProps) {
+function TablePaginate({
+  totalPage,
+  currentPage,
+  onChangePage,
+}: PaginateProps) {
   return (
     <Pagination
+      page={currentPage}
       count={totalPage}
       color="primary"
       sx={{
