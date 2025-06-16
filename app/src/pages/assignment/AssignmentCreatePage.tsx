@@ -11,7 +11,7 @@ function AssignmentCreatePage() {
   const handleAssignmentFormSubmit = async (payload: AssignmentFormData) => {
     const data = await createAssignment(payload);
     if (data.success) {
-      navigate("/product");
+      navigate("/assignment");
     }
   };
 

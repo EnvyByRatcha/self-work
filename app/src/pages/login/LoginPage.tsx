@@ -25,7 +25,7 @@ function LoginPage() {
       const data = await authService.login(email, password);
       if (data.token) {
         localStorage.setItem("token", data.token);
-        navigate("/");
+        navigate("/assignment");
       }
     } catch (error) {
       console.error("Login failed:", error);

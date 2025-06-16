@@ -104,7 +104,7 @@ function AssignmentDetailForm({ onSubmit }: any) {
   ));
 
   return (
-    <>
+    <Stack gap={2}>
       {selectedSparePart.length > 0 && renderSelectedSparePart}
       <CustomButton
         handleClick={openSparePartSelectorMenu}
@@ -122,7 +122,7 @@ function AssignmentDetailForm({ onSubmit }: any) {
 
         {sparePartUnits.length > 0 && renderUnitWithBatch}
       </CustomDrawerV2>
-    </>
+    </Stack>
   );
 }
 

@@ -35,7 +35,10 @@ function AssignmentListPage() {
         </Typography>
         <LinkButton title="Create" to="/assignment/create" />
       </Stack>
-      {assignments.length > 0 && renderAssignment}
+      <Stack gap={2}>
+        {assignments.length > 0 && renderAssignment}
+      </Stack>
+      
     </ContentBox>
   );
 }
