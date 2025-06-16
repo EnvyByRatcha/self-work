@@ -87,6 +87,67 @@ exports.getAllAssignment = async (req, res, next) => {
   }
 };
 
+exports.getAssignmentById = async (req, res, next) => {
+  try {
+    let { id } = req.params;
+    if (!validateObjectId(id, res)) return;
+
+    const pipeline = [
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(id),
+        },
+      },
+      {
+        $lookup: {
+          from: "assignmentdetails",
+          localField: "_id",
+          foreignField: "assignmentId",
+          as: "details",
+        },
+      },
+      {
+        $addFields: {
+          usedSparePart: {
+            $map: {
+              input: "$details",
+              as: "detail",
+              in: {
+                sparePartId: "$$detail.sparePartId",
+                assignmentDetailId: "$$detail._id",
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          details: 0,
+        },
+      },
+    ];
+
+    const assignmentWithSpareParts = await Assignment.aggregate(pipeline);
+
+    const assignment = await Assignment.findOne({ id }).lean();
+    if (assignment) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Assignment not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Assignment retrieved successfully",
+      data: {
+        assignmentWithParts: assignmentWithSpareParts[0],
+      },
+    });
+  } catch (error) {
+    errorHandler.mapError(error, 500, "Internal Server Error", next);
+  }
+};
+
 exports.getAllAssignmentByTechnicianId = async (req, res, next) => {
   try {
     const technicianId = req.user.userId;
@@ -365,6 +426,80 @@ exports.createAssignmentDetail = async (req, res, next) => {
       data: {
         assignment,
       },
+    });
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    errorHandler.mapError(error, 500, "Internal Server Error", next);
+  }
+};
+
+exports.approveAssignment = async (req, res, next) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const { id } = req.params;
+    if (!validateObjectId(id, res)) {
+      await session.abortTransaction();
+      session.endSession();
+      return;
+    }
+
+    const existingAssignment = await Assignment.findById(id).session(session);
+    if (!existingAssignment) {
+      await session.abortTransaction();
+      session.endSession();
+      return res
+        .status(404)
+        .json({ success: false, message: "Assignment not found" });
+    }
+
+    if (existingAssignment.status === "approve") {
+      await session.abortTransaction();
+      session.endSession();
+      return res
+        .status(400)
+        .json({ success: false, message: "Already approved" });
+    }
+
+    const assignmentDetails = await AssignmentDetail.find({
+      assignmentId: id,
+    }).session(session);
+
+    for (const detail of assignmentDetails) {
+      const { sparePartId, serialNumber } = detail;
+
+      const sparePartUnit = await SparePartUnit.findOne({
+        serialNumber,
+        status: "reserved",
+      });
+
+      if (!sparePartUnit) {
+        await session.abortTransaction();
+        session.endSession();
+        return res.status(404).json({
+          success: false,
+          message: `Spare part unit with serial ${serialNumber} not found`,
+        });
+      }
+
+      sparePartUnit.status = "used";
+      await sparePartUnit.save({ session });
+    }
+
+    const updateAssignment = await Assignment.findByIdAndUpdate(
+      id,
+      { status: "approve" },
+      { new: true, session }
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+
+    res.status(200).json({
+      success: true,
+      message: "Assignment approved successfully",
+      data: { Assignment: updateAssignment },
     });
   } catch (error) {
     await session.abortTransaction();
