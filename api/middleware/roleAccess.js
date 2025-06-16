@@ -6,4 +6,5 @@ module.exports = {
   allowAll: allow("admin", "manager", "user"),
   allowAdminAndManager: allow("admin", "manager"),
   allowAdmin: allow("admin"),
+  allowTechnician: allow("technician", "lead-technician"),
 };
