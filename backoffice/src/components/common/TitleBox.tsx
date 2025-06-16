@@ -1,10 +1,11 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 
 interface TitleBoxProps {
   title: string;
+  children?: React.ReactNode;
 }
 
-function TitleBox({ title }: TitleBoxProps) {
+function TitleBox({ title, children }: TitleBoxProps) {
   return (
     <Box
       sx={{
@@ -15,9 +16,19 @@ function TitleBox({ title }: TitleBoxProps) {
         paddingY: "24px",
       }}
     >
-      <Typography fontSize={"1.75rem"} fontWeight={700} color="textPrimary">
-        {title}
-      </Typography>
+      <Stack direction={"row"} justifyContent={"space-between"}>
+        <Typography
+          fontSize={"1.75rem"}
+          fontWeight={700}
+          color="textPrimary"
+          textTransform={"capitalize"}
+        >
+          {title}
+        </Typography>
+        <Stack direction={"row"} gap={1}>
+          {children}
+        </Stack>
+      </Stack>
     </Box>
   );
 }
