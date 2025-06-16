@@ -11,6 +11,7 @@ const inventoryTransitionSchema = new mongoose.Schema(
         "returned",
         "issued",
         "technician-issued",
+        "product-tranfered",
         "consumed",
       ],
       required: true,

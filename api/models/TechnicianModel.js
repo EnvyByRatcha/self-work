@@ -7,7 +7,8 @@ const TechnicianSchema = new mongoose.Schema(
     lastName: { type: String, require: true },
     email: { type: String, require: true },
     password: { type: String, require: true },
-    contact: { type: String },
+    address: { type: String },
+    tel_1: { type: String },
     customerId: { type: mongoose.Schema.ObjectId, ref: "Customer" },
     level: { type: String, default: "technician" },
     status: {
