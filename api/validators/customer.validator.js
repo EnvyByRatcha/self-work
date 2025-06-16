@@ -6,11 +6,11 @@ const createCustomerSchema = Joi.object({
   address: Joi.string().trim().max(255).optional(),
   tel_1: Joi.string()
     .trim()
-    .pattern(/^[0-9\-+() ]{6,20}$/)
+    .pattern(/^[0-9]{10}$/)
     .required(),
   tel_2: Joi.string()
     .trim()
-    .pattern(/^[0-9\-+() ]{6,20}$/)
+    .pattern(/^[0-9]{10}$/)
     .allow(null, "")
     .optional(),
   email: Joi.string().trim().email().lowercase().optional(),
@@ -22,11 +22,11 @@ const updateCustomerSchema = Joi.object({
   address: Joi.string().trim().max(255).optional(),
   tel_1: Joi.string()
     .trim()
-    .pattern(/^[0-9\-+() ]{6,20}$/)
+    .pattern(/^[0-9]{10}$/)
     .optional(),
   tel_2: Joi.string()
     .trim()
-    .pattern(/^[0-9\-+() ]{6,20}$/)
+    .pattern(/^[0-9]{10}$/)
     .allow(null, "")
     .optional(),
   email: Joi.string().trim().email().lowercase().optional(),
