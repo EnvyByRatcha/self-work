@@ -1,26 +1,36 @@
 const express = require("express");
 const inventoryTransitionController = require("../controllers/InventorytransitionController");
 const inventoryTransitionRouter = express.Router();
-const auth = require("../middleware/auth");
+const { allowAll, allowAdminAndManager } = require("../middleware/roleAccess");
 
 inventoryTransitionRouter
   .route("/")
-  .get(inventoryTransitionController.getAllInventoryTransitions)
+  .get(allowAll, inventoryTransitionController.getAllInventoryTransitions)
   .post(
-    auth.verifyToken,
+    allowAdminAndManager,
     inventoryTransitionController.createInventoryTransition
   );
 
 inventoryTransitionRouter
   .route("/:id")
-  .get(inventoryTransitionController.getInventoryTransitionById);
+  .get(allowAll, inventoryTransitionController.getInventoryTransitionById);
 
 inventoryTransitionRouter
   .route("/approve/:id")
-  .put(inventoryTransitionController.approveTransition);
+  .put(allowAdminAndManager, inventoryTransitionController.approveTransition);
 
 inventoryTransitionRouter
   .route("/technicianIssued")
-  .post(auth.verifyToken, inventoryTransitionController.createTechnicianIssued);
+  .post(
+    allowAdminAndManager,
+    inventoryTransitionController.createTechnicianIssued
+  );
+
+inventoryTransitionRouter
+  .route("/productTranfered")
+  .post(
+    allowAdminAndManager,
+    inventoryTransitionController.createProductTranfered
+  );
 
 module.exports = inventoryTransitionRouter;

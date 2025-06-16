@@ -1,19 +1,23 @@
 const express = require("express");
 const sparePartUnitController = require("../controllers/sparePartUnitController");
-const auth = require("../middleware/auth");
+const {
+  allowAll,
+  allowAdminAndManager,
+  allowTechnician,
+} = require("../middleware/roleAccess");
 
 const sparePartUnitRouter = express.Router();
 
 sparePartUnitRouter
   .route("/")
-  .post(sparePartUnitController.createSparePartUnit);
+  .post(allowAdminAndManager, sparePartUnitController.createSparePartUnit);
 
 sparePartUnitRouter
   .route("/sparePart/:id")
-  .get(sparePartUnitController.getSparePartUnitBySparePartId);
+  .get(allowAll, sparePartUnitController.getSparePartUnitBySparePartId);
 
 sparePartUnitRouter
   .route("/technician")
-  .get(auth.verifyToken, sparePartUnitController.getSparePartByTechnicianId);
+  .get(allowTechnician, sparePartUnitController.getSparePartByTechnicianId);
 
 module.exports = sparePartUnitRouter;

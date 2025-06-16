@@ -1,16 +1,25 @@
 const express = require("express");
 const sparePartController = require("../controllers/sparePartController");
+const {
+  allowAll,
+  allowAdminAndManager,
+  allowAdmin,
+} = require("../middleware/roleAccess");
 
 const sparePartRouter = express.Router();
 
 sparePartRouter
   .route("/")
-  .get(sparePartController.getAllSpareParts)
-  .post(sparePartController.createSparePart);
+  .get(allowAll, sparePartController.getAllSpareParts)
+  .post(allowAdmin, sparePartController.createSparePart);
 sparePartRouter
   .route("/:id")
-  .get(sparePartController.getSparePartById)
-  .delete(sparePartController.deactivateSparePart)
-  .put(sparePartController.updateSparePart);
+  .get(allowAll, sparePartController.getSparePartById)
+  .delete(allowAdmin, sparePartController.deactivateSparePart)
+  .put(allowAdminAndManager, sparePartController.updateSparePart);
+
+sparePartRouter
+  .route("/sn/:serialNumber")
+  .get(allowAll, sparePartController.getSparePartByProductSerialNumber);
 
 module.exports = sparePartRouter;

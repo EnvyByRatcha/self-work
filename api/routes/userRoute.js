@@ -1,17 +1,22 @@
 const express = require("express");
+const {
+  allowAll,
+  allowAdminAndManager,
+  allowAdmin,
+} = require("../middleware/roleAccess");
 const userController = require("../controllers/userController");
-const auth = require("../middleware/auth");
 
 const userRouter = express.Router();
 
 userRouter
-  .route("/")
-  .get(auth.verifyToken, userController.getAllUsers)
-  .post(userController.createUser);
-userRouter
   .route("/:id")
-  .get(auth.verifyToken, userController.getUserById)
-  .put(auth.verifyToken, userController.updateUserById)
-  .delete(auth.verifyToken, userController.inactiveUserById);
+  .get(allowAll, userController.getUserById)
+  .put(allowAdminAndManager, userController.updateUserById)
+  .delete(allowAdmin, userController.inactiveUserById);
+
+userRouter
+  .route("/")
+  .get(allowAll, userController.getAllUsers)
+  .post(allowAdmin, userController.createUser);
 
 module.exports = userRouter;
