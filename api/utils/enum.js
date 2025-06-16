@@ -5,6 +5,8 @@ const GENERAL_STATUS = [
   "reserved",
   "used",
   "technician-issued",
+  "onsite",
+  "pending_approval",
 ];
 const TRANSITION_TYPES = ["stock-in", "stock-out"];
 const WORKFLOW_STATUS = [
@@ -13,12 +15,18 @@ const WORKFLOW_STATUS = [
   "completed",
   "cancelled",
   "pending_approval",
+  "approved",
 ];
 const PART_USAGE_STATUS = ["pending", "used", "returned"];
+
+const USER_LEVEL = ["admin", "user", "manager"];
+const TECHNICIAN_LEVEL = ["technician", "lead-technician"];
 
 module.exports = {
   GENERAL_STATUS,
   TRANSITION_TYPES,
   WORKFLOW_STATUS,
   PART_USAGE_STATUS,
+  USER_LEVEL,
+  TECHNICIAN_LEVEL,
 };
