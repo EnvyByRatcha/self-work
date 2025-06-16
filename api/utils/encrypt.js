@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 
 exports.hashPassword = async (myPlaintextPassword) => {
-  const hashPassword = await bcrypt.hash(myPlaintextPassword, 10);
+  const hashPassword = await bcrypt.hash(myPlaintextPassword, 10); 
   return hashPassword;
 };
 
