@@ -7,6 +7,7 @@ import NotFoundPage from "../pages/notFound/NotFoundPage";
 import AssignmentCreatePage from "../pages/assignment/AssignmentCreatePage";
 import AssignmentListPage from "../pages/assignment/AssignmentListPage";
 import InventoryListPage from "../pages/Inventory/InventoryListPage";
+import AssignmentDetailPage from "../pages/assignment/AssignmentDetailPage";
 
 const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
@@ -23,7 +24,8 @@ const router = createBrowserRouter([
         element: <Dashboard />,
       },
       { path: "/assignment", element: <AssignmentListPage /> },
-      { path: "/asignment/create", element: <AssignmentCreatePage /> },
+      { path: "/assignment/create", element: <AssignmentCreatePage /> },
+      { path: "/assignment/detail/:id", element: <AssignmentDetailPage /> },
       { path: "/inventory", element: <InventoryListPage /> },
       { path: "*", element: <NotFoundPage /> },
     ],

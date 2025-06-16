@@ -5,20 +5,14 @@ import {
   AssignmentDetailFormData,
   AssignmentWithParts,
 } from "../../interface/IAssignment";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import CustomCard from "../../components/common/CustomCard";
-import {
-  Box,
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
-  Typography,
-} from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import dayjs from "dayjs";
 import AssignmentDetailForm from "../../components/form/AssignmentDetailForm";
 
 function AssignmentDetailPage() {
+  const navigate = useNavigate();
   const { id } = useParams();
 
   const { getAssignmentDetailById, createAssignmentDetail } = useAssignment();
@@ -46,7 +40,9 @@ function AssignmentDetailPage() {
     payload: AssignmentDetailFormData
   ) => {
     const data = await createAssignmentDetail(id!, payload);
-    console.log(data);
+    if (data.success) {
+      navigate("/assignment");
+    }
   };
 
   const renderAssignmentDetail = assignmentWithParts && (
@@ -72,37 +68,24 @@ function AssignmentDetailPage() {
           {dayjs(assignmentWithParts.createdAt).format("DD/MM/YYYY HH:mm")}
         </Typography>
       </Box>
-
-      <Divider sx={{ my: 2 }} />
-
-      <Typography variant="subtitle1">Used Spare Parts</Typography>
-      {assignmentWithParts.usedSparePart?.length > 0 ? (
-        <List dense>
-          {assignmentWithParts.usedSparePart.map((part, index) => (
-            <ListItem key={index}>
-              <ListItemText
-                primary={`${part.sparePartId || "ไม่ระบุชื่อ"} - จำนวน: ${0}`}
-              />
-            </ListItem>
-          ))}
-        </List>
-      ) : (
-        <Typography>ไม่มีการใช้อะไหล่</Typography>
-      )}
     </CustomCard>
   );
 
   return (
     <ContentBox padding>
-      {loading ? (
-        <Typography>กำลังโหลดข้อมูล...</Typography>
-      ) : (
-        renderAssignmentDetail || <Typography>ไม่พบข้อมูลงานนี้</Typography>
-      )}
+      <Box>
+        {loading ? (
+          <Typography>กำลังโหลดข้อมูล...</Typography>
+        ) : (
+          renderAssignmentDetail || <Typography>ไม่พบข้อมูลงานนี้</Typography>
+        )}
+      </Box>
 
-      {assignmentWithParts && assignmentWithParts.status == "pending" && (
-        <AssignmentDetailForm onSubmit={handleCreateAssignmentDetail} />
-      )}
+      <Box mt={2}>
+        {assignmentWithParts && assignmentWithParts.status == "pending" && (
+          <AssignmentDetailForm onSubmit={handleCreateAssignmentDetail} />
+        )}
+      </Box>
     </ContentBox>
   );
 }
