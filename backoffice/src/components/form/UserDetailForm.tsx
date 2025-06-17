@@ -15,6 +15,8 @@ interface EditForm {
   label: string;
   value: string;
   type: "text" | "email" | "password" | "number" | "tel";
+  inputField: "textField" | "selector";
+  options?: { label: string; value: string }[];
 }
 
 const UserDetailForm = ({ user, onSubmit }: UserDetailFormProps) => {
@@ -25,15 +27,19 @@ const UserDetailForm = ({ user, onSubmit }: UserDetailFormProps) => {
     label: "",
     value: "",
     type: "text",
+    inputField: "textField",
+    options: [],
   });
 
   const handleOpenEditor = (
     field: keyof User,
     label: string,
     value: string,
-    type: "text" | "email" | "password" | "number" | "tel"
+    type: "text" | "email" | "password" | "number" | "tel",
+    inputField: "textField" | "selector",
+    options?: { label: string; value: string }[]
   ) => {
-    setEditState({ field, label, value, type });
+    setEditState({ field, label, value, type, inputField, options });
     setModalOpen(true);
   };
 
@@ -43,6 +49,8 @@ const UserDetailForm = ({ user, onSubmit }: UserDetailFormProps) => {
       label: "",
       value: "",
       type: "text",
+      inputField: "textField",
+      options: [],
     });
   };
 
@@ -77,7 +85,8 @@ const UserDetailForm = ({ user, onSubmit }: UserDetailFormProps) => {
                   "firstName",
                   "First name",
                   user?.firstName,
-                  "text"
+                  "text",
+                  "textField"
                 )
               }
             >
@@ -111,7 +120,13 @@ const UserDetailForm = ({ user, onSubmit }: UserDetailFormProps) => {
           <Grid size={{ xs: 12 }}>
             <CustomCard
               handleClick={() =>
-                handleOpenEditor("address", "Address", user?.address, "text")
+                handleOpenEditor(
+                  "address",
+                  "Address",
+                  user?.address,
+                  "text",
+                  "textField"
+                )
               }
             >
               <Stack direction={"row"} lineHeight={1.3}>
@@ -132,7 +147,13 @@ const UserDetailForm = ({ user, onSubmit }: UserDetailFormProps) => {
           <Grid size={{ xs: 12 }}>
             <CustomCard
               handleClick={() =>
-                handleOpenEditor("tel_1", "Phone", user?.tel_1, "tel")
+                handleOpenEditor(
+                  "tel_1",
+                  "Phone",
+                  user?.tel_1,
+                  "tel",
+                  "textField"
+                )
               }
             >
               <Stack direction={"row"} lineHeight={1.3}>
@@ -153,7 +174,13 @@ const UserDetailForm = ({ user, onSubmit }: UserDetailFormProps) => {
           <Grid size={{ xs: 12 }}>
             <CustomCard
               handleClick={() =>
-                handleOpenEditor("email", "Email", user?.email, "email")
+                handleOpenEditor(
+                  "email",
+                  "Email",
+                  user?.email,
+                  "email",
+                  "textField"
+                )
               }
             >
               <Stack direction={"row"} lineHeight={1.3}>
@@ -199,6 +226,7 @@ const UserDetailForm = ({ user, onSubmit }: UserDetailFormProps) => {
         onSubmit={handleSubmit}
         type={editState.type}
         field={editState.field}
+        inputField={editState.inputField}
       />
     </>
   );
