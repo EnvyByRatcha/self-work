@@ -7,8 +7,6 @@ import CustomTable from "../../components/table/CustomTable";
 import { userColumn } from "../../constants/userColumn";
 import SearchBox from "../../components/common/SearchBox";
 import FilterDropDown from "../../components/common/FilterDropDown";
-import { useEffect, useState } from "react";
-import { useDebounce } from "../../hook/useDebounced.hook";
 import TablePaginate from "../../components/common/TablePaginate";
 
 const statusOptions = [
@@ -27,27 +25,14 @@ const levelOptions = [
 const UserListPage = () => {
   const {
     users,
+    searchTerm,
     setSearchTerm,
     setLevelFilter,
     setStatusFilter,
     totalPage,
+    currentPage,
     setCurrentPage,
   } = useUser();
-
-  const [searchTermInput, setSearchTermInput] = useState("");
-  const debouncedSearchTerm = useDebounce(searchTermInput, 800);
-
-  useEffect(() => {
-    setSearchTerm(debouncedSearchTerm);
-  }, [debouncedSearchTerm]);
-
-  const handleClearSearchTerm = () => {
-    setSearchTermInput("");
-  };
-
-  const handleChangeSearchTerm = (value: string) => {
-    setSearchTermInput(value);
-  };
 
   return (
     <>
@@ -59,9 +44,9 @@ const UserListPage = () => {
             <SearchBox
               label="user"
               type="text"
-              searchTerm={searchTermInput}
-              onSearchChange={handleChangeSearchTerm}
-              onClear={handleClearSearchTerm}
+              searchTerm={searchTerm}
+              onSearchChange={(value) => setSearchTerm(value)}
+              onClear={() => setSearchTerm("")}
             />
           </Stack>
 
@@ -82,6 +67,7 @@ const UserListPage = () => {
 
         <CustomTable data={users} columns={userColumn} isLinkButton />
         <TablePaginate
+          currentPage={currentPage}
           totalPage={totalPage}
           onChangePage={(page) => setCurrentPage(page)}
         />

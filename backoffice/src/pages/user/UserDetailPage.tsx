@@ -3,7 +3,7 @@ import ContentBox from "../../components/common/ContentBox";
 import TitleBox from "../../components/common/TitleBox";
 import useUser from "../../hook/user.hook";
 import { useEffect, useState } from "react";
-import { User } from "../../interface/IUser";
+import { User, UserFormDataForUpdate } from "../../interface/IUser";
 import UserDetailForm from "../../components/form/UserDetailForm";
 import { Notyf } from "notyf";
 
@@ -29,7 +29,7 @@ const UserDetailPage = () => {
     }
   };
 
-  const updateUser = async (payload: any) => {
+  const updateUser = async (payload: UserFormDataForUpdate) => {
     if (id) {
       const data = await updateUserById(id, payload);
       if (data.success) {
