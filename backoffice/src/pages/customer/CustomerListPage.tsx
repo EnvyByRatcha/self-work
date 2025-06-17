@@ -3,10 +3,8 @@ import ContentBox from "../../components/common/ContentBox";
 import LinkButton from "../../components/common/LinkButton";
 import CustomTable from "../../components/table/CustomTable";
 import { customerColumn } from "../../constants/customerColumn";
-import useCustomer from "../../hook/customer.hook";
+import useCustomer from "../../hook/customerHook/customer.hook";
 import { Stack } from "@mui/material";
-import { useEffect, useState } from "react";
-import { useDebounce } from "../../hook/useDebounced.hook";
 import SearchBox from "../../components/common/SearchBox";
 import FilterDropDown from "../../components/common/FilterDropDown";
 import TablePaginate from "../../components/common/TablePaginate";
@@ -20,26 +18,13 @@ const statusOptions = [
 const CustomerListPage = () => {
   const {
     customers,
+    searchTerm,
     setSearchTerm,
     setStatusFilter,
     totalPage,
+    currentPage,
     setCurrentPage,
   } = useCustomer();
-
-  const [searchTermInput, setSearchTermInput] = useState("");
-  const debouncedSearchTerm = useDebounce(searchTermInput, 800);
-
-  useEffect(() => {
-    setSearchTerm(debouncedSearchTerm);
-  }, [debouncedSearchTerm]);
-
-  const handleClearSearchTerm = () => {
-    setSearchTermInput("");
-  };
-
-  const handleChangeSearchTerm = (value: string) => {
-    setSearchTermInput(value);
-  };
 
   return (
     <>
@@ -51,9 +36,9 @@ const CustomerListPage = () => {
             <SearchBox
               label="customer"
               type="text"
-              searchTerm={searchTermInput}
-              onSearchChange={handleChangeSearchTerm}
-              onClear={handleClearSearchTerm}
+              searchTerm={searchTerm}
+              onSearchChange={(value) => setSearchTerm(value)}
+              onClear={() => setSearchTerm("")}
             />
           </Stack>
 
@@ -69,6 +54,7 @@ const CustomerListPage = () => {
         <CustomTable data={customers} columns={customerColumn} isLinkButton />
 
         <TablePaginate
+          currentPage={currentPage}
           totalPage={totalPage}
           onChangePage={(page) => setCurrentPage(page)}
         />
