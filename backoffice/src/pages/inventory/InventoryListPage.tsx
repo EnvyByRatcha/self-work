@@ -23,6 +23,7 @@ const InventoryListPage = () => {
     setSearchTerm,
     setStatusFilter,
     totalPage,
+    currentPage,
     setCurrentPage,
   } = useInventoryTransition();
 
@@ -52,6 +53,10 @@ const InventoryListPage = () => {
               title="Technician issued"
               to="/inventory/create/technician-issued"
             />
+            <LinkButton
+              title="Product mangement"
+              to="/inventory/create/product-management"
+            />
 
             <SearchBox
               label="user"
@@ -75,6 +80,7 @@ const InventoryListPage = () => {
           isLinkButton
         />
         <TablePaginate
+          currentPage={currentPage}
           totalPage={totalPage}
           onChangePage={(page) => setCurrentPage(page)}
         />
