@@ -84,6 +84,13 @@ const useInventoryTransition = () => {
     return data;
   };
 
+  const createProductTranfered = async (payload: TransitionFormData) => {
+    const data = await inventoryTransitionService.createProductTranfered(
+      payload
+    );
+    return data;
+  };
+
   const approveTransition = async (id: string) => {
     const data = await inventoryTransitionService.approveTransition(id);
     return data;
@@ -96,8 +103,10 @@ const useInventoryTransition = () => {
     getInventoryTransitionDetailById,
     createInventoryTransition,
     createTechnicianIssued,
+    createProductTranfered,
     approveTransition,
     totalPage,
+    currentPage,
     setCurrentPage,
     setLimit,
     loading,
