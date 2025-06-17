@@ -4,7 +4,6 @@ import { unwrapOrError } from "../utils/upwrapOrError";
 import assignmentService from "../service/assignmentService";
 
 const useAssignment = () => {
-
   const [assignments, setAssignments] = useState<Assignment[]>([]);
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -46,11 +45,35 @@ const useAssignment = () => {
     }
   };
 
+  const getAssignmentDetailById = async (id: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await assignmentService.getAssignmentById(id);
+      const result = unwrapOrError(data);
+      if (result.success) {
+        return result;
+      }
+    } catch (error) {
+      setError("fail to fetching transition");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const approveAssignment = async (id: string) => {
+    const data = await assignmentService.approveAssignment(id);
+    return data;
+  };
+
   return {
     assignments,
+    getAssignmentDetailById,
+    approveAssignment,
     setSearchTerm,
     setStatusFilter,
     totalPage,
+    currentPage,
     setCurrentPage,
     setLimit,
     loading,
