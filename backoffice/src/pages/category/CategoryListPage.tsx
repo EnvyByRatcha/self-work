@@ -3,7 +3,7 @@ import ContentBox from "../../components/common/ContentBox";
 import TitleBox from "../../components/common/TitleBox";
 import CustomTextField from "../../components/input/CustomTextField";
 import CustomModal from "../../components/Modal/CustomModal";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import useCategory from "../../hook/category.hook";
 import CustomTable from "../../components/table/CustomTable";
 import { categoryColumn } from "../../constants/categoryColumn";
@@ -11,7 +11,7 @@ import CustomButton from "../../components/button/CustomButton";
 import type { Category, CategoryFormData } from "../../interface/ICategory";
 import { Notyf } from "notyf";
 import SearchBox from "../../components/common/SearchBox";
-import { useDebounce } from "../../hook/useDebounced.hook";
+
 import FilterDropDown from "../../components/common/FilterDropDown";
 import CustomModalV2 from "../../components/Modal/CustomModalV2";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
@@ -28,15 +28,15 @@ const statusOptions = [
 const CategoryListPage = () => {
   const {
     categories,
+    searchTerm,
     setSearchTerm,
     setStatusFilter,
     createCategory,
     updateCategoryById,
     inactiveCategory,
     totalPage,
+    currentPage,
     setCurrentPage,
-    loading,
-    error,
   } = useCategory();
 
   const [formData, setFormData] = useState<CategoryFormData>({
@@ -53,21 +53,6 @@ const CategoryListPage = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const [searchTermInput, setSearchTermInput] = useState("");
-  const debouncedSearchTerm = useDebounce(searchTermInput, 800);
-
-  useEffect(() => {
-    setSearchTerm(debouncedSearchTerm);
-  }, [debouncedSearchTerm]);
-
-  const handleClearSearchTerm = () => {
-    setSearchTermInput("");
-  };
-
-  const handleChangeSearchTerm = (value: string) => {
-    setSearchTermInput(value);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -82,7 +67,7 @@ const CategoryListPage = () => {
     notyf.error(data.message);
   };
 
-  const handleEdit = (item: Category) => {
+  const selectedCategory = (item: Category) => {
     setSelectedCategory(item);
     setEditModalOpen(true);
   };
@@ -163,11 +148,11 @@ const CategoryListPage = () => {
               </form>
             </CustomModal>
             <SearchBox
-              label="product"
+              label="category"
               type="text"
-              searchTerm={searchTermInput}
-              onSearchChange={handleChangeSearchTerm}
-              onClear={handleClearSearchTerm}
+              searchTerm={searchTerm}
+              onSearchChange={(value) => setSearchTerm(value)}
+              onClear={() => setSearchTerm("")}
             />
           </Stack>
 
@@ -181,10 +166,11 @@ const CategoryListPage = () => {
         <CustomTable
           data={categories}
           columns={categoryColumn}
-          onEdit={handleEdit}
+          onEdit={selectedCategory}
           onRemove={handleInactive}
         />
         <TablePaginate
+          currentPage={currentPage}
           totalPage={totalPage}
           onChangePage={(page) => setCurrentPage(page)}
         />
