@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Notyf } from "notyf";
 import { useParams } from "react-router-dom";
 import useTechnician from "../../hook/technician.hook";
-import { User } from "../../interface/IUser";
+import { User, UserFormDataForUpdate } from "../../interface/IUser";
 import TitleBox from "../../components/common/TitleBox";
 import ContentBox from "../../components/common/ContentBox";
 import UserDetailForm from "../../components/form/UserDetailForm";
@@ -29,7 +29,7 @@ const TechnicianDetailPage = () => {
     }
   };
 
-  const updateTechnician = async (payload: any) => {
+  const updateTechnician = async (payload: UserFormDataForUpdate) => {
     if (id) {
       const data = await updateTechnicianById(id, payload);
       if (data.success) {
