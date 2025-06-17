@@ -1,5 +1,6 @@
 import {
   Button,
+  Chip,
   Paper,
   Table,
   TableBody,
@@ -62,25 +63,35 @@ function CustomTable<T extends { _id: string }>({
             displayValue = dayjs(value as string).format("DD/MM/YYYY");
           }
 
+          if (col.key === "status") {
+            return (
+              <TableCell key={col.key as string}>
+                <Chip label={value as string} />
+              </TableCell>
+            );
+          }
+
           return <TableCell key={col.key as string}>{displayValue}</TableCell>;
         })}
-        <TableCell align="center" sx={{ width: "240px" }}>
-          {isLinkButton && (
-            <Button href={`${location.pathname}/${item._id}`}>
-              <ArticleOutlinedIcon />
-            </Button>
-          )}
-          {onEdit && (
-            <Button onClick={() => onEdit?.(item)}>
-              <BorderColorOutlinedIcon />
-            </Button>
-          )}
-          {onRemove && (
-            <Button onClick={() => onRemove(item._id)}>
-              <DoDisturbAltOutlinedIcon color="error" />
-            </Button>
-          )}
-        </TableCell>
+        {(onRemove || isLinkButton || onEdit) && (
+          <TableCell align="center" sx={{ width: "240px" }}>
+            {isLinkButton && (
+              <Button href={`${location.pathname}/${item._id}`}>
+                <ArticleOutlinedIcon />
+              </Button>
+            )}
+            {onEdit && (
+              <Button onClick={() => onEdit?.(item)}>
+                <BorderColorOutlinedIcon />
+              </Button>
+            )}
+            {onRemove && (
+              <Button onClick={() => onRemove(item._id)}>
+                <DoDisturbAltOutlinedIcon color="error" />
+              </Button>
+            )}
+          </TableCell>
+        )}
       </TableRow>
     );
   });
@@ -96,7 +107,9 @@ function CustomTable<T extends { _id: string }>({
           <TableHead sx={{ bgcolor: "table.color" }}>
             <TableRow>
               {renderColumns}
-              <TableCell align="center">Option</TableCell>
+              {(onRemove || isLinkButton || onEdit) && (
+                <TableCell align="center">Option</TableCell>
+              )}
             </TableRow>
           </TableHead>
           <TableBody>{renderData}</TableBody>
