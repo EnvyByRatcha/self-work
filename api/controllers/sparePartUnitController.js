@@ -12,6 +12,7 @@ const {
   createSparePartUnitSchema,
   updateSparePartUnitSchema,
 } = require("../validators/sparePart.validator");
+const { GENERAL_STATUS } = require("../utils/enum");
 
 exports.getAllSparePartUnit = async (req, res, next) => {
   try {
@@ -46,12 +47,12 @@ exports.getAllSparePartUnit = async (req, res, next) => {
     }
 
     const totalSparePartUnits = await SparePartUnit.countDocuments(filter);
-    const totalPages = Math.ceil(totalSparePartUnits / limit);
-    if (page > totalPages && totalPages !== 0) {
+    const totalPage = Math.ceil(totalSparePartUnits / limit);
+    if (page > totalPage && totalPage !== 0) {
       return res.status(400).json({
         success: false,
         message: `Page number exceeds total pages`,
-        errors: { page: `Max available page is ${totalPages}` },
+        errors: { page: `Max available page is ${totalPage}` },
       });
     }
     const skip = (page - 1) * limit;
@@ -73,7 +74,7 @@ exports.getAllSparePartUnit = async (req, res, next) => {
       data: {
         sparePartUnits,
         pagination: {
-          totalPages,
+          totalPage,
           currentPage: page,
           totalItems: totalSparePartUnits,
         },
@@ -115,18 +116,16 @@ exports.getSparePartUnitBySparePartId = async (req, res, next) => {
     }
     if (status && status !== "all" && GENERAL_STATUS.includes(status)) {
       filter.status = status;
-    } else {
-      filter.status = "active";
     }
 
     const totalSparePartUnits = await SparePartUnit.countDocuments(filter);
-    const totalPages = Math.ceil(totalSparePartUnits / limit);
-    if (page > totalPages && totalPages !== 0) {
+    const totalPage = Math.ceil(totalSparePartUnits / limit);
+    if (page > totalPage && totalPage !== 0) {
       return res.status(400).json({
         success: false,
-        message: `Page number exceeds total pages (${totalPages})`,
+        message: `Page number exceeds total pages (${totalPage})`,
         errors: {
-          page: `Max available page is ${totalPages}`,
+          page: `Max available page is ${totalPage}`,
         },
       });
     }
@@ -138,6 +137,10 @@ exports.getSparePartUnitBySparePartId = async (req, res, next) => {
     }
 
     const sparePartUnits = await SparePartUnit.find(filter)
+      .populate({
+        path: "technicianId",
+        select: "email",
+      })
       .sort(sortOption)
       .skip(skip)
       .limit(limit)
@@ -149,7 +152,7 @@ exports.getSparePartUnitBySparePartId = async (req, res, next) => {
       data: {
         sparePartUnits,
         pagination: {
-          totalPages,
+          totalPage,
           currentPage: page,
           totalItems: totalSparePartUnits,
         },

@@ -10,8 +10,6 @@ const {
   updateTechnicianSchema,
 } = require("../validators/user.validator");
 
-
-
 exports.getAllTechnicians = async (req, res, next) => {
   try {
     let {
@@ -47,13 +45,13 @@ exports.getAllTechnicians = async (req, res, next) => {
     }
 
     const totalTechnician = await Technician.countDocuments(filter);
-    const totalPages = Math.ceil(totalTechnician / limit);
+    const totalPage = Math.ceil(totalTechnician / limit);
 
-    if (page > totalPages && totalPages !== 0) {
+    if (page > totalPage && totalPage !== 0) {
       return res.status(400).json({
         success: false,
         message: `Page number exceeds total pages`,
-        errors: { page: `Max available page is ${totalPages}` },
+        errors: { page: `Max available page is ${totalPage}` },
       });
     }
 
@@ -77,7 +75,7 @@ exports.getAllTechnicians = async (req, res, next) => {
       data: {
         technicians,
         pagination: {
-          totalPages,
+          totalPage,
           currentPage: page,
           totalItems: totalTechnician,
         },
@@ -107,6 +105,84 @@ exports.getTechnicianById = async (req, res, next) => {
       success: true,
       message: "Technician retrieved successfully",
       data: { technician },
+    });
+  } catch (error) {
+    errorHandler.mapError(error, 500, "Internal Server Error", next);
+  }
+};
+
+exports.getTechnicianByCustomerId = async (req, res, next) => {
+  try {
+    const { id: customerId } = req.params;
+    if (!validateObjectId(customerId, res)) return;
+
+    let {
+      page = 1,
+      limit = 10,
+      search = "",
+      sort = "updatedAt",
+      order = "desc",
+      level,
+      status,
+    } = req.query;
+    page = parseInt(page);
+    limit = parseInt(limit);
+
+    const paginationErrors = validatePagination(page, limit);
+    if (paginationErrors) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid pagination parameters`,
+        errors: paginationErrors,
+      });
+    }
+
+    const filter = { customerId };
+    if (search.trim()) {
+      filter.firstName = { $regex: search.trim(), $options: "i" };
+    }
+    if (level && level !== "all") {
+      filter.level = level;
+    }
+    if (status && status !== "all" && GENERAL_STATUS.includes(status)) {
+      filter.status = status;
+    }
+
+    const totalTechnician = await Technician.countDocuments(filter);
+    const totalPage = Math.ceil(totalTechnician / limit);
+    if (page > totalPage && totalPage !== 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Page number exceeds total pages`,
+        errors: { page: `Max available page is ${totalPage}` },
+      });
+    }
+
+    const skip = (page - 1) * limit;
+    const sortableFields = ["updatedAt"];
+    const sortOption = {};
+    if (sortableFields.includes(sort)) {
+      sortOption[sort] = order === "desc" ? -1 : 1;
+    }
+
+    const technicians = await Technician.find(filter)
+      .select("-password -__v")
+      .sort(sortOption)
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    res.status(200).json({
+      success: true,
+      message: "Technicians retrieved successfully",
+      data: {
+        technicians,
+        pagination: {
+          totalPage,
+          currentPage: page,
+          totalItems: totalTechnician,
+        },
+      },
     });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
@@ -184,8 +260,14 @@ exports.updateTechnicianById = async (req, res, next) => {
       });
     }
 
-    const allowedFields = ["firstName", "lastName", "status"];
-    const payload = allowedFields.reduce((acc, field) => {
+    const allowedUpdates = [
+      "firstName",
+      "lastName",
+      "email",
+      "address",
+      "tel_1",
+    ];
+    const payload = allowedUpdates.reduce((acc, field) => {
       if (value[field] !== undefined) acc[field] = value[field];
       return acc;
     }, {});

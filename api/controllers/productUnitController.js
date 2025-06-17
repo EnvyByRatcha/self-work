@@ -12,6 +12,7 @@ const {
   createProductUnitSchema,
   updateProductUnitSchema,
 } = require("../validators/product.validator");
+const { GENERAL_STATUS } = require("../utils/enum");
 
 exports.getProductUnitByProductId = async (req, res, next) => {
   try {
@@ -44,17 +45,15 @@ exports.getProductUnitByProductId = async (req, res, next) => {
     }
     if (status && status !== "all" && GENERAL_STATUS.includes(status)) {
       filter.status = status;
-    } else {
-      filter.status = "active";
     }
 
     const totalProductUnits = await ProductUnit.countDocuments(filter);
-    const totalPages = Math.ceil(totalProductUnits / limit);
-    if (page > totalPages && totalPages !== 0) {
+    const totalPage = Math.ceil(totalProductUnits / limit);
+    if (page > totalPage && totalPage !== 0) {
       return res.status(400).json({
         success: false,
         message: `Page number exceeds total pages`,
-        errors: { page: `Max available page is ${totalPages}` },
+        errors: { page: `Max available page is ${totalPage}` },
       });
     }
     const skip = (page - 1) * limit;
@@ -65,6 +64,10 @@ exports.getProductUnitByProductId = async (req, res, next) => {
     }
 
     const productUnits = await ProductUnit.find(filter)
+      .populate({
+        path: "customerId",
+        select: "name",
+      })
       .sort(sortOption)
       .skip(skip)
       .limit(limit)
@@ -76,8 +79,8 @@ exports.getProductUnitByProductId = async (req, res, next) => {
       data: {
         productUnits,
         pagination: {
-          totalPages,
-          currentPage: page,
+          totalPage,
+          currentPage: page + 1,
           totalItems: totalProductUnits,
         },
       },
@@ -117,15 +120,18 @@ exports.getProductUnitByCustomerId = async (req, res, next) => {
     if (search) {
       filter.serialNumber = { $regex: search, $options: "i" };
     }
+    if (status && status !== "all" && GENERAL_STATUS.includes(status)) {
+      filter.status = status;
+    }
 
     const totalProductUnits = await ProductUnit.countDocuments(filter);
-    const totalPages = Math.ceil(totalProductUnits / limit);
+    const totalPage = Math.ceil(totalProductUnits / limit);
 
-    if (page > totalPages && totalPages !== 0) {
+    if (page > totalPage && totalPage !== 0) {
       return res.status(400).json({
         success: false,
         message: `Page number exceeds total pages`,
-        errors: { page: `Max available page is ${totalPages}` },
+        errors: { page: `Max available page is ${totalPage}` },
       });
     }
     const skip = (page - 1) * limit;
@@ -147,7 +153,7 @@ exports.getProductUnitByCustomerId = async (req, res, next) => {
       data: {
         productUnits,
         pagination: {
-          totalPages,
+          totalPage,
           currentPage: page,
           totalItems: totalProductUnits,
         },

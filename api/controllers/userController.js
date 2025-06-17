@@ -11,7 +11,6 @@ const {
   updateUserSchema,
 } = require("../validators/user.validator");
 
-
 exports.getAllUsers = async (req, res, next) => {
   try {
     let {
@@ -47,13 +46,13 @@ exports.getAllUsers = async (req, res, next) => {
     }
 
     const totalUser = await User.countDocuments(filter);
-    const totalPages = Math.ceil(totalUser / limit);
+    const totalPage = Math.ceil(totalUser / limit);
 
-    if (page > totalPages && totalPages !== 0) {
+    if (page > totalPage && totalPage !== 0) {
       return res.status(400).json({
         success: false,
         message: `Page number exceeds total pages`,
-        errors: { page: `Max available page is ${totalPages}` },
+        errors: { page: `Max available page is ${totalPage}` },
       });
     }
 
@@ -77,7 +76,7 @@ exports.getAllUsers = async (req, res, next) => {
       data: {
         users,
         pagination: {
-          totalPages,
+          totalPage,
           currentPage: page,
           totalItems: totalUser,
         },
@@ -167,7 +166,13 @@ exports.updateUserById = async (req, res, next) => {
       });
     }
 
-    const allowedUpdates = ["firstName", "lastName", "status"];
+    const allowedUpdates = [
+      "firstName",
+      "lastName",
+      "email",
+      "address",
+      "tel_1",
+    ];
     const updates = allowedUpdates.reduce((acc, field) => {
       if (value[field] !== undefined) acc[field] = value[field];
       return acc;
@@ -206,6 +211,7 @@ exports.inactiveUserById = async (req, res, next) => {
       { status: "inactive" },
       {
         new: true,
+        runValidators: true,
       }
     );
     if (!user) {

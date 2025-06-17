@@ -43,13 +43,13 @@ exports.getAllCustomers = async (req, res, next) => {
     }
 
     const totalCustomers = await Customer.countDocuments(filter);
-    const totalPages = Math.ceil(totalCustomers / limit);
+    const totalPage = Math.ceil(totalCustomers / limit);
 
-    if (page > totalPages && totalPages !== 0) {
+    if (page > totalPage && totalPage !== 0) {
       return res.status(400).json({
         success: false,
         message: `Page number exceeds total pages`,
-        errors: { page: `Max available page is ${totalPages}` },
+        errors: { page: `Max available page is ${totalPage}` },
       });
     }
 
@@ -71,7 +71,7 @@ exports.getAllCustomers = async (req, res, next) => {
       data: {
         customers,
         pagination: {
-          totalPages,
+          totalPage,
           currentPage: page,
           totalItems: totalCustomers,
         },
@@ -116,7 +116,7 @@ exports.createCustomer = async (req, res, next) => {
       });
     }
 
-    const name = value.name.trim().toUpperCase();
+    const name = value.name.trim();
 
     const existingCustomer = await Customer.findOne({
       name,
