@@ -11,6 +11,20 @@ const {
   updateSparePartSchema,
 } = require("../validators/sparePart.validator");
 
+const transformSparePart = (sparePart) => {
+  return {
+    _id: sparePart._id,
+    name: sparePart.name,
+    qty: sparePart.qty,
+    photoUrl: sparePart.photoUrl,
+    status: sparePart.status,
+    createdAt: sparePart.createdAt,
+    updatedAt: sparePart.updatedAt,
+    productId: sparePart.productId,
+    productName: sparePart.productId?.name,
+  };
+};
+
 exports.getAllSpareParts = async (req, res, next) => {
   try {
     let {
@@ -98,10 +112,12 @@ exports.getSparePartById = async (req, res, next) => {
       });
     }
 
+    const tranformed = transformSparePart(sparePart);
+
     res.status(200).json({
       success: true,
       message: "SparePart retrieved successfully",
-      data: { sparePart },
+      data: { sparePart: tranformed },
     });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);

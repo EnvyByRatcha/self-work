@@ -11,6 +11,20 @@ const {
   updateProductSchema,
 } = require("../validators/product.validator");
 
+const transformProduct = (product) => {
+  return {
+    _id: product._id,
+    name: product.name,
+    qty: product.qty,
+    photoUrl: product.photoUrl,
+    status: product.status,
+    createdAt: product.createdAt,
+    updatedAt: product.updatedAt,
+    categoryId: product.categoryId,
+    categoryName: product.categoryId?.name,
+  };
+};
+
 exports.getAllProduct = async (req, res, next) => {
   try {
     let {
@@ -42,13 +56,13 @@ exports.getAllProduct = async (req, res, next) => {
     }
 
     const totalProducts = await Product.countDocuments(filter);
-    const totalPages = Math.ceil(totalProducts / limit);
+    const totalPage = Math.ceil(totalProducts / limit);
 
-    if (page > totalPages && totalPages !== 0) {
+    if (page > totalPage && totalPage !== 0) {
       return res.status(400).json({
         success: false,
         message: `Page number exceeds total pages`,
-        errors: { page: `Max available page is ${totalPages}` },
+        errors: { page: `Max available page is ${totalPage}` },
       });
     }
     const skip = (page - 1) * limit;
@@ -65,13 +79,15 @@ exports.getAllProduct = async (req, res, next) => {
       .populate("categoryId", "name")
       .lean();
 
+    const tranformed = products.map(transformProduct);
+
     res.status(200).json({
       success: true,
       message: "Products retrieved successfully",
       data: {
-        products,
+        products: tranformed,
         pagination: {
-          totalPages,
+          totalPage,
           currentPage: page,
           totalItems: totalProducts,
         },
@@ -97,10 +113,12 @@ exports.getProductById = async (req, res, next) => {
         .json({ success: false, message: "Product not found" });
     }
 
+    const tranformed = transformProduct(product);
+
     res.status(200).json({
       success: true,
       message: "Product retrieved successfully",
-      data: { product },
+      data: { product: tranformed },
     });
   } catch (error) {
     errorHandler.mapError(error, 500, "Internal Server Error", next);
