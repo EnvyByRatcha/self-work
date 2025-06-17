@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import ContentBox from "../../components/common/ContentBox";
 import TitleBox from "../../components/common/TitleBox";
 import CustomerForm from "../../components/form/CustomerForm";
-import useCustomer from "../../hook/customer.hook";
+import useCustomer from "../../hook/customerHook/customer.hook";
 import type { CustomerFormData } from "../../interface/ICustomer";
 import { Notyf } from "notyf";
 
