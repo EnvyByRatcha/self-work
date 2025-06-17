@@ -1,7 +1,7 @@
 import TitleBox from "../../components/common/TitleBox";
 import ContentBox from "../../components/common/ContentBox";
 import { useNavigate } from "react-router-dom";
-import useSparePart from "../../hook/sparePart.hook";
+import useSparePart from "../../hook/sparePartHook/sparePart.hook";
 import type { SparePartFormData } from "../../interface/ISparePart";
 import SparePartForm from "../../components/form/SparePartForm";
 

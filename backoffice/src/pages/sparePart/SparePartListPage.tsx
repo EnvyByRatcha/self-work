@@ -2,7 +2,7 @@ import TitleBox from "../../components/common/TitleBox";
 import ContentBox from "../../components/common/ContentBox";
 import LinkButton from "../../components/common/LinkButton";
 import CustomTable from "../../components/table/CustomTable";
-import useSparePart from "../../hook/sparePart.hook";
+import useSparePart from "../../hook/sparePartHook/sparePart.hook";
 import { sparePartColumn } from "../../constants/sparePartColumn";
 import { Stack } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -23,6 +23,7 @@ const SparePartListPage = () => {
     setSearchTerm,
     setStatusFilter,
     totalPage,
+    currentPage,
     setCurrentPage,
   } = useSparePart();
 
@@ -41,7 +42,7 @@ const SparePartListPage = () => {
     setSearchTermInput(value);
   };
 
-  const handleRemove = () => {};
+  // const handleRemove = () => {};
 
   return (
     <>
@@ -51,7 +52,7 @@ const SparePartListPage = () => {
           <Stack direction={"row"} gap={1}>
             <LinkButton title="Add Sparepart" to="/sparePart/create" />
             <SearchBox
-              label="user"
+              label="serial number"
               type="text"
               searchTerm={searchTermInput}
               onSearchChange={handleChangeSearchTerm}
@@ -70,6 +71,7 @@ const SparePartListPage = () => {
 
         <CustomTable data={spareParts} columns={sparePartColumn} isLinkButton />
         <TablePaginate
+          currentPage={currentPage}
           totalPage={totalPage}
           onChangePage={(page) => setCurrentPage(page)}
         />
