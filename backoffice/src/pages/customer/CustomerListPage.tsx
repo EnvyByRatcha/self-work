@@ -26,38 +26,46 @@ const CustomerListPage = () => {
     setCurrentPage,
   } = useCustomer();
 
+  const renderHeaderControls = (
+    <Stack direction={"row"} justifyContent={"space-between"}>
+      <Stack direction={"row"} gap={1}>
+        <LinkButton title="Add customer" to="/customer/create" />
+        <SearchBox
+          label="customer"
+          type="text"
+          searchTerm={searchTerm}
+          onSearchChange={(value) => setSearchTerm(value)}
+          onClear={() => setSearchTerm("")}
+        />
+      </Stack>
+
+      <Stack direction={"row"} gap={1}>
+        <FilterDropDown
+          title="Status"
+          options={statusOptions}
+          onSelect={(value) => setStatusFilter(value)}
+        />
+      </Stack>
+    </Stack>
+  );
+
+  const renderTableSection = (
+    <>
+      <CustomTable data={customers} columns={customerColumn} isLinkButton />
+      <TablePaginate
+        currentPage={currentPage}
+        totalPage={totalPage}
+        onChangePage={(page) => setCurrentPage(page)}
+      />
+    </>
+  );
+
   return (
     <>
       <TitleBox title={"Customer list"} />
       <ContentBox padding>
-        <Stack direction={"row"} justifyContent={"space-between"}>
-          <Stack direction={"row"} gap={1}>
-            <LinkButton title="Add customer" to="/customer/create" />
-            <SearchBox
-              label="customer"
-              type="text"
-              searchTerm={searchTerm}
-              onSearchChange={(value) => setSearchTerm(value)}
-              onClear={() => setSearchTerm("")}
-            />
-          </Stack>
-
-          <Stack direction={"row"} gap={1}>
-            <FilterDropDown
-              title="Status"
-              options={statusOptions}
-              onSelect={(value) => setStatusFilter(value)}
-            />
-          </Stack>
-        </Stack>
-
-        <CustomTable data={customers} columns={customerColumn} isLinkButton />
-
-        <TablePaginate
-          currentPage={currentPage}
-          totalPage={totalPage}
-          onChangePage={(page) => setCurrentPage(page)}
-        />
+        {renderHeaderControls}
+        {renderTableSection}
       </ContentBox>
     </>
   );

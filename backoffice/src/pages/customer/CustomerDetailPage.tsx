@@ -97,6 +97,71 @@ const CustomerDetailPage = () => {
     notyf.error("User id is undifine");
   };
 
+  const renderProductUnitSection = productUnits &&
+    selectedMenu === "product" && (
+      <>
+        <Stack direction={"row"} justifyContent={"space-between"}>
+          <Stack direction={"row"} gap={1}>
+            <SearchBox
+              label="serial number"
+              type="text"
+              searchTerm={searchTermProductUnit}
+              onSearchChange={(value) => setSearchTermProductUnit(value)}
+              onClear={() => setSearchTermProductUnit("")}
+            />
+          </Stack>
+          <Stack direction={"row"} gap={1}>
+            <FilterDropDown
+              title="Status"
+              options={statusOptions}
+              onSelect={(value) => setStatusFilterProductUnit(value)}
+            />
+          </Stack>
+        </Stack>
+        <CustomTable data={productUnits} columns={productUnitColumn} />
+        <TablePaginate
+          currentPage={currentPageProductUnit}
+          totalPage={totalPageProductUnit}
+          onChangePage={(page) => setCurrentPageProductUnit(page)}
+        />
+      </>
+    );
+
+  const renderTechnicianSection = technicians &&
+    selectedMenu == "technician" && (
+      <>
+        <Stack direction={"row"} justifyContent={"space-between"}>
+          <Stack direction={"row"} gap={1}>
+            <SearchBox
+              label="technician"
+              type="text"
+              searchTerm={searchTermTechnician}
+              onSearchChange={(value) => setSearchTermTechnician(value)}
+              onClear={() => setSearchTermTechnician("")}
+            />
+          </Stack>
+          <Stack direction={"row"} gap={1}>
+            <FilterDropDown
+              title="level"
+              options={levelOptions}
+              onSelect={(value) => setLevelFilterTechnician(value)}
+            />
+            <FilterDropDown
+              title="Status"
+              options={technicianStatusOptions}
+              onSelect={(value) => setStatusFilterTechnician(value)}
+            />
+          </Stack>
+        </Stack>
+        <CustomTable data={technicians} columns={userColumn} />
+        <TablePaginate
+          currentPage={currentPageTechnician}
+          totalPage={totalPageTechnician}
+          onChangePage={(page) => setCurrentPageTechnician(page)}
+        />
+      </>
+    );
+
   return (
     <>
       <TitleBox title={customer?.name || "Customer name"}>
@@ -118,68 +183,9 @@ const CustomerDetailPage = () => {
           <CustomerDetailForm customer={customer} onSubmit={updateCustomer} />
         )}
 
-        {productUnits && selectedMenu === "product" && (
-          <>
-            <Stack direction={"row"} justifyContent={"space-between"}>
-              <Stack direction={"row"} gap={1}>
-                <SearchBox
-                  label="serial number"
-                  type="text"
-                  searchTerm={searchTermProductUnit}
-                  onSearchChange={(value) => setSearchTermProductUnit(value)}
-                  onClear={() => setSearchTermProductUnit("")}
-                />
-              </Stack>
-              <Stack direction={"row"} gap={1}>
-                <FilterDropDown
-                  title="Status"
-                  options={statusOptions}
-                  onSelect={(value) => setStatusFilterProductUnit(value)}
-                />
-              </Stack>
-            </Stack>
-            <CustomTable data={productUnits} columns={productUnitColumn} />
-            <TablePaginate
-              currentPage={currentPageProductUnit}
-              totalPage={totalPageProductUnit}
-              onChangePage={(page) => setCurrentPageProductUnit(page)}
-            />
-          </>
-        )}
+        {renderProductUnitSection}
 
-        {technicians && selectedMenu == "technician" && (
-          <>
-            <Stack direction={"row"} justifyContent={"space-between"}>
-              <Stack direction={"row"} gap={1}>
-                <SearchBox
-                  label="technician"
-                  type="text"
-                  searchTerm={searchTermTechnician}
-                  onSearchChange={(value) => setSearchTermTechnician(value)}
-                  onClear={() => setSearchTermTechnician("")}
-                />
-              </Stack>
-              <Stack direction={"row"} gap={1}>
-                <FilterDropDown
-                  title="level"
-                  options={levelOptions}
-                  onSelect={(value) => setLevelFilterTechnician(value)}
-                />
-                <FilterDropDown
-                  title="Status"
-                  options={technicianStatusOptions}
-                  onSelect={(value) => setStatusFilterTechnician(value)}
-                />
-              </Stack>
-            </Stack>
-            <CustomTable data={technicians} columns={userColumn} />
-            <TablePaginate
-              currentPage={currentPageTechnician}
-              totalPage={totalPageTechnician}
-              onChangePage={(page) => setCurrentPageTechnician(page)}
-            />
-          </>
-        )}
+        {renderTechnicianSection}
       </ContentBox>
     </>
   );
