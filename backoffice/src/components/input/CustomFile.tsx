@@ -3,10 +3,15 @@ import React from "react";
 
 interface TextFieldProps {
   handleImageChange: (file: any) => void;
+  title?: string;
   propsImage: { name: string; url: string };
 }
 
-const CustomFile = ({ handleImageChange, propsImage }: TextFieldProps) => {
+const CustomFile = ({
+  handleImageChange,
+  title,
+  propsImage,
+}: TextFieldProps) => {
   return (
     <Stack flexDirection={"row"} gap={2}>
       <Button
@@ -20,7 +25,7 @@ const CustomFile = ({ handleImageChange, propsImage }: TextFieldProps) => {
         }}
         variant="outlined"
       >
-        Upload
+        {title ? title : "Upload"}
         <input
           hidden
           type="file"
