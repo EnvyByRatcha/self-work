@@ -23,6 +23,7 @@ function AssignmentListPage() {
     setSearchTerm,
     setStatusFilter,
     totalPage,
+    currentPage,
     setCurrentPage,
   } = useAssignment();
 
@@ -71,6 +72,7 @@ function AssignmentListPage() {
           isLinkButton
         />
         <TablePaginate
+          currentPage={currentPage}
           totalPage={totalPage}
           onChangePage={(page) => setCurrentPage(page)}
         />
