@@ -1,13 +1,11 @@
 import TitleBox from "../../components/common/TitleBox";
 import ContentBox from "../../components/common/ContentBox";
 import LinkButton from "../../components/common/LinkButton";
-import useProduct from "../../hook/product.hook";
+import useProduct from "../../hook/productHook/product.hook";
 import CustomTable from "../../components/table/CustomTable";
 import { productColumn } from "../../constants/productColumn";
 import { Stack } from "@mui/material";
 import SearchBox from "../../components/common/SearchBox";
-import { useEffect, useState } from "react";
-import { useDebounce } from "../../hook/useDebounced.hook";
 import FilterDropDown from "../../components/common/FilterDropDown";
 import TablePaginate from "../../components/common/TablePaginate";
 
@@ -20,28 +18,13 @@ const statusOptions = [
 const ProductListPage = () => {
   const {
     products,
+    searchTerm,
     setSearchTerm,
     setStatusFilter,
     totalPage,
+    currentPage,
     setCurrentPage,
   } = useProduct();
-
-  const [searchTermInput, setSearchTermInput] = useState("");
-  const debouncedSearchTerm = useDebounce(searchTermInput, 800);
-
-  useEffect(() => {
-    setSearchTerm(debouncedSearchTerm);
-  }, [debouncedSearchTerm]);
-
-  const handleClearSearchTerm = () => {
-    setSearchTermInput("");
-  };
-
-  const handleChangeSearchTerm = (value: string) => {
-    setSearchTermInput(value);
-  };
-
-  const handleRemove = () => {};
 
   return (
     <>
@@ -51,11 +34,11 @@ const ProductListPage = () => {
           <Stack direction={"row"} gap={1}>
             <LinkButton title="Add Product" to="/product/create" />
             <SearchBox
-              label="user"
+              label="serial number"
               type="text"
-              searchTerm={searchTermInput}
-              onSearchChange={handleChangeSearchTerm}
-              onClear={handleClearSearchTerm}
+              searchTerm={searchTerm}
+              onSearchChange={(value) => setSearchTerm(value)}
+              onClear={() => setSearchTerm("")}
             />
           </Stack>
 
@@ -70,6 +53,7 @@ const ProductListPage = () => {
 
         <CustomTable data={products} columns={productColumn} isLinkButton />
         <TablePaginate
+          currentPage={currentPage}
           totalPage={totalPage}
           onChangePage={(page) => setCurrentPage(page)}
         />

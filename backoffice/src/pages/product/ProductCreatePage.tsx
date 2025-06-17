@@ -1,7 +1,7 @@
 import TitleBox from "../../components/common/TitleBox";
 import ContentBox from "../../components/common/ContentBox";
 import ProductForm from "../../components/form/ProductForm";
-import useProduct from "../../hook/product.hook";
+import useProduct from "../../hook/productHook/product.hook";
 import type { ProductFormData } from "../../interface/IProduct";
 import { useNavigate } from "react-router-dom";
 
