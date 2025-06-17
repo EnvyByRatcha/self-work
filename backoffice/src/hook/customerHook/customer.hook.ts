@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
-import { Customer, CustomerFormData } from "../interface/ICustomer";
-import customerService from "../service/customerService";
-import { unwrapOrError } from "../utils/upwrapOrError";
+import {
+  Customer,
+  CustomerFormData,
+  CustomerFormDataForUpdate,
+} from "../../interface/ICustomer";
+import customerService from "../../service/customerService";
+import { unwrapOrError } from "../../utils/upwrapOrError";
+import { useDebounce } from "../useDebounced.hook";
 
 const useCustomer = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
 
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 800);
   const [statusFilter, setStatusFilter] = useState("all");
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -17,8 +23,8 @@ const useCustomer = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchCustomer(currentPage, limit, searchTerm, statusFilter);
-  }, [currentPage, searchTerm, statusFilter]);
+    fetchCustomer(currentPage, limit, debouncedSearchTerm, statusFilter);
+  }, [currentPage, debouncedSearchTerm, statusFilter]);
 
   const fetchCustomer = async (
     page: number,
@@ -66,13 +72,24 @@ const useCustomer = () => {
     return data;
   };
 
+  const updateCustomerById = async (
+    id: string,
+    payload: CustomerFormDataForUpdate
+  ) => {
+    const data = await customerService.updateCustomer(id, payload);
+    return data;
+  };
+
   return {
     customers,
+    searchTerm,
     setSearchTerm,
     setStatusFilter,
     getCustomerById,
     createCustomer,
+    updateCustomerById,
     totalPage,
+    currentPage,
     setCurrentPage,
     setLimit,
     loading,
