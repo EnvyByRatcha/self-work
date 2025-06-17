@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import categoryService from "../service/categoryService";
 import { Category, CategoryFormData } from "../interface/ICategory";
 import { unwrapOrError } from "../utils/upwrapOrError";
+import { useDebounce } from "./useDebounced.hook";
 
 const useCategory = () => {
   const [categories, setCategories] = useState<Category[]>([]);
 
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 800);
   const [statusFilter, setStatusFilter] = useState("all");
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -17,8 +19,8 @@ const useCategory = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchCategory(currentPage, limit, searchTerm, statusFilter);
-  }, [currentPage, limit, searchTerm, statusFilter]);
+    fetchCategory(currentPage, limit, debouncedSearchTerm, statusFilter);
+  }, [currentPage, limit, debouncedSearchTerm, statusFilter]);
 
   const fetchCategory = async (
     page: number,
@@ -71,12 +73,14 @@ const useCategory = () => {
 
   return {
     categories,
+    searchTerm,
     setSearchTerm,
     setStatusFilter,
     createCategory,
     updateCategoryById,
     inactiveCategory,
     totalPage,
+    currentPage,
     setCurrentPage,
     setLimit,
     fetchCategory,

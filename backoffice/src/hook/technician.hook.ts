@@ -3,11 +3,13 @@ import technicianService from "../service/technicianService";
 import type { User, UserFormDataForUpdate } from "../interface/IUser";
 import type { UserFormData } from "../interface/IUser";
 import { unwrapOrError } from "../utils/upwrapOrError";
+import { useDebounce } from "./useDebounced.hook";
 
 const useTechnician = () => {
   const [technicians, setTechnicians] = useState<User[]>([]);
 
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 800);
   const [statusFilter, setStatusFilter] = useState("all");
   const [levelFilter, setLevelFilter] = useState("all");
 
@@ -19,8 +21,14 @@ const useTechnician = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchTechnician(currentPage, limit, searchTerm, levelFilter, statusFilter);
-  }, [currentPage, searchTerm, levelFilter, statusFilter]);
+    fetchTechnician(
+      currentPage,
+      limit,
+      debouncedSearchTerm,
+      levelFilter,
+      statusFilter
+    );
+  }, [currentPage, searchTerm, debouncedSearchTerm, statusFilter]);
 
   const fetchTechnician = async (
     page: number,
@@ -41,7 +49,7 @@ const useTechnician = () => {
       );
       const result = unwrapOrError(data);
       setTechnicians(result.data.technicians);
-      setTotalPage(result.data.pagination.currentPage);
+      setTotalPage(result.data.pagination.totalPage);
     } catch (error) {
       setError("fail to fetching users");
     } finally {
@@ -51,6 +59,28 @@ const useTechnician = () => {
 
   const getTechnicianById = async (id: string) => {
     const data = await technicianService.getTechnicianById(id);
+    const result = unwrapOrError(data);
+    if (result.success) {
+      return result;
+    }
+  };
+
+  const getTechnicianByCustomerId = async (
+    id: string,
+    page: number,
+    limit: number,
+    search?: string,
+    status?: string,
+    level?: string
+  ) => {
+    const data = await technicianService.getTechnicianByCustomerId(
+      id,
+      page,
+      limit,
+      search,
+      status,
+      level
+    );
     const result = unwrapOrError(data);
     if (result.success) {
       return result;
@@ -78,6 +108,7 @@ const useTechnician = () => {
 
   return {
     technicians,
+    searchTerm,
     setSearchTerm,
     setStatusFilter,
     setLevelFilter,
@@ -86,7 +117,9 @@ const useTechnician = () => {
     setCurrentPage,
     setTotalPage,
     setLimit,
-    createTechnician,getTechnicianById,
+    createTechnician,
+    getTechnicianById,
+    getTechnicianByCustomerId,
     updateTechnicianById,
     removeUser,
     loading,

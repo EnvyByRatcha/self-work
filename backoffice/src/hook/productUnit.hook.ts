@@ -1,32 +1,31 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { ProductUnit, ProductUnitFormData } from "../interface/IProduct";
 import productUnitService from "../service/productUnitService";
 import { unwrapOrError } from "../utils/upwrapOrError";
 
 const useProductUnit = () => {
-  const [productUnits, setProductUnits] = useState<ProductUnit[]>([]);
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPage, setTotalPage] = useState(1);
-  const [limit, setLimit] = useState(5);
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {}, [currentPage]);
-
-  const getProductUnitByProductId = async (id: string) => {
+  const getProductUnitByProductId = async (
+    id: string,
+    page: number,
+    limit: number,
+    search?: string,
+    status?: string
+  ) => {
     setLoading(true);
     setError(null);
     try {
       const data = await productUnitService.getAllProductUnit(
         id,
-        currentPage,
-        limit
+        page,
+        limit,
+        search,
+        status
       );
       const result = unwrapOrError(data);
       if (result.success) {
-        setTotalPage(result.data.pagination.totalItems);
         return result;
       }
     } catch (error) {
@@ -36,18 +35,25 @@ const useProductUnit = () => {
     }
   };
 
-  const getProductUnitByCustomerId = async (id: string) => {
+  const getProductUnitByCustomerId = async (
+    id: string,
+    page: number,
+    limit: number,
+    search?: string,
+    status?: string
+  ) => {
     setLoading(true);
     setError(null);
     try {
       const data = await productUnitService.getProductUnitByCustomerId(
         id,
-        currentPage,
-        limit
+        page,
+        limit,
+        search,
+        status
       );
       const result = unwrapOrError(data);
       if (result.success) {
-        setTotalPage(result.data.pagination.totalItems);
         return result;
       }
     } catch (error) {
@@ -56,7 +62,7 @@ const useProductUnit = () => {
       setLoading(false);
     }
   };
-  
+
   const createProductUnit = async (payload: ProductUnitFormData) => {
     const data = await productUnitService.createProductUnit(payload);
     return data;
@@ -68,14 +74,10 @@ const useProductUnit = () => {
   };
 
   return {
-    productUnits,
     getProductUnitByProductId,
     getProductUnitByCustomerId,
     createProductUnit,
     updateProductUnit,
-    totalPage,
-    setCurrentPage,
-    setLimit,
     loading,
     error,
   };

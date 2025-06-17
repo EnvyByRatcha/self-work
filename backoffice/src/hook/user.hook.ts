@@ -3,11 +3,13 @@ import userService from "../service/userService";
 import type { User, UserFormDataForUpdate } from "../interface/IUser";
 import type { UserFormData } from "../interface/IUser";
 import { unwrapOrError } from "../utils/upwrapOrError";
+import { useDebounce } from "./useDebounced.hook";
 
 const useUser = () => {
   const [users, setUsers] = useState<User[]>([]);
 
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 800);
   const [statusFilter, setStatusFilter] = useState("all");
   const [levelFilter, setLevelFilter] = useState("all");
 
@@ -19,8 +21,14 @@ const useUser = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchUser(currentPage, limit, searchTerm, levelFilter, statusFilter);
-  }, [currentPage, limit, searchTerm, levelFilter, statusFilter]);
+    fetchUser(
+      currentPage,
+      limit,
+      debouncedSearchTerm,
+      levelFilter,
+      statusFilter
+    );
+  }, [currentPage, limit, debouncedSearchTerm, levelFilter, statusFilter]);
 
   const fetchUser = async (
     page: number,
@@ -40,9 +48,8 @@ const useUser = () => {
         status
       );
       const result = unwrapOrError(data);
-
       setUsers(result.data.users);
-      setTotalPage(result.data.pagination.currentPage);
+      setTotalPage(result.data.pagination.totalPage);
     } catch (error) {
       setError("fail to fetching users");
     } finally {
@@ -76,6 +83,7 @@ const useUser = () => {
 
   return {
     users,
+    searchTerm,
     setSearchTerm,
     setStatusFilter,
     setLevelFilter,
