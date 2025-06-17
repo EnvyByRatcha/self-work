@@ -18,7 +18,7 @@ interface MenuItem {
 const menuService: MenuItem[] = [
   {
     title: "Dashboard",
-    to: "/users",
+    to: "/dashboard",
     icon: GridViewOutlinedIcon,
   },
   {
