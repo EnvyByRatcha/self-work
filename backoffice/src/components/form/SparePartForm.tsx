@@ -5,7 +5,7 @@ import CustomSelect from "../input/CustomSelect";
 import CustomFile from "../input/CustomFile";
 import CustomButton from "../button/CustomButton";
 import { SparePartFormData } from "../../interface/ISparePart";
-import useProduct from "../../hook/product.hook";
+import useProduct from "../../hook/productHook/product.hook";
 
 import InfoIcon from "@mui/icons-material/Info";
 

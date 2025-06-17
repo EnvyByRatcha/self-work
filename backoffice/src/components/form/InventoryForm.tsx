@@ -6,8 +6,8 @@ import type {
   InventoryTransitionDetailFormData,
   InventoryTransitionFormData,
 } from "../../interface/IInventory";
-import useProduct from "../../hook/product.hook";
-import useSparePart from "../../hook/sparePart.hook";
+import useProduct from "../../hook/productHook/product.hook";
+import useSparePart from "../../hook/sparePartHook/sparePart.hook";
 import CustomTextField from "../input/CustomTextField";
 import InfoIcon from "@mui/icons-material/Info";
 import PostAddOutlinedIcon from "@mui/icons-material/PostAddOutlined";
