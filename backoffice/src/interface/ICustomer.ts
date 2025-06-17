@@ -19,3 +19,12 @@ export interface CustomerFormData {
   tel_1: string;
   tel_2: string;
 }
+
+export interface CustomerFormDataForUpdate {
+  name?: string;
+  customerCode?: string;
+  email?: string;
+  address?: string;
+  tel_1?: string;
+  tel_2?: string;
+}

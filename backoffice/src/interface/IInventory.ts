@@ -13,6 +13,7 @@ export interface InventoryTransition {
 export interface InventoryTransitionFormData {
   transitionType: string;
   technicianId?: string;
+  customerId?: string;
 }
 
 export interface InventoryTransitionDetail {

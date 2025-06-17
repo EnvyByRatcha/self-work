@@ -4,6 +4,7 @@ export interface SparePart {
   qty: number;
   photoUrl: string;
   productId: any;
+  productName: string;
   status: string;
   createdAt: string;
   updatedAt: string;
@@ -27,7 +28,7 @@ export interface SparePartUnit {
   _id: string;
   serialNumber: string;
   sparePartBatchId: string;
-  technicianId: string;
+  technicianId: { email: string };
   status: string;
   updatedAt: string;
 }

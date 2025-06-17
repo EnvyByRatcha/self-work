@@ -1,5 +1,4 @@
 export interface Product {
-  categoryId: any;
   _id: string;
   name: string;
   qty: number;
@@ -7,6 +6,8 @@ export interface Product {
   status: string;
   createdAt: string;
   updatedAt: string;
+  categoryName: string;
+  categoryId: any;
 }
 
 export interface ProductFormData {
@@ -23,12 +24,13 @@ export interface ProductBatch {
   qty: number;
 }
 
-
 export interface ProductUnit {
   _id: string;
   serialNumber: string;
   productBatchId: string;
-  customerId: string;
+  customerId: {
+    name: string;
+  };
   status: string;
   updatedAt: string;
 }
