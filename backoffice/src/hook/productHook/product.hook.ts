@@ -1,15 +1,14 @@
 import { useEffect, useState } from "react";
-import sparePartService from "../service/sparePartService";
-import type {
-  SparePart,
-  SparePartFormData,
-} from "../interface/ISparePart";
-import { unwrapOrError } from "../utils/upwrapOrError";
+import productService from "../../service/productService";
+import type { Product, ProductFormData } from "../../interface/IProduct";
+import { unwrapOrError } from "../../utils/upwrapOrError";
+import { useDebounce } from "../useDebounced.hook";
 
-const useSparePart = () => {
-  const [spareParts, setSpareParts] = useState<SparePart[]>([]);
+const useProduct = () => {
+  const [products, setProducts] = useState<Product[]>([]);
 
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 800);
   const [statusFilter, setStatusFilter] = useState("all");
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -20,10 +19,10 @@ const useSparePart = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchSparePart(currentPage, limit, searchTerm, statusFilter);
-  }, [currentPage, searchTerm, statusFilter]);
+    fetchProduct(currentPage, limit, debouncedSearchTerm, statusFilter);
+  }, [currentPage, limit, debouncedSearchTerm, statusFilter]);
 
-  const fetchSparePart = async (
+  const fetchProduct = async (
     page: number,
     limit: number,
     search?: string,
@@ -32,50 +31,52 @@ const useSparePart = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await sparePartService.getAllSparePart(
+      const data = await productService.getAllProducts(
         page,
         limit,
         search,
         status
       );
       const result = unwrapOrError(data);
-      setSpareParts(result.data.spareParts);
+      setProducts(result.data.products);
       setTotalPage(result.data.pagination.totalPage);
     } catch (error) {
-      setError("fail to fetching sparePart");
+      setError("fail to fetching products");
     } finally {
       setLoading(false);
     }
   };
 
-  const getSparePartById = async (id: string) => {
+  const getProductById = async (id: string) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await sparePartService.getSparePartById(id);
+      const data = await productService.getProductById(id);
       const result = unwrapOrError(data);
       if (result.success) {
         return result;
       }
     } catch (error) {
-      setError("fail to fetching sparePart with ID");
+      setError("fail to fetching product");
     } finally {
       setLoading(false);
     }
   };
 
-  const createSparePart = async (payload: SparePartFormData) => {
-    const data = await sparePartService.createSparePart(payload);
+  const createProduct = async (payload: ProductFormData) => {
+    const data = await productService.createProduct(payload);
     return data;
   };
 
   return {
-    spareParts,
+    products,
+    searchTerm,
     setSearchTerm,
     setStatusFilter,
-    getSparePartById,
-    createSparePart,
+    getProductById,
+    createProduct,
     totalPage,
+    currentPage,
     setCurrentPage,
     setLimit,
     loading,
@@ -83,4 +84,4 @@ const useSparePart = () => {
   };
 };
 
-export default useSparePart;
+export default useProduct;
