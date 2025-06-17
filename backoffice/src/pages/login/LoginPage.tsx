@@ -1,10 +1,10 @@
 import {
   Box,
   Button,
-  Container,
   Paper,
   TextField,
   Typography,
+  useTheme,
 } from "@mui/material";
 import { useState } from "react";
 import authService from "../../service/authService";
@@ -15,13 +15,15 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
+  const theme = useTheme();
+
   const handleSubmit = async (event: any) => {
     try {
       event.preventDefault();
       await authService.login(email, password).then((data) => {
         if (data.token) {
           localStorage.setItem("token", data.token);
-          navigate("/user");
+          navigate("/dashboard");
         }
       });
     } catch (error) {
@@ -30,13 +32,32 @@ function LoginPage() {
   };
 
   return (
-    <Container maxWidth="xs">
+    <Box
+      sx={{
+        height: "100vh",
+        width: "100%",
+        backgroundColor: "#309898",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
       <Paper
-        elevation={3}
-        sx={{ padding: 4, marginTop: 8, textAlign: "center" }}
+        elevation={6}
+        sx={{
+          width: "100%",
+          maxWidth: 400,
+          p: { xs: 4, sm: 5 },
+          borderRadius: 3,
+        }}
       >
-        <Typography variant="h5" gutterBottom>
-          Self@Work
+        <Typography
+          variant="h4"
+          textAlign="center"
+          fontWeight="bold"
+          gutterBottom
+        >
+          Back<span style={{ color: theme.palette.primary.main }}>O</span>ffice
         </Typography>
         <Box
           component="form"
@@ -67,7 +88,7 @@ function LoginPage() {
           </Button>
         </Box>
       </Paper>
-    </Container>
+    </Box>
   );
 }
 
