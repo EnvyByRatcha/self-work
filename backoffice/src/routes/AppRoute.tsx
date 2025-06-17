@@ -25,6 +25,8 @@ import TechnicianIssuedPage from "../pages/inventory/form/TechnicianIssuedPage";
 import AssignmentListPage from "../pages/assignment/AssignmentListPage";
 import UserDetailPage from "../pages/user/UserDetailPage";
 import TechnicianDetailPage from "../pages/technician/TechnicianDetailPage";
+import ProducttranferedPage from "../pages/inventory/form/ProductTranferedPage";
+import AssignmentDetailPage from "../pages/assignment/AssignmentDetailPage";
 
 const router = createBrowserRouter([
   {
@@ -41,7 +43,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <UserListPage />,
+        element: <DashboardPage />,
       },
       {
         path: "dashboard",
@@ -128,8 +130,16 @@ const router = createBrowserRouter([
         element: <TechnicianIssuedPage />,
       },
       {
+        path: "inventory/create/product-management",
+        element: <ProducttranferedPage />,
+      },
+      {
         path: "assignment",
         element: <AssignmentListPage />,
+      },
+      {
+        path: "assignment/:id",
+        element: <AssignmentDetailPage />,
       },
       { path: "*", element: <NotFoundPage /> },
     ],
