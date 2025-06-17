@@ -2,6 +2,7 @@ import { Box, Modal, Stack, Typography } from "@mui/material";
 import CustomTextField from "../input/CustomTextField";
 import { useEffect, useState } from "react";
 import CustomButton from "../button/CustomButton";
+import CustomSelect from "../input/CustomSelect";
 
 interface CustomModalPropsV2 {
   title: String;
@@ -12,6 +13,8 @@ interface CustomModalPropsV2 {
   type: "text" | "email" | "password" | "number" | "tel";
   field: string;
   onSubmit: (field: string, newValue: string) => void;
+  inputField: "textField" | "selector";
+  options?: { label: string; value: string }[];
 }
 
 const style = {
@@ -37,6 +40,8 @@ function EditFieldModal({
   type = "text",
   field,
   onSubmit,
+  inputField = "textField",
+  options = [],
 }: CustomModalPropsV2) {
   const handleClose = () => {
     setOpen(false);
@@ -67,14 +72,25 @@ function EditFieldModal({
         >
           {title}
         </Typography>
-        <CustomTextField
-          label={label}
-          value={input}
-          name={label}
-          type={type}
-          required
-          onChange={(e) => setInput(e.target.value)}
-        />
+        {inputField === "selector" ? (
+          <CustomSelect
+            label={label}
+            name={label}
+            value={input}
+            options={options}
+            required
+            onChange={(e) => setInput(e.target.value)}
+          />
+        ) : (
+          <CustomTextField
+            label={label}
+            name={label}
+            value={input}
+            type={type}
+            required
+            onChange={(e) => setInput(e.target.value)}
+          />
+        )}
         <Stack direction={"row"} gap={1} mt={3} justifyContent={"end"}>
           <CustomButton title="Discard" handleClick={handleDiscard} />
           <CustomButton
