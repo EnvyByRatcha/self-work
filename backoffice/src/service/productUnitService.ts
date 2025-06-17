@@ -5,16 +5,30 @@ import type { ErrorResponse } from "../interface/IError";
 import { handleAxiosError } from "../utils/handleAxiosError";
 
 const baseUrl = `${config.apiPath}/productUnits`;
+const headers = config.headers();
 
 const productUnitService = {
   getAllProductUnit: async (
     id: string,
     page: number,
-    limit: number
+    limit: number,
+    search?: string,
+    status?: string
   ): Promise<GetProductUnitsResponse | ErrorResponse> => {
     try {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+      });
+
+      if (search) params.append("search", search);
+      if (status) params.append("status", status);
+
       const response = await axios.get(
-        `${baseUrl}/${id}?page=${page}&limit=${limit}`
+        `${baseUrl}/${id}?${params.toString()}`,
+        {
+          headers,
+        }
       );
       return response.data;
     } catch (error) {
@@ -24,11 +38,23 @@ const productUnitService = {
   getProductUnitByCustomerId: async (
     id: string,
     page: number,
-    limit: number
+    limit: number,
+    search?: string,
+    status?: string
   ): Promise<GetProductUnitsResponse | ErrorResponse> => {
     try {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+      });
+
+      if (search) params.append("search", search);
+      if (status) params.append("status", status);
       const response = await axios.get(
-        `${baseUrl}/customer/${id}?page=${page}&limit=${limit}`
+        `${baseUrl}/customer/${id}?${params.toString()}`,
+        {
+          headers,
+        }
       );
       return response.data;
     } catch (error) {
@@ -39,7 +65,9 @@ const productUnitService = {
     payload: ProductUnitFormData
   ): Promise<ProductUnitResponse | ErrorResponse> => {
     try {
-      const response = await axios.post(baseUrl, payload);
+      const response = await axios.post(baseUrl, payload, {
+        headers,
+      });
       return response.data;
     } catch (error) {
       return handleAxiosError(error, "creating the productUnit");
@@ -49,7 +77,9 @@ const productUnitService = {
     id: string,
     payload: ProductUnit
   ): Promise<ProductUnitResponse> => {
-    const response = await axios.put(`${baseUrl}/${id}`, payload);
+    const response = await axios.put(`${baseUrl}/${id}`, payload, {
+      headers,
+    });
     return response.data;
   },
   removeProductUnit: async (id: string): Promise<ProductUnitResponse> => {

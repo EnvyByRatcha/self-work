@@ -5,13 +5,16 @@ import { handleAxiosError } from "../utils/handleAxiosError";
 import { ProductBatch } from "../interface/IProduct";
 
 const baseUrl = `${config.apiPath}/productBatches`;
+const headers = config.headers();
 
 const productBatchService = {
   getBatchByProductId: async (
     id: string
   ): Promise<ProductBatchResponse | ErrorResponse> => {
     try {
-      const response = await axios.get(`${baseUrl}/product/${id}`);
+      const response = await axios.get(`${baseUrl}/product/${id}`, {
+        headers,
+      });
       return response.data;
     } catch (error) {
       return handleAxiosError(error, "fetching the productBatch");

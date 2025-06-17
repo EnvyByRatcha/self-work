@@ -1,6 +1,10 @@
 import axios from "axios";
 import config from "../config";
-import type { User, UserFormData, UserFormDataForUpdate } from "../interface/IUser";
+import type {
+  User,
+  UserFormData,
+  UserFormDataForUpdate,
+} from "../interface/IUser";
 import type { ErrorResponse } from "../interface/IError";
 import { handleAxiosError } from "../utils/handleAxiosError";
 
@@ -30,7 +34,7 @@ const technicianService = {
       });
       return response.data;
     } catch (error) {
-      return handleAxiosError(error, "fetching the users");
+      return handleAxiosError(error, "fetching the technicians");
     }
   },
   getTechnicianById: async (
@@ -40,7 +44,36 @@ const technicianService = {
       const response = await axios.get(`${baseUrl}/${id}`, { headers });
       return response.data;
     } catch (error) {
-      return handleAxiosError(error, "fetching the user");
+      return handleAxiosError(error, "fetching the technician");
+    }
+  },
+  getTechnicianByCustomerId: async (
+    id: string,
+    page: number,
+    limit: number,
+    search?: string,
+    status?: string,
+    level?: string
+  ): Promise<GetTechniciansResponse | ErrorResponse> => {
+    try {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+      });
+
+      if (search) params.append("search", search);
+      if (level) params.append("level", level);
+      if (status) params.append("status", status);
+
+      const response = await axios.get(
+        `${baseUrl}/customer/${id}?${params.toString()}`,
+        {
+          headers,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return handleAxiosError(error, "fetching the technician with customerId");
     }
   },
   createTechnician: async (

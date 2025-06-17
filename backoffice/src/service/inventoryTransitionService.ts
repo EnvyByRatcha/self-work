@@ -27,7 +27,9 @@ const inventoryTransitionService = {
       if (search) params.append("search", search);
       if (status) params.append("status", status);
 
-      const response = await axios.get(`${baseUrl}?${params.toString()}`);
+      const response = await axios.get(`${baseUrl}?${params.toString()}`, {
+        headers,
+      });
       return response.data;
     } catch (error) {
       return handleAxiosError(error, "fetching the transitions");
@@ -37,7 +39,7 @@ const inventoryTransitionService = {
     id: string
   ): Promise<InventoryTransitionWithDetailResponse | ErrorResponse> => {
     try {
-      const response = await axios.get(`${baseUrl}/${id}`);
+      const response = await axios.get(`${baseUrl}/${id}`, { headers });
       return response.data;
     } catch (error) {
       return handleAxiosError(error, "fetching the transition");
@@ -67,11 +69,29 @@ const inventoryTransitionService = {
       return handleAxiosError(error, "creating the transition");
     }
   },
+  createProductTranfered: async (
+    payload: TransitionFormData
+  ): Promise<TransitionResponse | ErrorResponse> => {
+    try {
+      const response = await axios.post(
+        `${baseUrl}/productTranfered`,
+        payload,
+        { headers }
+      );
+      return response.data;
+    } catch (error) {
+      return handleAxiosError(error, "creating the transition");
+    }
+  },
   approveTransition: async (
     id: string
   ): Promise<TransitionResponse | ErrorResponse> => {
     try {
-      const response = await axios.put(`${baseUrl}/approve/${id}`);
+      const response = await axios.put(
+        `${baseUrl}/approve/${id}`,
+        {},
+        { headers }
+      );
       return response.data;
     } catch (error) {
       return handleAxiosError(error, "approve the transition");

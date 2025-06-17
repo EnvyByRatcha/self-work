@@ -1,6 +1,10 @@
 import axios from "axios";
 import config from "../config";
-import type { Assignment, formData } from "../interface/IAssignment";
+import type {
+  Assignment,
+  AssignmentWithParts,
+  formData,
+} from "../interface/IAssignment";
 import type { ErrorResponse } from "../interface/IError";
 import { handleAxiosError } from "../utils/handleAxiosError";
 
@@ -22,7 +26,9 @@ const assignmentService = {
 
       if (search) params.append("search", search);
       if (status) params.append("status", status);
-      const response = await axios.get(`${baseUrl}?${params.toString()}`);
+      const response = await axios.get(`${baseUrl}?${params.toString()}`, {
+        headers,
+      });
       return response.data;
     } catch (error) {
       return handleAxiosError(error, "fetching the assignments");
@@ -30,9 +36,9 @@ const assignmentService = {
   },
   getAssignmentById: async (
     id: string
-  ): Promise<AssignmentResponse | ErrorResponse> => {
+  ): Promise<AssignmentDetailResponse | ErrorResponse> => {
     try {
-      const response = await axios.get(`${baseUrl}/${id}`);
+      const response = await axios.get(`${baseUrl}/${id}`, { headers });
       return response.data;
     } catch (error) {
       return handleAxiosError(error, "fetching the transition");
@@ -52,7 +58,7 @@ const assignmentService = {
     id: string
   ): Promise<AssignmentResponse | ErrorResponse> => {
     try {
-      const response = await axios.put(`${baseUrl}/approve/${id}`);
+      const response = await axios.put(`${baseUrl}/approve/${id}`, { headers });
       return response.data;
     } catch (error) {
       return handleAxiosError(error, "approve the transition");
@@ -80,5 +86,13 @@ interface AssignmentResponse {
   message: string;
   data: {
     assignment: Assignment;
+  };
+}
+
+interface AssignmentDetailResponse {
+  success: boolean;
+  message: string;
+  data: {
+    assignmentWithParts: AssignmentWithParts;
   };
 }

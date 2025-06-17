@@ -5,13 +5,16 @@ import { handleAxiosError } from "../utils/handleAxiosError";
 import { SparePartBatch } from "../interface/ISparePart";
 
 const baseUrl = `${config.apiPath}/sparePartBatches`;
+const headers = config.headers();
 
 const sparePartBatchService = {
   getBatchBySparePartId: async (
     id: string
   ): Promise<SparePartBatchResponse | ErrorResponse> => {
     try {
-      const response = await axios.get(`${baseUrl}/sparePart/${id}`);
+      const response = await axios.get(`${baseUrl}/sparePart/${id}`, {
+        headers,
+      });
       return response.data;
     } catch (error) {
       return handleAxiosError(error, "fetching the sparePartBatch");

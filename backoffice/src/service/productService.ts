@@ -5,6 +5,7 @@ import type { ErrorResponse } from "../interface/IError";
 import { handleAxiosError } from "../utils/handleAxiosError";
 
 const baseUrl = `${config.apiPath}/products`;
+const headers = config.headers();
 
 const productService = {
   getAllProducts: async (
@@ -22,7 +23,9 @@ const productService = {
       if (search) params.append("search", search);
       if (status) params.append("status", status);
 
-      const response = await axios.get(`${baseUrl}?${params.toString()}`);
+      const response = await axios.get(`${baseUrl}?${params.toString()}`, {
+        headers,
+      });
       return response.data;
     } catch (error) {
       return handleAxiosError(error, "fetching the products");
@@ -32,7 +35,9 @@ const productService = {
     id: string
   ): Promise<ProductResponse | ErrorResponse> => {
     try {
-      const response = await axios.get(`${baseUrl}/${id}`);
+      const response = await axios.get(`${baseUrl}/${id}`, {
+        headers,
+      });
       return response.data;
     } catch (error) {
       return handleAxiosError(error, "fetching the product");
@@ -42,7 +47,9 @@ const productService = {
     payload: ProductFormData
   ): Promise<ProductResponse | ErrorResponse> => {
     try {
-      const response = await axios.post(baseUrl, payload);
+      const response = await axios.post(baseUrl, payload, {
+        headers,
+      });
       return response.data;
     } catch (error) {
       return handleAxiosError(error, "creating the product");
@@ -53,7 +60,9 @@ const productService = {
     payload: ProductFormData
   ): Promise<ProductResponse | ErrorResponse> => {
     try {
-      const response = await axios.put(`${baseUrl}/${id}`, payload);
+      const response = await axios.put(`${baseUrl}/${id}`, payload, {
+        headers,
+      });
       return response.data;
     } catch (error) {
       return handleAxiosError(error, "updating the product");
@@ -63,7 +72,9 @@ const productService = {
     id: string
   ): Promise<ProductResponse | ErrorResponse> => {
     try {
-      const response = await axios.delete(`${baseUrl}/${id}`);
+      const response = await axios.delete(`${baseUrl}/${id}`, {
+        headers,
+      });
       return response.data;
     } catch (error) {
       return handleAxiosError(error, "deactive the product");
