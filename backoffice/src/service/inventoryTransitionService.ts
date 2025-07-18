@@ -16,6 +16,7 @@ const inventoryTransitionService = {
     page: number,
     limit: number,
     search?: string,
+    type?: string,
     status?: string
   ): Promise<GetTransitionsResponse | ErrorResponse> => {
     try {
@@ -25,6 +26,7 @@ const inventoryTransitionService = {
       });
 
       if (search) params.append("search", search);
+      if (type) params.append("type", type);
       if (status) params.append("status", status);
 
       const response = await axios.get(`${baseUrl}?${params.toString()}`, {

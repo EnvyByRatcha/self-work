@@ -33,43 +33,52 @@ const TechnicianListPage = () => {
     setCurrentPage,
   } = useTechnician();
 
+  const renderHeaderControls = (
+    <Stack direction={"row"} justifyContent={"space-between"}>
+      <Stack direction={"row"} gap={1}>
+        <LinkButton title="Add technician" to="/technician/create" />
+        <SearchBox
+          label="technician"
+          type="text"
+          searchTerm={searchTerm}
+          onSearchChange={(value) => setSearchTerm(value)}
+          onClear={() => setSearchTerm("")}
+        />
+      </Stack>
+
+      <Stack direction={"row"} gap={1}>
+        <FilterDropDown
+          title="Level"
+          options={levelOptions}
+          onSelect={(value) => setLevelFilter(value)}
+        />
+
+        <FilterDropDown
+          title="Status"
+          options={statusOptions}
+          onSelect={(value) => setStatusFilter(value)}
+        />
+      </Stack>
+    </Stack>
+  );
+
+  const renderTableSection = (
+    <>
+      <CustomTable data={technicians} columns={userColumn} isLinkButton />
+      <TablePaginate
+        currentPage={currentPage}
+        totalPage={totalPage}
+        onChangePage={(page) => setCurrentPage(page)}
+      />
+    </>
+  );
+
   return (
     <>
       <TitleBox title={"Technician list"} />
       <ContentBox padding>
-        <Stack direction={"row"} justifyContent={"space-between"}>
-          <Stack direction={"row"} gap={1}>
-            <LinkButton title="Add technician" to="/technician/create" />
-            <SearchBox
-              label="technician"
-              type="text"
-              searchTerm={searchTerm}
-              onSearchChange={(value) => setSearchTerm(value)}
-              onClear={() => setSearchTerm("")}
-            />
-          </Stack>
-
-          <Stack direction={"row"} gap={1}>
-            <FilterDropDown
-              title="Level"
-              options={levelOptions}
-              onSelect={(value) => setLevelFilter(value)}
-            />
-
-            <FilterDropDown
-              title="Status"
-              options={statusOptions}
-              onSelect={(value) => setStatusFilter(value)}
-            />
-          </Stack>
-        </Stack>
-
-        <CustomTable data={technicians} columns={userColumn} isLinkButton />
-        <TablePaginate
-          currentPage={currentPage}
-          totalPage={totalPage}
-          onChangePage={(page) => setCurrentPage(page)}
-        />
+        {renderHeaderControls}
+        {renderTableSection}
       </ContentBox>
     </>
   );

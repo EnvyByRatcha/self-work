@@ -120,6 +120,151 @@ const ProductDetailPage = () => {
 
   const updateProduct = async () => {};
 
+  const renderProductUnitSection = productUnits &&
+    selectedMenu === "product" && (
+      <>
+        <Stack direction={"row"} justifyContent={"space-between"}>
+          <Stack direction={"row"} gap={1}>
+            <CustomModal
+              title={"Register product"}
+              open={openModal}
+              setOpen={setOpenModal}
+            >
+              <form
+                onSubmit={handleSubmit}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "12px",
+                  marginTop: "12px",
+                }}
+              >
+                <CustomSelect
+                  label="Batch-Id"
+                  name="productBatchId"
+                  required
+                  options={
+                    Array.isArray(productBatch)
+                      ? productBatch.map((batch) => ({
+                          label: batch._id,
+                          value: batch._id,
+                        }))
+                      : []
+                  }
+                  value={formData.productBatchId}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      productBatchId: e.target.value,
+                    })
+                  }
+                />
+
+                <CustomTextField
+                  label="Serial number"
+                  name="name"
+                  type="text"
+                  required
+                  value={formData.serialNumber}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      serialNumber: e.target.value,
+                    })
+                  }
+                />
+                <CustomButton type="submit" title="Proceed" />
+              </form>
+            </CustomModal>
+            <SearchBox
+              label="serial number"
+              type="text"
+              searchTerm={searchTerm}
+              onSearchChange={(value) => setSearchTerm(value)}
+              onClear={() => setSearchTerm("")}
+            />
+          </Stack>
+
+          <Stack direction={"row"} gap={1}>
+            <FilterDropDown
+              title="Status"
+              options={statusOptions}
+              onSelect={(value) => setStatusFilter(value)}
+            />
+          </Stack>
+        </Stack>
+        <CustomTable
+          data={productUnits}
+          columns={productUnitColumn}
+          onEdit={handleEdit}
+        />
+        <TablePaginate
+          currentPage={currentPage}
+          totalPage={totalPage}
+          onChangePage={(page) => {
+            setCurrentPage(page);
+          }}
+        />
+      </>
+    );
+
+  const productUnitDetailModal = (
+    <CustomModalV2
+      title="Product unit detail"
+      open={editModalOpen}
+      setOpen={setEditModalOpen}
+    >
+      {selectedProductUnit && (
+        <Stack gap={2}>
+          <CustomCard>
+            <Stack direction={"row"} lineHeight={1.3}>
+              <Typography
+                minWidth={"120px"}
+                fontSize={"0.875rem"}
+                fontWeight={700}
+              >
+                Product Batch
+              </Typography>
+              <Typography fontSize={"0.875rem"} fontWeight={400}>
+                {selectedProductUnit.productBatchId}
+              </Typography>
+            </Stack>
+          </CustomCard>
+          <CustomCard>
+            <Stack direction={"row"} lineHeight={1.3}>
+              <Typography
+                minWidth={"120px"}
+                fontSize={"0.875rem"}
+                fontWeight={700}
+              >
+                Serial number
+              </Typography>
+              <Typography fontSize={"0.875rem"} fontWeight={400}>
+                {selectedProductUnit.serialNumber}
+              </Typography>
+            </Stack>
+          </CustomCard>
+          <CustomCard>
+            <Stack direction={"row"} lineHeight={1.3}>
+              <Typography
+                minWidth={"120px"}
+                fontSize={"0.875rem"}
+                fontWeight={700}
+              >
+                Customer
+              </Typography>
+              <Typography fontSize={"0.875rem"} fontWeight={400}>
+                {selectedProductUnit.customerId
+                  ? selectedProductUnit.customerId.name
+                  : "-"}
+              </Typography>
+            </Stack>
+          </CustomCard>
+        </Stack>
+      )}
+    </CustomModalV2>
+  );
+
   return (
     <>
       <TitleBox title={product?.name || "Product name"}>
@@ -133,148 +278,8 @@ const ProductDetailPage = () => {
         />
       </TitleBox>
       <ContentBox padding>
-        <CustomModalV2
-          title="Product Unit detail"
-          open={editModalOpen}
-          setOpen={setEditModalOpen}
-        >
-          {selectedProductUnit && (
-            <Stack gap={2}>
-              <CustomCard>
-                <Stack direction={"row"} lineHeight={1.3}>
-                  <Typography
-                    minWidth={"120px"}
-                    fontSize={"0.875rem"}
-                    fontWeight={700}
-                  >
-                    Product Batch
-                  </Typography>
-                  <Typography fontSize={"0.875rem"} fontWeight={400}>
-                    {selectedProductUnit.productBatchId}
-                  </Typography>
-                </Stack>
-              </CustomCard>
-              <CustomCard>
-                <Stack direction={"row"} lineHeight={1.3}>
-                  <Typography
-                    minWidth={"120px"}
-                    fontSize={"0.875rem"}
-                    fontWeight={700}
-                  >
-                    Serial number
-                  </Typography>
-                  <Typography fontSize={"0.875rem"} fontWeight={400}>
-                    {selectedProductUnit.serialNumber}
-                  </Typography>
-                </Stack>
-              </CustomCard>
-              <CustomCard>
-                <Stack direction={"row"} lineHeight={1.3}>
-                  <Typography
-                    minWidth={"120px"}
-                    fontSize={"0.875rem"}
-                    fontWeight={700}
-                  >
-                    Customer
-                  </Typography>
-                  <Typography fontSize={"0.875rem"} fontWeight={400}>
-                    {selectedProductUnit.customerId
-                      ? selectedProductUnit.customerId.name
-                      : "-"}
-                  </Typography>
-                </Stack>
-              </CustomCard>
-            </Stack>
-          )}
-        </CustomModalV2>
-
-        {productUnits && selectedMenu === "product" && (
-          <>
-            <Stack direction={"row"} justifyContent={"space-between"}>
-              <Stack direction={"row"} gap={1}>
-                <CustomModal
-                  title={"Register product"}
-                  open={openModal}
-                  setOpen={setOpenModal}
-                >
-                  <form
-                    onSubmit={handleSubmit}
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "12px",
-                      marginTop: "12px",
-                    }}
-                  >
-                    <CustomSelect
-                      label="Batch-Id"
-                      name="productBatchId"
-                      required
-                      options={
-                        Array.isArray(productBatch)
-                          ? productBatch.map((batch) => ({
-                              label: batch._id,
-                              value: batch._id,
-                            }))
-                          : []
-                      }
-                      value={formData.productBatchId}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          productBatchId: e.target.value,
-                        })
-                      }
-                    />
-
-                    <CustomTextField
-                      label="Serial number"
-                      name="name"
-                      type="text"
-                      required
-                      value={formData.serialNumber}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          serialNumber: e.target.value,
-                        })
-                      }
-                    />
-                    <CustomButton type="submit" title="Proceed" />
-                  </form>
-                </CustomModal>
-                <SearchBox
-                  label="serial number"
-                  type="text"
-                  searchTerm={searchTerm}
-                  onSearchChange={(value) => setSearchTerm(value)}
-                  onClear={() => setSearchTerm("")}
-                />
-              </Stack>
-
-              <Stack direction={"row"} gap={1}>
-                <FilterDropDown
-                  title="Status"
-                  options={statusOptions}
-                  onSelect={(value) => setStatusFilter(value)}
-                />
-              </Stack>
-            </Stack>
-            <CustomTable
-              data={productUnits}
-              columns={productUnitColumn}
-              onEdit={handleEdit}
-            />
-            <TablePaginate
-              currentPage={currentPage}
-              totalPage={totalPage}
-              onChangePage={(page) => {
-                setCurrentPage(page);
-              }}
-            />
-          </>
-        )}
-
+        {productUnitDetailModal}
+        {renderProductUnitSection}
         {product && selectedMenu === "info" && (
           <ProductDetailForm product={product} onSubmit={updateProduct} />
         )}

@@ -7,10 +7,12 @@ import {
   InventoryTransitionDetail,
   InventoryTransition,
 } from "../../interface/IInventory";
-import { Paper, Stack, Typography } from "@mui/material";
+import { Paper, Stack, TableCell, TableRow, Typography } from "@mui/material";
 import CustomButton from "../../components/button/CustomButton";
 import InfoIcon from "@mui/icons-material/Info";
 import { Notyf } from "notyf";
+import CustomTable from "../../components/table/CustomTable";
+import { transitionDetailColumn } from "../../constants/transitionDetailColumn";
 
 const notyf = new Notyf();
 
@@ -52,70 +54,126 @@ function InventoryTransitionDetailPage() {
     notyf.error(data?.message);
   };
 
+  const InfomationDetail = ({
+    labels,
+    values,
+  }: {
+    labels: string[];
+    values: string[];
+  }) => (
+    <>
+      <Stack>
+        {labels.map((label, i) => (
+          <Typography key={i} fontSize={"0.875rem"} fontWeight={700}>
+            {label}
+          </Typography>
+        ))}
+      </Stack>
+      <Stack mx={4}>
+        {labels.map((_, i) => (
+          <Typography key={i} fontSize={"0.875rem"} fontWeight={700}>
+            :
+          </Typography>
+        ))}
+      </Stack>
+      <Stack>
+        {values.map((value, i) => (
+          <Typography key={i} fontSize={"0.875rem"} fontWeight={400}>
+            {value}
+          </Typography>
+        ))}
+      </Stack>
+    </>
+  );
+
+  const renderTableDetail = (
+    <CustomTable data={transitionDetail} columns={transitionDetailColumn}>
+      <TableRow>
+        <TableCell colSpan={2} sx={{ borderBottom: "none" }} />
+        <TableCell align="right" sx={{ borderBottom: "none" }}>
+          Subtotal
+        </TableCell>
+        <TableCell align="right" sx={{ borderBottom: "none" }}>
+          {1}
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell colSpan={2} sx={{ borderBottom: "none" }} />
+        <TableCell align="right">Tax</TableCell>
+        <TableCell align="right">{1}</TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell colSpan={2} sx={{ borderBottom: "none" }} />
+        <TableCell align="right">Total</TableCell>
+        <TableCell align="right">{1}</TableCell>
+      </TableRow>
+    </CustomTable>
+  );
+
+  const renderTransitionDetail = (
+    <Stack sx={{ maxWidth: 900, mx: "auto" }} gap={2}>
+      <Stack direction={"row"} gap={2}>
+        <InfoIcon sx={{ color: "custom.linkButton" }} />
+        <Typography
+          fontSize={"1rem"}
+          fontWeight={700}
+          mb={"20px"}
+          color="text.primary"
+        >
+          Transition info
+        </Typography>
+      </Stack>
+      {transition && !loading && (
+        <Paper
+          elevation={0}
+          sx={{
+            px: 3,
+            py: 3,
+            mb: 2,
+            backgroundColor: "custom.customButton",
+            borderRadius: 2,
+          }}
+        >
+          <Stack direction={"row"} sx={{ mx: 2, my: 2 }}>
+            <Stack direction={"row"} width={"50%"}>
+              <InfomationDetail
+                labels={["Transition ID", "Transition type", "Status"]}
+                values={[
+                  transition._id?.slice(0, 5),
+                  transition.transitionType,
+                  transition.status,
+                ]}
+              />
+            </Stack>
+            <Stack direction={"row"} width={"50%"}>
+              <InfomationDetail
+                labels={["Transition ID", "Transition type", "Status"]}
+                values={[
+                  transition._id?.slice(0, 5),
+                  transition.transitionType,
+                  transition.status,
+                ]}
+              />
+            </Stack>
+          </Stack>
+          {renderTableDetail}
+          <Stack direction={"row"} mt={2}>
+            <CustomButton
+              title="Reject"
+              color="custom.dangerButton"
+              handleClick={() => handleApprove}
+            />
+            <CustomButton title="Approve" color="custom.successButton" handleClick={() => handleApprove} />
+          </Stack>
+        </Paper>
+      )}
+    </Stack>
+  );
+
   return (
     <>
       <TitleBox title={"Transition Detail"} />
-      <ContentBox padding>
-        <Stack sx={{ maxWidth: "900px", margin: "auto" }}>
-          <Stack direction={"row"} gap={2}>
-            <InfoIcon sx={{ color: "custom.linkButton" }} />
-            <Typography
-              fontSize={"1rem"}
-              fontWeight={700}
-              mb={"20px"}
-              color="text.primary"
-            >
-              Transition info
-            </Typography>
-          </Stack>
-          {transition && !loading && (
-            <Paper
-              elevation={0}
-              sx={{
-                paddingX: "24px",
-                paddingY: "16px",
-                backgroundColor: "custom.customButton",
-              }}
-            >
-              <Stack>
-                <Stack direction={"row"} gap={2}>
-                  <Typography fontSize={"0.9rem"} fontWeight={700}>
-                    Transition-Type
-                  </Typography>
-                  <Typography fontSize={"0.9rem"}>
-                    {transition.transitionType}
-                  </Typography>
-                </Stack>
-              </Stack>
-            </Paper>
-          )}
-
-          {transitionDetail && !loading && (
-            <Paper>
-              {transitionDetail.map((item) => {
-                return (
-                  <Typography key={item._id}>
-                    {`${
-                      item.productId
-                        ? item.productId.name
-                        : item.sparePartId.name
-                    } ${item.cost} ${item.qty} ${(
-                      item.qty * item.cost
-                    ).toLocaleString("th-TH")}`}
-                  </Typography>
-                );
-              })}
-            </Paper>
-          )}
-          <Stack direction={"row"}>
-            <CustomButton
-              title="Approve"
-              type="submit"
-              handleClick={() => handleApprove(transition!._id)}
-            />
-          </Stack>
-        </Stack>
-      </ContentBox>
+      <ContentBox padding>{renderTransitionDetail}</ContentBox>
     </>
   );
 }

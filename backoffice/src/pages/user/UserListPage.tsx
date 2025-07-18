@@ -34,43 +34,52 @@ const UserListPage = () => {
     setCurrentPage,
   } = useUser();
 
+  const renderHeaderControls = (
+    <Stack direction={"row"} justifyContent={"space-between"}>
+      <Stack direction={"row"} gap={1}>
+        <LinkButton title="Add user" to="/user/create" />
+        <SearchBox
+          label="user"
+          type="text"
+          searchTerm={searchTerm}
+          onSearchChange={(value) => setSearchTerm(value)}
+          onClear={() => setSearchTerm("")}
+        />
+      </Stack>
+
+      <Stack direction={"row"} gap={1}>
+        <FilterDropDown
+          title="Level"
+          options={levelOptions}
+          onSelect={(value) => setLevelFilter(value)}
+        />
+
+        <FilterDropDown
+          title="Status"
+          options={statusOptions}
+          onSelect={(value) => setStatusFilter(value)}
+        />
+      </Stack>
+    </Stack>
+  );
+
+  const renderTableSection = (
+    <>
+      <CustomTable data={users} columns={userColumn} isLinkButton />
+      <TablePaginate
+        currentPage={currentPage}
+        totalPage={totalPage}
+        onChangePage={(page) => setCurrentPage(page)}
+      />
+    </>
+  );
+
   return (
     <>
       <TitleBox title={"User list"} />
       <ContentBox padding>
-        <Stack direction={"row"} justifyContent={"space-between"}>
-          <Stack direction={"row"} gap={1}>
-            <LinkButton title="Add user" to="/user/create" />
-            <SearchBox
-              label="user"
-              type="text"
-              searchTerm={searchTerm}
-              onSearchChange={(value) => setSearchTerm(value)}
-              onClear={() => setSearchTerm("")}
-            />
-          </Stack>
-
-          <Stack direction={"row"} gap={1}>
-            <FilterDropDown
-              title="Level"
-              options={levelOptions}
-              onSelect={(value) => setLevelFilter(value)}
-            />
-
-            <FilterDropDown
-              title="Status"
-              options={statusOptions}
-              onSelect={(value) => setStatusFilter(value)}
-            />
-          </Stack>
-        </Stack>
-
-        <CustomTable data={users} columns={userColumn} isLinkButton />
-        <TablePaginate
-          currentPage={currentPage}
-          totalPage={totalPage}
-          onChangePage={(page) => setCurrentPage(page)}
-        />
+        {renderHeaderControls}
+        {renderTableSection}
       </ContentBox>
     </>
   );

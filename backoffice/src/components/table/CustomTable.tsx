@@ -25,7 +25,19 @@ interface TableProps<T> {
   onRemove?: (id: string) => void;
   isLinkButton?: boolean;
   onEdit?: (item: T) => void;
+  children?: React.ReactNode;
 }
+
+const statusColorMap: Record<
+  string,
+  "success" | "error" | "warning" | "default"
+> = {
+  active: "success",
+  approve: "success",
+  rejected: "error",
+  pending: "warning",
+  onsite: "success",
+};
 
 function CustomTable<T extends { _id: string }>({
   data,
@@ -33,6 +45,7 @@ function CustomTable<T extends { _id: string }>({
   onRemove,
   isLinkButton,
   onEdit,
+  children,
 }: TableProps<T>) {
   const location = useLocation();
 
@@ -54,24 +67,30 @@ function CustomTable<T extends { _id: string }>({
       >
         {columns.map((col) => {
           const value = item[col.key];
+          const key = col.key as string;
+          const align = col.align || "left";
           let displayValue = value as string;
 
-          if (col.key === "updatedAt") {
-            displayValue = dayjs(value as string).format("DD/MM/YYYY");
-          }
-          if (col.key === "createdAt") {
-            displayValue = dayjs(value as string).format("DD/MM/YYYY");
+          if (key === "createdAt" || key === "updatedAt") {
+            displayValue = dayjs(displayValue).format("DD/MM/YYYY");
           }
 
-          if (col.key === "status") {
+          if (key === "status") {
+            const status = displayValue;
+            const chipColor = statusColorMap[status] || "default";
+
             return (
-              <TableCell key={col.key as string}>
-                <Chip label={value as string} />
+              <TableCell key={col.key as string} align={align}>
+                <Chip label={status} color={chipColor} variant="outlined" />
               </TableCell>
             );
           }
 
-          return <TableCell key={col.key as string}>{displayValue}</TableCell>;
+          return (
+            <TableCell key={key} align={align}>
+              {displayValue}
+            </TableCell>
+          );
         })}
         {(onRemove || isLinkButton || onEdit) && (
           <TableCell align="center" sx={{ width: "240px" }}>
@@ -97,11 +116,11 @@ function CustomTable<T extends { _id: string }>({
   });
 
   return (
-    <Paper sx={{ width: "100%" }}>
+    <Paper sx={{ width: "100%", borderRadius: "12px 12px 12px 12px" }}>
       <TableContainer
         component={Paper}
         elevation={0}
-        sx={{ marginTop: "20px", borderRadius: "12px 12px 0px 0px" }}
+        sx={{ marginTop: "20px", borderRadius: "12px 12px 12px 12px" }}
       >
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead sx={{ bgcolor: "table.color" }}>
@@ -112,7 +131,10 @@ function CustomTable<T extends { _id: string }>({
               )}
             </TableRow>
           </TableHead>
-          <TableBody>{renderData}</TableBody>
+          <TableBody>
+            {renderData}
+            {children}
+          </TableBody>
         </Table>
       </TableContainer>
     </Paper>

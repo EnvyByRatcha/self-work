@@ -27,7 +27,9 @@ export const getTheme = (mode: "light" | "dark") => {
               customButton: "#EBF2F5",
               customButtonHover: "#DBE6EB",
               borderColor: "rgb(195, 211, 219",
-              dangerButton: "rgb(225, 114, 134)",
+              dangerButton: "#FF5733",
+              dangerButtonHover: "#C62828",
+              successButton: "#35B084",
             },
             sidebar: {
               color: "#FFFFFF",
@@ -60,7 +62,9 @@ export const getTheme = (mode: "light" | "dark") => {
               customButton: "#1b2124",
               customButtonHover: "#262D30",
               borderColor: "rgb(38, 45, 48)",
-              dangerButton: "rgb(225, 114, 134)",
+              dangerButton: "#FF5733",
+              dangerButtonHover: "#FF785B",
+              successButton: "#35B084",
             },
             sidebar: {
               color: "rgb(17, 20, 23)",
@@ -164,6 +168,8 @@ declare module "@mui/material/styles" {
       customButtonHover: string;
       borderColor: string;
       dangerButton: string;
+      dangerButtonHover: string;
+      successButton: string;
     };
   }
 
@@ -178,6 +184,8 @@ declare module "@mui/material/styles" {
       customButtonHover: string;
       borderColor: string;
       dangerButton: string;
+      dangerButtonHover: string;
+      successButton: string;
     };
   }
 }

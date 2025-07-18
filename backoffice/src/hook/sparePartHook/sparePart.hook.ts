@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import sparePartService from "../../service/sparePartService";
 import type { SparePart, SparePartFormData } from "../../interface/ISparePart";
 import { unwrapOrError } from "../../utils/upwrapOrError";
+import { useDebounce } from "../useDebounced.hook";
 
 const useSparePart = () => {
   const [spareParts, setSpareParts] = useState<SparePart[]>([]);
 
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 800);
   const [statusFilter, setStatusFilter] = useState("all");
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -17,8 +19,8 @@ const useSparePart = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchSparePart(currentPage, limit, searchTerm, statusFilter);
-  }, [currentPage, searchTerm, statusFilter]);
+    fetchSparePart(currentPage, limit, debouncedSearchTerm, statusFilter);
+  }, [currentPage, limit, debouncedSearchTerm, statusFilter]);
 
   const fetchSparePart = async (
     page: number,
@@ -68,6 +70,7 @@ const useSparePart = () => {
 
   return {
     spareParts,
+    searchTerm,
     setSearchTerm,
     setStatusFilter,
     getSparePartById,

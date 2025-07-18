@@ -16,6 +16,7 @@ const productUnitRoute = require("./routes/productUnitRoute");
 const inventoryTransitionRouter = require("./routes/inventoryTransition");
 const assignmentRouter = require("./routes/assignmentRoute");
 const technicianRouter = require("./routes/technicianRoute");
+const reportRouter = require("./routes/reportRoute");
 
 const authRouter = require("./routes/authRoute");
 
@@ -44,6 +45,7 @@ app.use("/api/v1/customers", customerRouter);
 app.use("/api/v1/categories", categoryRouter);
 app.use("/api/v1/inventoryTransition", inventoryTransitionRouter);
 app.use("/api/v1/assignments", assignmentRouter);
+app.use("/api/v1/reports", reportRouter);
 
 app.all("*", (req, res, next) => {
   const err = new Error(`Path ${req.originalUrl} not found`);

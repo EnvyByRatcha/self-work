@@ -6,8 +6,6 @@ import { inventoryTransitionColumn } from "../../constants/inventoryTransitionCo
 import CustomTable from "../../components/table/CustomTable";
 import { Stack } from "@mui/material";
 import FilterDropDown from "../../components/common/FilterDropDown";
-import { useEffect, useState } from "react";
-import { useDebounce } from "../../hook/useDebounced.hook";
 import SearchBox from "../../components/common/SearchBox";
 import TablePaginate from "../../components/common/TablePaginate";
 
@@ -17,73 +15,83 @@ const statusOptions = [
   { label: "Pending", value: "pending" },
 ];
 
+const typeOptions = [
+  { label: "All", value: "all" },
+  { label: "Stock-in", value: "stock-in" },
+  { label: "Technician-issued", value: "technician-issued" },
+  { label: "Product-tranfered", value: "product-tranfered" },
+];
+
 const InventoryListPage = () => {
   const {
     inventoryTransitions,
+    searchTerm,
     setSearchTerm,
+    setTypeFilter,
     setStatusFilter,
     totalPage,
     currentPage,
     setCurrentPage,
   } = useInventoryTransition();
 
-  const [searchTermInput, setSearchTermInput] = useState("");
-  const debouncedSearchTerm = useDebounce(searchTermInput, 800);
+  const renderHeaderControls = (
+    <Stack direction={"row"} justifyContent={"space-between"}>
+      <Stack direction={"row"} gap={1}>
+        <LinkButton title="Add Transition" to="/inventory/create" />
+        <LinkButton
+          title="Technician issued"
+          to="/inventory/create/technician-issued"
+        />
+        <LinkButton
+          title="Product mangement"
+          to="/inventory/create/product-management"
+        />
 
-  useEffect(() => {
-    setSearchTerm(debouncedSearchTerm);
-  }, [debouncedSearchTerm]);
+        <SearchBox
+          label="code"
+          type="text"
+          searchTerm={searchTerm}
+          onSearchChange={(value) => setSearchTerm(value)}
+          onClear={() => setSearchTerm("")}
+        />
+      </Stack>
 
-  const handleClearSearchTerm = () => {
-    setSearchTermInput("");
-  };
+      <Stack direction={"row"}>
+        <FilterDropDown
+          title="Type"
+          options={typeOptions}
+          onSelect={(value) => setTypeFilter(value)}
+        />
+        <FilterDropDown
+          title="Status"
+          options={statusOptions}
+          onSelect={(value) => setStatusFilter(value)}
+        />
+      </Stack>
+    </Stack>
+  );
 
-  const handleChangeSearchTerm = (value: string) => {
-    setSearchTermInput(value);
-  };
+  const renderTableSection = (
+    <>
+      <CustomTable
+        data={inventoryTransitions}
+        columns={inventoryTransitionColumn}
+        isLinkButton
+      />
+      <TablePaginate
+        currentPage={currentPage}
+        totalPage={totalPage}
+        onChangePage={(page) => setCurrentPage(page)}
+      />
+    </>
+  );
 
   return (
     <>
       <TitleBox title={"Inventory management"} />
       <ContentBox padding>
-        <Stack direction={"row"} justifyContent={"space-between"}>
-          <Stack direction={"row"} gap={1}>
-            <LinkButton title="Add Transition" to="/inventory/create" />
-            <LinkButton
-              title="Technician issued"
-              to="/inventory/create/technician-issued"
-            />
-            <LinkButton
-              title="Product mangement"
-              to="/inventory/create/product-management"
-            />
-
-            <SearchBox
-              label="user"
-              type="text"
-              searchTerm={searchTermInput}
-              onSearchChange={handleChangeSearchTerm}
-              onClear={handleClearSearchTerm}
-            />
-          </Stack>
-
-          <FilterDropDown
-            title="Status"
-            options={statusOptions}
-            onSelect={(value) => setStatusFilter(value)}
-          />
-        </Stack>
-
-        <CustomTable
-          data={inventoryTransitions}
-          columns={inventoryTransitionColumn}
-          isLinkButton
-        />
-        <TablePaginate
-          currentPage={currentPage}
-          totalPage={totalPage}
-          onChangePage={(page) => setCurrentPage(page)}
-        />
+        {renderHeaderControls}
+        {renderTableSection}
       </ContentBox>
     </>
   );

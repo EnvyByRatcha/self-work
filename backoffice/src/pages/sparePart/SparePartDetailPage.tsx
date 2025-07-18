@@ -122,6 +122,151 @@ const SparePartDetailPage = () => {
 
   const updateSparePart = () => {};
 
+  const renderSparePartUnitSection = sparePartUnits &&
+    selectedMenu === "sparepart" && (
+      <>
+        <Stack direction={"row"} justifyContent={"space-between"}>
+          <Stack direction={"row"} gap={1}>
+            <CustomModal
+              title={"Register spare-part"}
+              open={openModal}
+              setOpen={setOpenModal}
+            >
+              <form
+                onSubmit={handleSubmit}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "12px",
+                  marginTop: "12px",
+                }}
+              >
+                <CustomSelect
+                  label="Batch-Id"
+                  name="productBatchId"
+                  required
+                  options={
+                    Array.isArray(sparePartBatches)
+                      ? sparePartBatches.map((batch) => ({
+                          label: batch._id,
+                          value: batch._id,
+                        }))
+                      : []
+                  }
+                  value={formData.sparePartBatchId}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      sparePartBatchId: e.target.value,
+                    })
+                  }
+                />
+
+                <CustomTextField
+                  label="Serial number"
+                  name="name"
+                  type="text"
+                  required
+                  value={formData.serialNumber}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      serialNumber: e.target.value,
+                    })
+                  }
+                />
+                <CustomButton type="submit" title="Proceed" />
+              </form>
+            </CustomModal>
+            <SearchBox
+              label="serial number"
+              type="text"
+              searchTerm={searchTerm}
+              onSearchChange={(value) => setSearchTerm(value)}
+              onClear={() => setSearchTerm("")}
+            />
+          </Stack>
+          <Stack direction={"row"} gap={1}>
+            <FilterDropDown
+              title="Status"
+              options={statusOptions}
+              onSelect={(value) => setStatusFilter(value)}
+            />
+          </Stack>
+        </Stack>
+
+        <CustomTable
+          data={sparePartUnits}
+          columns={sparePartUnitColumn}
+          onEdit={handleEdit}
+        />
+        <TablePaginate
+          currentPage={currentPage}
+          totalPage={totalPage}
+          onChangePage={(page) => {
+            setCurrentPage(page);
+          }}
+        />
+      </>
+    );
+
+  const sparePartUnitDetailModal = (
+    <CustomModalV2
+      title="Product Unit detail"
+      open={editModalOpen}
+      setOpen={setEditModalOpen}
+    >
+      {selectSparePartUnit && (
+        <Stack gap={2}>
+          <CustomCard>
+            <Stack direction={"row"} lineHeight={1.3}>
+              <Typography
+                minWidth={"120px"}
+                fontSize={"0.875rem"}
+                fontWeight={700}
+              >
+                Product Batch
+              </Typography>
+              <Typography fontSize={"0.875rem"} fontWeight={400}>
+                {selectSparePartUnit.sparePartBatchId}
+              </Typography>
+            </Stack>
+          </CustomCard>
+          <CustomCard>
+            <Stack direction={"row"} lineHeight={1.3}>
+              <Typography
+                minWidth={"120px"}
+                fontSize={"0.875rem"}
+                fontWeight={700}
+              >
+                Serial number
+              </Typography>
+              <Typography fontSize={"0.875rem"} fontWeight={400}>
+                {selectSparePartUnit.serialNumber}
+              </Typography>
+            </Stack>
+          </CustomCard>
+          <CustomCard>
+            <Stack direction={"row"} lineHeight={1.3}>
+              <Typography
+                minWidth={"120px"}
+                fontSize={"0.875rem"}
+                fontWeight={700}
+              >
+                Technician
+              </Typography>
+              <Typography fontSize={"0.875rem"} fontWeight={400}>
+                {selectSparePartUnit.technicianId
+                  ? selectSparePartUnit.technicianId.email
+                  : "-"}
+              </Typography>
+            </Stack>
+          </CustomCard>
+        </Stack>
+      )}
+    </CustomModalV2>
+  );
+
   return (
     <>
       <TitleBox title={sparePart?.name || "Sparepart name"}>
@@ -135,148 +280,8 @@ const SparePartDetailPage = () => {
         />
       </TitleBox>
       <ContentBox padding>
-        <CustomModalV2
-          title="Product Unit detail"
-          open={editModalOpen}
-          setOpen={setEditModalOpen}
-        >
-          {selectSparePartUnit && (
-            <Stack gap={2}>
-              <CustomCard>
-                <Stack direction={"row"} lineHeight={1.3}>
-                  <Typography
-                    minWidth={"120px"}
-                    fontSize={"0.875rem"}
-                    fontWeight={700}
-                  >
-                    Product Batch
-                  </Typography>
-                  <Typography fontSize={"0.875rem"} fontWeight={400}>
-                    {selectSparePartUnit.sparePartBatchId}
-                  </Typography>
-                </Stack>
-              </CustomCard>
-              <CustomCard>
-                <Stack direction={"row"} lineHeight={1.3}>
-                  <Typography
-                    minWidth={"120px"}
-                    fontSize={"0.875rem"}
-                    fontWeight={700}
-                  >
-                    Serial number
-                  </Typography>
-                  <Typography fontSize={"0.875rem"} fontWeight={400}>
-                    {selectSparePartUnit.serialNumber}
-                  </Typography>
-                </Stack>
-              </CustomCard>
-              <CustomCard>
-                <Stack direction={"row"} lineHeight={1.3}>
-                  <Typography
-                    minWidth={"120px"}
-                    fontSize={"0.875rem"}
-                    fontWeight={700}
-                  >
-                    Technician
-                  </Typography>
-                  <Typography fontSize={"0.875rem"} fontWeight={400}>
-                    {selectSparePartUnit.technicianId
-                      ? selectSparePartUnit.technicianId.email
-                      : "-"}
-                  </Typography>
-                </Stack>
-              </CustomCard>
-            </Stack>
-          )}
-        </CustomModalV2>
-
-        {sparePartUnits && selectedMenu === "sparepart" && (
-          <>
-            <Stack direction={"row"} justifyContent={"space-between"}>
-              <Stack direction={"row"} gap={1}>
-                <CustomModal
-                  title={"Register spare-part"}
-                  open={openModal}
-                  setOpen={setOpenModal}
-                >
-                  <form
-                    onSubmit={handleSubmit}
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "12px",
-                      marginTop: "12px",
-                    }}
-                  >
-                    <CustomSelect
-                      label="Batch-Id"
-                      name="productBatchId"
-                      required
-                      options={
-                        Array.isArray(sparePartBatches)
-                          ? sparePartBatches.map((batch) => ({
-                              label: batch._id,
-                              value: batch._id,
-                            }))
-                          : []
-                      }
-                      value={formData.sparePartBatchId}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          sparePartBatchId: e.target.value,
-                        })
-                      }
-                    />
-
-                    <CustomTextField
-                      label="Serial number"
-                      name="name"
-                      type="text"
-                      required
-                      value={formData.serialNumber}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          serialNumber: e.target.value,
-                        })
-                      }
-                    />
-                    <CustomButton type="submit" title="Proceed" />
-                  </form>
-                </CustomModal>
-                <SearchBox
-                  label="serial number"
-                  type="text"
-                  searchTerm={searchTerm}
-                  onSearchChange={(value) => setSearchTerm(value)}
-                  onClear={() => setSearchTerm("")}
-                />
-              </Stack>
-              <Stack direction={"row"} gap={1}>
-                <FilterDropDown
-                  title="Status"
-                  options={statusOptions}
-                  onSelect={(value) => setStatusFilter(value)}
-                />
-              </Stack>
-            </Stack>
-
-            <CustomTable
-              data={sparePartUnits}
-              columns={sparePartUnitColumn}
-              onEdit={handleEdit}
-            />
-            <TablePaginate
-              currentPage={currentPage}
-              totalPage={totalPage}
-              onChangePage={(page) => {
-                setCurrentPage(page);
-              }}
-            />
-          </>
-        )}
-
+        {sparePartUnitDetailModal}
+        {renderSparePartUnitSection}
         {sparePart && selectedMenu === "info" && (
           <SparePartDetailForm
             sparePart={sparePart}

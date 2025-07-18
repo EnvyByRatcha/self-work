@@ -9,6 +9,6 @@ type UserColumn = {
 export const userColumn: UserColumn[] = [
   { key: "email", label: "Email" },
   { key: "firstName", label: "First name" },
-  { key: "lastName", label: "Last name	" },
+  { key: "lastName", label: "Last name" },
   { key: "level", label: "Level" },
 ];

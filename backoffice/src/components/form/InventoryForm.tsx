@@ -18,14 +18,6 @@ const transitionTypes = [
     label: "stock-in",
     value: "stock-in",
   },
-  {
-    label: "stock-out",
-    value: "stock-out",
-  },
-  {
-    label: "return-stock",
-    value: "return-stock",
-  },
 ];
 
 const itemTypes = [

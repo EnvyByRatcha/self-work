@@ -5,8 +5,6 @@ import CustomTable from "../../components/table/CustomTable";
 import useSparePart from "../../hook/sparePartHook/sparePart.hook";
 import { sparePartColumn } from "../../constants/sparePartColumn";
 import { Stack } from "@mui/material";
-import { useEffect, useState } from "react";
-import { useDebounce } from "../../hook/useDebounced.hook";
 import SearchBox from "../../components/common/SearchBox";
 import FilterDropDown from "../../components/common/FilterDropDown";
 import TablePaginate from "../../components/common/TablePaginate";
@@ -20,6 +18,7 @@ const statusOptions = [
 const SparePartListPage = () => {
   const {
     spareParts,
+    searchTerm,
     setSearchTerm,
     setStatusFilter,
     totalPage,
@@ -27,54 +26,45 @@ const SparePartListPage = () => {
     setCurrentPage,
   } = useSparePart();
 
-  const [searchTermInput, setSearchTermInput] = useState("");
-  const debouncedSearchTerm = useDebounce(searchTermInput, 800);
+  const renderHeaderControls = (
+    <Stack direction={"row"} justifyContent={"space-between"}>
+      <Stack direction={"row"} gap={1}>
+        <LinkButton title="Add Sparepart" to="/sparePart/create" />
+        <SearchBox
+          label="serial number"
+          type="text"
+          searchTerm={searchTerm}
+          onSearchChange={(value) => setSearchTerm(value)}
+          onClear={() => setSearchTerm("")}
+        />
+      </Stack>
 
-  useEffect(() => {
-    setSearchTerm(debouncedSearchTerm);
-  }, [debouncedSearchTerm]);
+      <Stack direction={"row"} gap={1}>
+        <FilterDropDown
+          title="Status"
+          options={statusOptions}
+          onSelect={(value) => setStatusFilter(value)}
+        />
+      </Stack>
+    </Stack>
+  );
 
-  const handleClearSearchTerm = () => {
-    setSearchTermInput("");
-  };
-
-  const handleChangeSearchTerm = (value: string) => {
-    setSearchTermInput(value);
-  };
-
-  // const handleRemove = () => {};
-
+  const renderTableSection = (
+    <>
+      <CustomTable data={spareParts} columns={sparePartColumn} isLinkButton />
+      <TablePaginate
+        currentPage={currentPage}
+        totalPage={totalPage}
+        onChangePage={(page) => setCurrentPage(page)}
+      />
+    </>
+  );
   return (
     <>
       <TitleBox title={"Sparepart list"} />
       <ContentBox padding>
-        <Stack direction={"row"} justifyContent={"space-between"}>
-          <Stack direction={"row"} gap={1}>
-            <LinkButton title="Add Sparepart" to="/sparePart/create" />
-            <SearchBox
-              label="serial number"
-              type="text"
-              searchTerm={searchTermInput}
-              onSearchChange={handleChangeSearchTerm}
-              onClear={handleClearSearchTerm}
-            />
-          </Stack>
-
-          <Stack direction={"row"} gap={1}>
-            <FilterDropDown
-              title="Status"
-              options={statusOptions}
-              onSelect={(value) => setStatusFilter(value)}
-            />
-          </Stack>
-        </Stack>
-
-        <CustomTable data={spareParts} columns={sparePartColumn} isLinkButton />
-        <TablePaginate
-          currentPage={currentPage}
-          totalPage={totalPage}
-          onChangePage={(page) => setCurrentPage(page)}
-        />
+        {renderHeaderControls}
+        {renderTableSection}
       </ContentBox>
     </>
   );

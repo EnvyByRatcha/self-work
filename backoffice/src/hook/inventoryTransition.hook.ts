@@ -5,6 +5,7 @@ import type {
 } from "../interface/IInventory";
 import { useEffect, useState } from "react";
 import { unwrapOrError } from "../utils/upwrapOrError";
+import { useDebounce } from "./useDebounced.hook";
 
 const useInventoryTransition = () => {
   const [inventoryTransitions, setInventoryTransitions] = useState<
@@ -12,6 +13,8 @@ const useInventoryTransition = () => {
   >([]);
 
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 800);
+  const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -22,13 +25,20 @@ const useInventoryTransition = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchInventoryTransition(currentPage, limit, searchTerm, statusFilter);
-  }, [currentPage, limit, searchTerm, statusFilter]);
+    fetchInventoryTransition(
+      currentPage,
+      limit,
+      debouncedSearchTerm,
+      typeFilter,
+      statusFilter
+    );
+  }, [currentPage, limit, debouncedSearchTerm, typeFilter, statusFilter]);
 
   const fetchInventoryTransition = async (
     page: number,
     limit: number,
     search?: string,
+    type?: string,
     status?: string
   ) => {
     setLoading(true);
@@ -38,6 +48,7 @@ const useInventoryTransition = () => {
         page,
         limit,
         search,
+        type,
         status
       );
       const result = unwrapOrError(data);
@@ -98,7 +109,9 @@ const useInventoryTransition = () => {
 
   return {
     inventoryTransitions,
+    searchTerm,
     setSearchTerm,
+    setTypeFilter,
     setStatusFilter,
     getInventoryTransitionDetailById,
     createInventoryTransition,

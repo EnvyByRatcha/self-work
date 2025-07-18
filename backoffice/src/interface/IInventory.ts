@@ -18,17 +18,10 @@ export interface InventoryTransitionFormData {
 
 export interface InventoryTransitionDetail {
   _id: string;
-  transitionId: string;
-  productId: {
-    _id: string;
-    name: string;
-  };
-  sparePartId: {
-    _id: string;
-    name: string;
-  };
+  name: string;
   qty: number;
   cost: number;
+  total: number;
 }
 
 export interface InventoryTransitionDetailFormData {

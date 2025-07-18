@@ -12,7 +12,7 @@ import InfoIcon from "@mui/icons-material/Info";
 import { useEffect, useState } from "react";
 import useTechnician from "../../hook/technician.hook";
 import CustomModalV2 from "../Modal/CustomModalV2";
-import useSparePart from "../../hook/sparePart.hook";
+import useSparePart from "../../hook/sparePartHook/sparePart.hook";
 import useSparePartUnit from "../../hook/sparePartUnit.hook";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { SparePart, SparePartUnit } from "../../interface/ISparePart";
@@ -53,7 +53,7 @@ function TechnicianIssuedForm({ onSubmit }: any) {
   >({});
 
   const { spareParts } = useSparePart();
-  const { getSparePartUnitBySparePartId } = useSparePartUnit();
+  const { getSparePartUnitById } = useSparePartUnit();
   const { technicians } = useTechnician();
 
   const [sparePartModalOpen, setSparePartModalOpen] = useState(false);
@@ -70,7 +70,7 @@ function TechnicianIssuedForm({ onSubmit }: any) {
   const fetchSparePartUnitBySparePartId = async (id: string) => {
     setLoadingSparePartUnits(true);
     try {
-      const data = await getSparePartUnitBySparePartId(id);
+      const data = await getSparePartUnitById(id, 1, 5, "", "active");
       if (data?.success) {
         setSparePartUnits(data.data.sparePartUnits);
       }
