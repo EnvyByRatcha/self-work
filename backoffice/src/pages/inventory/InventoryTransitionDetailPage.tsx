@@ -13,6 +13,7 @@ import InfoIcon from "@mui/icons-material/Info";
 import { Notyf } from "notyf";
 import CustomTable from "../../components/table/CustomTable";
 import { transitionDetailColumn } from "../../constants/transitionDetailColumn";
+import dayjs from "dayjs";
 
 const notyf = new Notyf();
 
@@ -20,13 +21,19 @@ function InventoryTransitionDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { getInventoryTransitionDetailById, approveTransition, loading } =
-    useInventoryTransition();
+  const {
+    getInventoryTransitionDetailById,
+    approveTransition,
+    rejectTransition,
+    loading,
+  } = useInventoryTransition();
 
   const [transition, setTransition] = useState<InventoryTransition>();
   const [transitionDetail, setTransitionDetail] = useState<
     InventoryTransitionDetail[]
   >([]);
+
+  const tax = 0.07;
 
   useEffect(() => {
     if (id) {
@@ -44,6 +51,18 @@ function InventoryTransitionDetailPage() {
 
   const handleApprove = async (id: string) => {
     const data = await approveTransition(id);
+    if (data.success) {
+      notyf.success(data.message);
+      setTimeout(() => {
+        navigate("/inventory");
+      }, 2000);
+      return;
+    }
+    notyf.error(data?.message);
+  };
+
+  const handleReject = async (id: string) => {
+    const data = await rejectTransition(id);
     if (data.success) {
       notyf.success(data.message);
       setTimeout(() => {
@@ -86,6 +105,12 @@ function InventoryTransitionDetailPage() {
     </>
   );
 
+  const sumPrice: number = transitionDetail.reduce(
+    (acc, curr) => acc + curr.total,
+    0
+  );
+  const taxPrice: number = parseFloat((sumPrice * tax).toFixed(2));
+
   const renderTableDetail = (
     <CustomTable data={transitionDetail} columns={transitionDetailColumn}>
       <TableRow>
@@ -94,18 +119,20 @@ function InventoryTransitionDetailPage() {
           Subtotal
         </TableCell>
         <TableCell align="right" sx={{ borderBottom: "none" }}>
-          {1}
+          {sumPrice.toLocaleString("th-TH")}
         </TableCell>
       </TableRow>
       <TableRow>
         <TableCell colSpan={2} sx={{ borderBottom: "none" }} />
-        <TableCell align="right">Tax</TableCell>
-        <TableCell align="right">{1}</TableCell>
+        <TableCell align="right">Tax 7%</TableCell>
+        <TableCell align="right">{taxPrice.toLocaleString("th-TH")}</TableCell>
       </TableRow>
       <TableRow>
         <TableCell colSpan={2} sx={{ borderBottom: "none" }} />
         <TableCell align="right">Total</TableCell>
-        <TableCell align="right">{1}</TableCell>
+        <TableCell align="right">
+          {(sumPrice - taxPrice).toLocaleString("th-TH")}
+        </TableCell>
       </TableRow>
     </CustomTable>
   );
@@ -129,12 +156,11 @@ function InventoryTransitionDetailPage() {
           sx={{
             px: 3,
             py: 3,
-            mb: 2,
             backgroundColor: "custom.customButton",
             borderRadius: 2,
           }}
         >
-          <Stack direction={"row"} sx={{ mx: 2, my: 2 }}>
+          <Stack direction={"row"} sx={{ mx: 2, mt: 2 }}>
             <Stack direction={"row"} width={"50%"}>
               <InfomationDetail
                 labels={["Transition ID", "Transition type", "Status"]}
@@ -147,24 +173,30 @@ function InventoryTransitionDetailPage() {
             </Stack>
             <Stack direction={"row"} width={"50%"}>
               <InfomationDetail
-                labels={["Transition ID", "Transition type", "Status"]}
+                labels={["User", "Auditor", "Date"]}
                 values={[
                   transition._id?.slice(0, 5),
-                  transition.transitionType,
-                  transition.status,
+                  transition.userId,
+                  dayjs(transition.createdAt).format("DD/MM/YYYY"),
                 ]}
               />
             </Stack>
           </Stack>
           {renderTableDetail}
-          <Stack direction={"row"} mt={2}>
-            <CustomButton
-              title="Reject"
-              color="custom.dangerButton"
-              handleClick={() => handleApprove}
-            />
-            <CustomButton title="Approve" color="custom.successButton" handleClick={() => handleApprove} />
-          </Stack>
+          {transition.status == "pending" && (
+            <Stack direction={"row"} mt={2}>
+              <CustomButton
+                title="Reject"
+                color="custom.dangerButton"
+                handleClick={() => handleReject(transition._id)}
+              />
+              <CustomButton
+                title="Approve"
+                color="custom.successButton"
+                handleClick={() => handleApprove(transition._id)}
+              />
+            </Stack>
+          )}
         </Paper>
       )}
     </Stack>

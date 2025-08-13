@@ -107,6 +107,11 @@ const useInventoryTransition = () => {
     return data;
   };
 
+  const rejectTransition = async (id: string) => {
+    const data = await inventoryTransitionService.rejectTransition(id);
+    return data;
+  };
+
   return {
     inventoryTransitions,
     searchTerm,
@@ -118,6 +123,7 @@ const useInventoryTransition = () => {
     createTechnicianIssued,
     createProductTranfered,
     approveTransition,
+    rejectTransition,
     totalPage,
     currentPage,
     setCurrentPage,

@@ -7,6 +7,7 @@ const {
   allowAdminAndManager,
   allowTechnician,
 } = require("../middleware/roleAccess");
+const { aiCheckSparePart } = require("../middleware/aiCheck");
 
 assignmentRouter.route("/").get(assignmentController.getAllAssignment);
 
@@ -17,7 +18,10 @@ assignmentRouter
 assignmentRouter
   .route("/technician/:id")
   .get(allowTechnician, assignmentController.getAssignmentByTechnicianId)
-  .post(allowTechnician, assignmentController.createAssignmentDetail);
+  .post(
+    allowTechnician,
+    assignmentController.createAssignmentDetail
+  );
 
 assignmentRouter
   .route("/approve/:id")

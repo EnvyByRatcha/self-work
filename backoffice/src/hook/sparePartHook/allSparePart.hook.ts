@@ -4,8 +4,8 @@ import { useDebounce } from "../useDebounced.hook";
 import useSparePartUnit from "../sparePartUnit.hook";
 
 const useAllSparePartUnit = (sparePartId: string) => {
-  const { getSparePartUnitById } = useSparePartUnit();
 
+  const { getSparePartUnitById } = useSparePartUnit();
   const [sparePartUnits, setSparePartUnits] = useState<SparePartUnit[]>([]);
 
   const [searchTerm, setSearchTerm] = useState("");

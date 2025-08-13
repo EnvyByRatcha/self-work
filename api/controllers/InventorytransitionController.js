@@ -15,9 +15,7 @@ const {
 const transformTransitionDetail = (detail) => {
   return {
     _id: detail._id,
-    name: detail.sparePartId.name
-      ? detail.sparePartId.name
-      : detail.productId.name,
+    name: detail.sparePartId?.name || detail.productId?.name,
     cost: detail.cost,
     qty: detail.qty,
     total: detail.cost * detail.qty,

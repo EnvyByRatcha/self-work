@@ -9,6 +9,7 @@ import {
 } from "../../interface/ISparePart";
 import CustomCard from "../common/CustomCard";
 import { AssignmentDetailFormData } from "../../interface/IAssignment";
+import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
 
 function AssignmentDetailForm({ onSubmit }: any) {
   const { sparePartUnits, setSparePartUnits } = useSparePartUnit();
@@ -25,7 +26,6 @@ function AssignmentDetailForm({ onSubmit }: any) {
 
   const handleSelectSparePart = (selectedPart: sparePartUnits) => {
     setSparePartSelectorOpen(false);
-
     const part = sparePartUnits.find((part) => part._id === selectedPart._id);
     if (!part || part.units.length == 0) {
       return;
@@ -41,7 +41,13 @@ function AssignmentDetailForm({ onSubmit }: any) {
       if (existingItem) {
         return prev.map((item) =>
           item.sparePartId === selectedPart._id
-            ? { ...item, units: [...item.units, { _id: firstUnit._id }] }
+            ? {
+                ...item,
+                units: [
+                  ...item.units,
+                  { _id: firstUnit._id, serialNumber: firstUnit.serialNumber },
+                ],
+              }
             : item
         );
       } else {
@@ -50,7 +56,9 @@ function AssignmentDetailForm({ onSubmit }: any) {
           {
             sparePartId: selectedPart._id,
             name: selectedPart.name,
-            units: [{ _id: firstUnit._id }],
+            units: [
+              { _id: firstUnit._id, serialNumber: firstUnit.serialNumber },
+            ],
           },
         ];
       }
@@ -69,10 +77,60 @@ function AssignmentDetailForm({ onSubmit }: any) {
       .filter((unit) => unit.units.length > 0);
 
     setSparePartUnits(updateSparePartUnits);
+    console.log(selectedSparePart);
+  };
+
+  const removeSelectedSparePart = (sparePart: sparePartUnitsFormData) => {
+    setSelectedSparePart((prev) => {
+      const part = sparePartUnits.find(
+        (part) => part._id === sparePart.sparePartId
+      );
+      if (!part || part.units.length == 0) {
+        console.log(1);
+        return prev;
+      }
+
+      const removeUnit = part.units[part.units.length - 1];
+      const remainingUnits = part.units.slice(0, -1);
+
+      setSparePartUnits((prev) => {
+        const existingPart = prev.find((p) => p._id === sparePart.sparePartId);
+        if (existingPart) {
+          return prev.map((p) =>
+            p._id === sparePart.sparePartId
+              ? { ...p, units: [...p.units], removeUnit }
+              : p
+          );
+        } else {
+          return [
+            ...prev,
+            {
+              _id: sparePart.sparePartId,
+              name: part.name,
+              units: [removeUnit],
+            },
+          ];
+        }
+      });
+
+      if (remainingUnits.length === 0) {
+        return prev.filter(
+          (item) => item.sparePartId !== sparePart.sparePartId
+        );
+      } else {
+        return prev.map((item) =>
+          item.sparePartId === sparePart.sparePartId
+            ? { ...item, units: remainingUnits }
+            : item
+        );
+      }
+    });
   };
 
   const handleSubmit = () => {
-    const data: AssignmentDetailFormData = { payload: selectedSparePart };
+    const data: AssignmentDetailFormData = {
+      payload: selectedSparePart,
+    };
     onSubmit(data);
   };
 
@@ -96,9 +154,20 @@ function AssignmentDetailForm({ onSubmit }: any) {
 
   const renderSelectedSparePart = selectedSparePart.map((part) => (
     <CustomCard key={part.sparePartId}>
-      <Stack direction={"row"} justifyContent={"space-between"}>
+      <Stack
+        direction={"row"}
+        justifyContent={"space-between"}
+        alignItems={"center"}
+      >
         <Typography>{part.name}</Typography>
-        <Typography>{part.units.length}</Typography>
+        <Stack direction={"row"} spacing={2} alignItems={"center"}>
+          <Typography fontSize={18}>{part.units.length}</Typography>
+          <CustomButton
+            handleClick={() => removeSelectedSparePart(part)}
+            icon={<ClearOutlinedIcon />}
+            fullWidth
+          />
+        </Stack>
       </Stack>
     </CustomCard>
   ));

@@ -34,7 +34,7 @@ const statusColorMap: Record<
 > = {
   active: "success",
   approve: "success",
-  rejected: "error",
+  reject: "error",
   pending: "warning",
   onsite: "success",
 };

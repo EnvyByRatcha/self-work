@@ -32,5 +32,6 @@ export interface sparePartUnitsFormData {
   name: string;
   units: {
     _id: string;
+    serialNumber: string;
   }[];
 }

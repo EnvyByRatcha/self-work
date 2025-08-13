@@ -10,6 +10,7 @@ const {
 const validateObjectId = require("../helpers/validateObjectId");
 const validatePagination = require("../helpers/paginationValidator");
 const { SparePartUnit } = require("../models/sparePartModel");
+const aiCheck = require("../middleware/aiCheck");
 
 const MAX_LIMIT = 50;
 

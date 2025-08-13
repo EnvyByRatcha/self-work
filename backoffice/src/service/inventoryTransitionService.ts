@@ -99,6 +99,18 @@ const inventoryTransitionService = {
       return handleAxiosError(error, "approve the transition");
     }
   },
+  rejectTransition: async (
+    id: string
+  ): Promise<TransitionResponse | ErrorResponse> => {
+    try {
+      const response = await axios.delete(`${baseUrl}/reject/${id}`, {
+        headers,
+      });
+      return response.data;
+    } catch (error) {
+      return handleAxiosError(error, "approve the transition");
+    }
+  },
 };
 
 export default inventoryTransitionService;

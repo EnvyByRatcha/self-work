@@ -18,6 +18,10 @@ inventoryTransitionRouter
 inventoryTransitionRouter
   .route("/approve/:id")
   .put(allowAdminAndManager, inventoryTransitionController.approveTransition);
+  
+inventoryTransitionRouter
+  .route("/reject/:id")
+  .delete(allowAdminAndManager, inventoryTransitionController.rejectTransition);
 
 inventoryTransitionRouter
   .route("/technicianIssued")
@@ -32,5 +36,4 @@ inventoryTransitionRouter
     allowAdminAndManager,
     inventoryTransitionController.createProductTranfered
   );
-
 module.exports = inventoryTransitionRouter;

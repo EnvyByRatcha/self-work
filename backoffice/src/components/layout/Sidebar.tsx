@@ -1,4 +1,5 @@
 import { Box, Stack, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import NavButton from "./NavButton";
 import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
 import GridViewOutlinedIcon from "@mui/icons-material/GridViewOutlined";
@@ -67,6 +68,8 @@ const menuManagement: MenuItem[] = [
 ];
 
 function Sidebar() {
+  const navigate = useNavigate();
+
   return (
     <Box
       sx={{
@@ -87,7 +90,9 @@ function Sidebar() {
           alignItems: "center",
           paddingLeft: "32px",
           paddingRight: "32px",
+          cursor: "pointer",
         }}
+        onClick={() => navigate("/dashboard")}
       >
         <Typography fontSize={"1.25rem"} fontWeight={600} color="textPrimary">
           {`< SELF WORK />`}

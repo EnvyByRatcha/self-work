@@ -23,8 +23,7 @@ import { Notyf } from "notyf";
 const notyf = new Notyf();
 
 const columns: GridColDef[] = [
-  { field: "name", headerName: "Name", width: 400 },
-  { field: "qty", headerName: "qty" },
+  { field: "name", headerName: "Name", width: 400 },  
 ];
 
 const sparePartUnitcolumns: GridColDef[] = [
@@ -52,6 +51,8 @@ function TechnicianIssuedForm({ onSubmit }: any) {
     Record<string, string[]>
   >({});
 
+
+  /////
   const { spareParts } = useSparePart();
   const { getSparePartUnitById } = useSparePartUnit();
   const { technicians } = useTechnician();

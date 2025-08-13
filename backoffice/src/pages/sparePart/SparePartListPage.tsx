@@ -31,7 +31,7 @@ const SparePartListPage = () => {
       <Stack direction={"row"} gap={1}>
         <LinkButton title="Add Sparepart" to="/sparePart/create" />
         <SearchBox
-          label="serial number"
+          label="sparepart name"
           type="text"
           searchTerm={searchTerm}
           onSearchChange={(value) => setSearchTerm(value)}

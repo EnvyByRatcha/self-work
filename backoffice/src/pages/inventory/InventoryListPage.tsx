@@ -35,7 +35,7 @@ const InventoryListPage = () => {
   } = useInventoryTransition();
 
   const renderHeaderControls = (
-    <Stack direction={"row"} justifyContent={"space-between"}>
+    <Stack direction={{ xs: "column" }} justifyContent={"flex-start"}>
       <Stack direction={"row"} gap={1}>
         <LinkButton title="Add Transition" to="/inventory/create" />
         <LinkButton
@@ -46,7 +46,9 @@ const InventoryListPage = () => {
           title="Product mangement"
           to="/inventory/create/product-management"
         />
+      </Stack>
 
+      <Stack direction={"row"} justifyContent={'space-between'} mt={2} spacing={2}>
         <SearchBox
           label="code"
           type="text"
@@ -54,19 +56,18 @@ const InventoryListPage = () => {
           onSearchChange={(value) => setSearchTerm(value)}
           onClear={() => setSearchTerm("")}
         />
-      </Stack>
-
-      <Stack direction={"row"}>
-        <FilterDropDown
-          title="Type"
-          options={typeOptions}
-          onSelect={(value) => setTypeFilter(value)}
-        />
-        <FilterDropDown
-          title="Status"
-          options={statusOptions}
-          onSelect={(value) => setStatusFilter(value)}
-        />
+        <Stack direction={"row"}>
+          <FilterDropDown
+            title="Type"
+            options={typeOptions}
+            onSelect={(value) => setTypeFilter(value)}
+          />
+          <FilterDropDown
+            title="Status"
+            options={statusOptions}
+            onSelect={(value) => setStatusFilter(value)}
+          />
+        </Stack>
       </Stack>
     </Stack>
   );

@@ -66,7 +66,6 @@ const useAssignment = () => {
     id: string,
     payload: AssignmentDetailFormData
   ) => {
-    console.log(payload);
 
     const response = await assignmentService.createAssignmentDetail(
       id,

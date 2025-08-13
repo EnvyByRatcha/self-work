@@ -31,7 +31,7 @@ const ProductListPage = () => {
       <Stack direction={"row"} gap={1}>
         <LinkButton title="Add Product" to="/product/create" />
         <SearchBox
-          label="serial number"
+          label="product name"
           type="text"
           searchTerm={searchTerm}
           onSearchChange={(value) => setSearchTerm(value)}
