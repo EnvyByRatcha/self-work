@@ -58,7 +58,11 @@ const assignmentService = {
     id: string
   ): Promise<AssignmentResponse | ErrorResponse> => {
     try {
-      const response = await axios.put(`${baseUrl}/approve/${id}`, { headers });
+      const response = await axios.put(
+        `${baseUrl}/approve/${id}`,
+        {},
+        { headers }
+      );
       return response.data;
     } catch (error) {
       return handleAxiosError(error, "approve the transition");

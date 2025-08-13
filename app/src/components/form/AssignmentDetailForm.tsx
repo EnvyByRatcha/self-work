@@ -162,11 +162,7 @@ function AssignmentDetailForm({ onSubmit }: any) {
         <Typography>{part.name}</Typography>
         <Stack direction={"row"} spacing={2} alignItems={"center"}>
           <Typography fontSize={18}>{part.units.length}</Typography>
-          <CustomButton
-            handleClick={() => removeSelectedSparePart(part)}
-            icon={<ClearOutlinedIcon />}
-            fullWidth
-          />
+          <CustomButton icon={<ClearOutlinedIcon />} fullWidth />
         </Stack>
       </Stack>
     </CustomCard>
