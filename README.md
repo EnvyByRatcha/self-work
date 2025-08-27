@@ -29,11 +29,7 @@ npm install
 cd app
 npm install
 ```
-
-3. **ตั้งค่าไฟล์ .env**
-Backend: api/.env (DB_HOST, DB_USER, DB_PASSWORD, DB_NAME)
-
-4. **รันแอป**
+3. **รันแอป**
 ```bash
 cd api
 npm start
